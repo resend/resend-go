@@ -15,13 +15,13 @@ func sendEmailExample() {
 
 	// Send
 	params := &resend.SendEmailRequest{
-		To:      []string{"carlosderich@gmail.com", "derich@thinkdataworks.com"},
-		From:    "r@recomendo.io",
+		To:      []string{"to@example.com", "to2@example.com"},
+		From:    "from@example.com",
 		Text:    "hello world",
 		Subject: "Hello from Golang",
-		Cc:      []string{"d.erich@hotmail.com"},
-		Bcc:     []string{"d.erich@hotmail.com"},
-		ReplyTo: "carlosderich@gmail.com",
+		Cc:      []string{"cc@example.com"},
+		Bcc:     []string{"ccc@example.com"},
+		ReplyTo: "to@example.com",
 	}
 
 	sent, err := client.Emails.Send(params)

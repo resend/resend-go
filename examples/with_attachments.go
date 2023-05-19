@@ -32,8 +32,8 @@ func sendWithAttachments() {
 	}
 
 	params := &resend.SendEmailRequest{
-		To:          []string{"carlosderich@gmail.com", "derich@thinkdataworks.com"},
-		From:        "r@recomendo.io",
+		To:          []string{"hello@example.com", "to@example.com"},
+		From:        "from@example.com",
 		Text:        "take a look at the file I just sent you",
 		Subject:     "Email with attachment",
 		Attachments: []resend.Attachment{*pdfAttachment},
