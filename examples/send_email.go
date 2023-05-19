@@ -12,12 +12,9 @@ func sendEmail() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
-	if apiKey == "" {
-		panic("Api Key is missing")
-	}
-
 	client := resend.NewClient(apiKey)
 
+	// Send
 	params := &resend.SendEmailRequest{
 		To:      []string{"carlosderich@gmail.com", "derich@thinkdataworks.com"},
 		From:    "r@recomendo.io",
@@ -33,4 +30,12 @@ func sendEmail() {
 		panic(err)
 	}
 	fmt.Println(sent.Id)
+
+	// Get
+	email, err := client.Emails.Get(sent.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", email)
+
 }

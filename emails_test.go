@@ -2,7 +2,6 @@ package resend
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -51,12 +50,44 @@ func TestSendEmail(t *testing.T) {
 		To: []string{"d@e.com"},
 	}
 	resp, err := client.Emails.Send(req)
-	fmt.Println("RESPONSE")
-	fmt.Printf("%v", resp)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
 	assert.Equal(t, resp.Id, "1923781293")
+}
+
+func TestGetEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/49a3999c-0ce1-4ea6-ab68-afcd6dc2e794", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &GetEmailResponse{
+			Id:        "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
+			From:      "from@example.com",
+			To:        []string{"james@bond.com"},
+			CreatedAt: "2023-04-03T22:13:42.674981+00:00",
+			Subject:   "Hello World",
+			Html:      "html",
+		}
+		err := json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	assert.Equal(t, resp.From, "from@example.com")
+	assert.Equal(t, resp.Html, "html")
+	assert.Equal(t, resp.To[0], "james@bond.com")
+	assert.Equal(t, resp.Subject, "Hello World")
 }
 
 func testMethod(t *testing.T, r *http.Request, expected string) {

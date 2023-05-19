@@ -8,7 +8,7 @@ import (
 	"github.com/drish/resend-go"
 )
 
-func main() {
+func sendWithAttachments() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
