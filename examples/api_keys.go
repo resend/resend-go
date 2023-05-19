@@ -18,20 +18,21 @@ func main() {
 		Name: "nice api key",
 	}
 
-	fmt.Printf("%v", params)
-	fmt.Println("GOING TO CREATE")
-
 	resp, err := client.ApiKeys.Create(params)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(resp.Id)
-	fmt.Println(resp.Token)
+	fmt.Println("Created API Key id: " + resp.Id)
+	fmt.Println("Token: " + resp.Token)
 
-	// // Get
-	// apiKey, err := client.Emails.Get(sent.Id)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("%v\n", email)
+	// List
+	apiKeys, err := client.ApiKeys.List()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("You have %d api keys in your project\n", len(apiKeys.Data))
+
+	// Delete
+	client.ApiKeys.Delete(resp.Id)
+	println("deleted api key id: " + resp.Id)
 }

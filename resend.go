@@ -128,9 +128,11 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 				return nil, err
 			}
 		} else {
-			err = json.NewDecoder(resp.Body).Decode(ret)
-			if err != nil {
-				return nil, err
+			if resp.Body != nil {
+				err = json.NewDecoder(resp.Body).Decode(ret)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
