@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Build](https://github.com/resendlabs/resend-go/actions/workflows/go.yml/badge.svg)
+![Release](https://img.shields.io/github/release/resendlabs/resend-go.svg?style=flat-square)
 ---
 
 ## Installation
