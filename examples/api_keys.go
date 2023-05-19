@@ -1,4 +1,4 @@
-package main
+package examples
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"github.com/drish/resend-go"
 )
 
-// Rename to main
 func apiKeysExample() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
