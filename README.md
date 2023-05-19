@@ -22,6 +22,8 @@ First, you need to get an API key, which is available in the [Resend Dashboard](
 ```go
 import "github.com/resendlabs/resend-go"
 
+apiKey = "re_123"
+
 client := resend.NewClient(apiKey)
 
 params := &resend.SendEmailRequest{
@@ -36,7 +38,7 @@ params := &resend.SendEmailRequest{
 
 sent, err := client.Emails.Send(params)
 if err != nil {
-    fmt.Errorf(err)
+    panic(err)
 }
 fmt.Println(sent.Id)
 ```
