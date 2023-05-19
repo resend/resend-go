@@ -9,7 +9,7 @@
 To install the Go SDK, simply execute the following command on a terminal:
 
 ```
-go get https://github.com/resendlabs/resend-go
+go get github.com/resendlabs/resend-go
 ```
 
 ## Setup
