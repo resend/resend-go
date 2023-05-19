@@ -8,7 +8,7 @@ import (
 )
 
 // Rename to main
-func sendEmail() {
+func sendEmailExample() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 

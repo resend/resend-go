@@ -8,7 +8,7 @@ import (
 )
 
 // Rename to main
-func apiKeys() {
+func apiKeysExample() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 

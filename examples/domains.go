@@ -7,7 +7,8 @@ import (
 	"github.com/drish/resend-go"
 )
 
-func main() {
+// Rename to main when testing
+func domainsExample() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
