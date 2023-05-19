@@ -81,7 +81,7 @@ func TestGetEmail(t *testing.T) {
 
 	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 	if err != nil {
-		t.Errorf("Emails.Send returned error: %v", err)
+		t.Errorf("Emails.Get returned error: %v", err)
 	}
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 	assert.Equal(t, resp.From, "from@example.com")

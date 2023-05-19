@@ -35,7 +35,8 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails EmailsSvc
+	Emails  EmailsSvc
+	ApiKeys ApiKeysSvc
 }
 
 // NewClient is the default client constructor
@@ -55,6 +56,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c := &Client{client: httpClient, BaseURL: baseURL, UserAgent: userAgent}
 
 	c.Emails = &EmailsSvcImpl{client: c}
+	c.ApiKeys = &ApiKeysSvcImpl{client: c}
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
 	return c
