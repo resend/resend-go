@@ -29,7 +29,7 @@ type ApiKey struct {
 type ApiKeysSvc interface {
 	Create(*CreateApiKeyRequest) (CreateApiKeyResponse, error)
 	List() (ListApiKeysResponse, error)
-	Delete(apiKeyId string) (bool, error)
+	Remove(apiKeyId string) (bool, error)
 }
 
 type ApiKeysSvcImpl struct {
@@ -84,9 +84,9 @@ func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 	return *apiKeysResp, nil
 }
 
-// Delete deletes a given api key by id
+// Remove deletes a given api key by id
 // https://resend.com/docs/api-reference/api-keys/delete-api-key
-func (s *ApiKeysSvcImpl) Delete(apiKeyId string) (bool, error) {
+func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
 	path := "api-keys/" + apiKeyId
 
 	// Prepare request

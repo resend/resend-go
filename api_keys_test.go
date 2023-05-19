@@ -1,7 +1,6 @@
 package resend
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -18,14 +17,12 @@ func TestCreateApiKey(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &CreateApiKeyResponse{
-			Id:    "1923781293",
-			Token: "99999199219192",
-		}
-		err := json.NewEncoder(w).Encode(&ret)
-		if err != nil {
-			panic(err)
-		}
+		ret := `
+		{
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
+			"token": "re_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv"
+		}`
+		fmt.Fprintf(w, ret)
 	})
 
 	req := &CreateApiKeyRequest{
@@ -35,8 +32,8 @@ func TestCreateApiKey(t *testing.T) {
 	if err != nil {
 		t.Errorf("ApiKeys.Create returned error: %v", err)
 	}
-	assert.Equal(t, resp.Id, "1923781293")
-	assert.Equal(t, resp.Token, "99999199219192")
+	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
+	assert.Equal(t, resp.Token, "re_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv")
 }
 
 func TestListApiKeys(t *testing.T) {
@@ -48,35 +45,28 @@ func TestListApiKeys(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &ListApiKeysResponse{
-			Data: []ApiKey{
+		ret := `
+		{
+			"data": [
 				{
-					Name:      "prod",
-					Id:        "91f3200a-df72-4654-b0cd-f202395f5354",
-					CreatedAt: "2023-04-08T00:11:13.110779+00:00",
-				},
-				{
-					Name:      "stage",
-					Id:        "91f3200a-df72-4654-b0cd-f402395f5354",
-					CreatedAt: "2023-07-08T00:11:13.110779+00:00",
-				},
-			},
-		}
-		err := json.NewEncoder(w).Encode(&ret)
-		if err != nil {
-			panic(err)
-		}
+				  "id": "91f3200a-df72-4654-b0cd-f202395f5354",
+				  "name": "Production",
+				  "created_at": "2023-04-08T00:11:13.110779+00:00"
+				}
+			  ]
+		}`
+		fmt.Fprintf(w, ret)
 	})
 
 	resp, err := client.ApiKeys.List()
 	if err != nil {
 		t.Errorf("ApiKeys.List returned error: %v", err)
 	}
-	assert.Equal(t, len(resp.Data), 2)
-	assert.Equal(t, resp.Data[0].Name, "prod")
+	assert.Equal(t, len(resp.Data), 1)
+	assert.Equal(t, resp.Data[0].Name, "Production")
 }
 
-func TestDeleteApiKey(t *testing.T) {
+func TestRemoveApiKey(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -87,9 +77,9 @@ func TestDeleteApiKey(t *testing.T) {
 		fmt.Fprint(w, nil)
 	})
 
-	deleted, err := client.ApiKeys.Delete("keyid")
+	deleted, err := client.ApiKeys.Remove("keyid")
 	if err != nil {
-		t.Errorf("ApiKeys.Delete returned error: %v", err)
+		t.Errorf("ApiKeys.Remove returned error: %v", err)
 	}
 	assert.True(t, deleted)
 }

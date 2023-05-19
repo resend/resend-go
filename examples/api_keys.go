@@ -7,7 +7,8 @@ import (
 	"github.com/drish/resend-go"
 )
 
-func main() {
+// Rename to main
+func apiKeys() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
@@ -33,6 +34,6 @@ func main() {
 	fmt.Printf("You have %d api keys in your project\n", len(apiKeys.Data))
 
 	// Delete
-	client.ApiKeys.Delete(resp.Id)
+	client.ApiKeys.Remove(resp.Id)
 	println("deleted api key id: " + resp.Id)
 }

@@ -37,6 +37,7 @@ type Client struct {
 	// Services
 	Emails  EmailsSvc
 	ApiKeys ApiKeysSvc
+	Domains DomainsSvc
 }
 
 // NewClient is the default client constructor
@@ -57,6 +58,8 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 
 	c.Emails = &EmailsSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
+	c.Domains = &DomainsSvcImpl{client: c}
+
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
 	return c
@@ -111,7 +114,7 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 	resp, err := c.client.Do(req)
 
 	// Handle possible errors.
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		return nil, handleError(resp)
 	}
 
@@ -162,7 +165,7 @@ func handleError(resp *http.Response) error {
 		if r.Message != "" {
 			return errors.New("[ERROR]: " + r.Message)
 		}
-		return errors.New("[ERROR]: Unkown Error")
+		return errors.New("[ERROR]: Unknown Error")
 	}
 }
 
