@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "sleep infinity"
+    volumes:
+      - .:/app
+    environment:
+      RESEND_API_KEY: ${RESEND_API_KEY}
