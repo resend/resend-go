@@ -1,4 +1,4 @@
-module github.com/drish/resend-go
+module github.com/resendlabs/resend-go
 
 go 1.19
 
