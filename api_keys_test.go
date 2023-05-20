@@ -53,7 +53,7 @@ func TestListApiKeys(t *testing.T) {
 				  "name": "Production",
 				  "created_at": "2023-04-08T00:11:13.110779+00:00"
 				}
-			  ]
+			]
 		}`
 		fmt.Fprintf(w, ret)
 	})

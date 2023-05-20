@@ -173,3 +173,38 @@ func TestRemoveDomain(t *testing.T) {
 	}
 	assert.True(t, deleted)
 }
+
+func TestGetDomain(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "domain",
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"name": "example.com",
+			"status": "not_started",
+			"created_at": "2023-04-26T20:21:26.347412+00:00",
+			"region": "us-east-1"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	domain, err := client.Domains.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
+	if err != nil {
+		t.Errorf("Domains.Get returned error: %v", err)
+	}
+
+	assert.Equal(t, domain.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.Equal(t, domain.Object, "domain")
+	assert.Equal(t, domain.Name, "example.com")
+	assert.Equal(t, domain.Status, "not_started")
+	assert.Equal(t, domain.CreatedAt, "2023-04-26T20:21:26.347412+00:00")
+	assert.Equal(t, domain.Region, "us-east-1")
+}
