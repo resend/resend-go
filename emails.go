@@ -23,7 +23,7 @@ type SendEmailResponse struct {
 	Id string `json:"id"`
 }
 
-type GetEmailResponse struct {
+type Email struct {
 	Id        string   `json:"id"`
 	Object    string   `json:"obejct"`
 	To        []string `json:"to"`
@@ -56,7 +56,7 @@ type Attachment struct {
 
 type EmailsSvc interface {
 	Send(*SendEmailRequest) (SendEmailResponse, error)
-	Get(emailId string) (GetEmailResponse, error)
+	Get(emailId string) (Email, error)
 }
 
 type EmailsSvcImpl struct {
@@ -88,23 +88,23 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (SendEmailResponse, error
 
 // Get retrives an email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(emailId string) (GetEmailResponse, error) {
+func (s *EmailsSvcImpl) Get(emailId string) (Email, error) {
 	path := "emails/" + emailId
 
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return GetEmailResponse{}, errors.New("[ERROR]: Failed to create GetEmail request")
+		return Email{}, errors.New("[ERROR]: Failed to create GetEmail request")
 	}
 
 	// Build response recipient obj
-	emailResponse := new(GetEmailResponse)
+	emailResponse := new(Email)
 
 	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
 
 	if err != nil {
-		return GetEmailResponse{}, err
+		return Email{}, err
 	}
 
 	return *emailResponse, nil

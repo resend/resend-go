@@ -29,6 +29,13 @@ func domainsExample() {
 		fmt.Printf("%v\n", record)
 	}
 
+	// Get
+	retrievedDomain, err := client.Domains.Get(domain.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Retrieved domain: %v", retrievedDomain)
+
 	// List
 	domains, err := client.Domains.List()
 	if err != nil {

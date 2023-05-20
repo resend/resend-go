@@ -10,6 +10,7 @@ type DomainsSvc interface {
 	Create(*CreateDomainRequest) (CreateDomainResponse, error)
 	Verify(domainId string) (bool, error)
 	List() (ListDomainsResponse, error)
+	Get(domainId string) (Domain, error)
 	Remove(domainId string) (bool, error)
 }
 
@@ -38,6 +39,7 @@ type ListDomainsResponse struct {
 
 type Domain struct {
 	Id        string `json:"id"`
+	Object    string `json:"object"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
 	Status    string `json:"status"`
@@ -141,4 +143,27 @@ func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// Get retrieves a domain object
+// https://resend.com/docs/api-reference/domains/get-domain
+func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
+	path := "domains/" + domainId
+
+	// Prepare request
+	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return Domain{}, errors.New("[ERROR]: Failed to create Domains.Get request")
+	}
+
+	domain := new(Domain)
+
+	// Send Request
+	_, err = s.client.Perform(req, domain)
+
+	if err != nil {
+		return Domain{}, err
+	}
+
+	return *domain, nil
 }

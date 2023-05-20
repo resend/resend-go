@@ -2,6 +2,7 @@ package resend
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -65,18 +66,16 @@ func TestGetEmail(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &GetEmailResponse{
-			Id:        "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
-			From:      "from@example.com",
-			To:        []string{"james@bond.com"},
-			CreatedAt: "2023-04-03T22:13:42.674981+00:00",
-			Subject:   "Hello World",
-			Html:      "html",
-		}
-		err := json.NewEncoder(w).Encode(&ret)
-		if err != nil {
-			panic(err)
-		}
+		ret := `
+		{
+			"id":"49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
+			"from":"from@example.com",
+			"to":["james@bond.com"],
+			"created_at":"2023-04-03T22:13:42.674981+00:00",
+			"subject": "Hello World",
+			"html":"html"
+		}`
+		fmt.Fprintf(w, ret)
 	})
 
 	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
