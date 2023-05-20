@@ -35,7 +35,7 @@ type Email struct {
 	Bcc       []string `json:"bcc"`
 	Cc        []string `json:"cc"`
 	ReplyTo   []string `json:"reply_to"`
-	LastEvent string   `josn:"last_event"`
+	LastEvent string   `json:"last_event"`
 }
 
 type Tag struct {
