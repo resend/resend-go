@@ -13,7 +13,7 @@ func domainsExample() {
 
 	client := resend.NewClient(apiKey)
 
-	// Create API Key
+	// Create Domain params
 	params := &resend.CreateDomainRequest{
 		Name: "exampledomain.com",
 	}
