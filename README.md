@@ -22,25 +22,28 @@ First, you need to get an API key, which is available in the [Resend Dashboard](
 ```go
 import "github.com/resendlabs/resend-go"
 
-apiKey = "re_123"
+func main() {
+    apiKey = "re_123"
 
-client := resend.NewClient(apiKey)
+    client := resend.NewClient(apiKey)
 
-params := &resend.SendEmailRequest{
-    To:      []string{"to@example", "you@example.com"},
-    From:    "me@exemple.io",
-    Text:    "hello world",
-    Subject: "Hello from Golang",
-    Cc:      []string{"cc@example.com"},
-    Bcc:     []string{"cc@example.com"},
-    ReplyTo: "replyto@example.com",
+    params := &resend.SendEmailRequest{
+        To:      []string{"to@example", "you@example.com"},
+        From:    "me@exemple.io",
+        Text:    "hello world",
+        Subject: "Hello from Golang",
+        Cc:      []string{"cc@example.com"},
+        Bcc:     []string{"cc@example.com"},
+        ReplyTo: "replyto@example.com",
+    }
+
+    sent, err := client.Emails.Send(params)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(sent.Id)
 }
 
-sent, err := client.Emails.Send(params)
-if err != nil {
-    panic(err)
-}
-fmt.Println(sent.Id)
 ```
 
 You can view all the examples in the [examples folder](https://github.com/resendlabs/resend-go/tree/main/examples)
