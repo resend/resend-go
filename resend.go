@@ -110,7 +110,6 @@ func (c *Client) NewRequest(method, path string, params interface{}) (*http.Requ
 
 // Perform sends the request to the Resend API
 func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, error) {
-
 	resp, err := c.client.Do(req)
 
 	// Handle possible errors.
@@ -121,7 +120,7 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 	defer resp.Body.Close()
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusNoContent && ret != nil {

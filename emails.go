@@ -46,12 +46,15 @@ type Tag struct {
 type Attachment struct {
 
 	// Content must be a string representation of a byte array
-	Content string `json:"content"`
+	Content string `json:"content,omitempty"`
 
 	// Filename that will appear in the email.
 	// Make sure you pick the correct extension otherwise preview
 	// make not work as expected
 	Filename string `json:"filename"`
+
+	// Path where the attachment file is hosted
+	Path string `json:"path,omitempty"`
 }
 
 type EmailsSvc interface {

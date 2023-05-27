@@ -8,7 +8,7 @@ import (
 	"github.com/resendlabs/resend-go"
 )
 
-func sendWithAttachments() {
+func withAttachments() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
@@ -25,18 +25,24 @@ func sendWithAttachments() {
 
 	client := resend.NewClient(apiKey)
 
-	// Create attachment object
-	pdfAttachment := &resend.Attachment{
+	// Create attachments objects
+	pdfAttachmentFromLocalFile := &resend.Attachment{
 		Content:  string(f),
-		Filename: "invoice.pdf",
+		Filename: "invoice1.pdf",
+	}
+
+	pdfAttachmentFromRemotePath := &resend.Attachment{
+		Path:     "https://github.com/resendlabs/resend-go/raw/main/resources/invoice.pdf",
+		Filename: "invoice2.pdf",
 	}
 
 	params := &resend.SendEmailRequest{
-		To:          []string{"hello@example.com", "to@example.com"},
-		From:        "from@example.com",
-		Text:        "take a look at the file I just sent you",
+		To:          []string{"carlosderich@gmail.com", "d.erich@hotmail.com"},
+		From:        "from@recomendo.io",
+		Text:        "email with attachments !!",
+		Html:        "<strong>email with attachments !!</strong>",
 		Subject:     "Email with attachment",
-		Attachments: []resend.Attachment{*pdfAttachment},
+		Attachments: []resend.Attachment{*pdfAttachmentFromLocalFile, *pdfAttachmentFromRemotePath},
 	}
 
 	sent, err := client.Emails.Send(params)
