@@ -2,7 +2,6 @@ package examples
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/resendlabs/resend-go"
@@ -18,7 +17,7 @@ func withAttachments() {
 
 	// Read attachment file
 	pwd, _ := os.Getwd()
-	f, err := ioutil.ReadFile(pwd + "/resources/invoice.pdf")
+	f, err := os.ReadFile(pwd + "/resources/invoice.pdf")
 	if err != nil {
 		panic(err)
 	}
