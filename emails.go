@@ -50,7 +50,7 @@ type Attachment struct {
 
 	// Filename that will appear in the email.
 	// Make sure you pick the correct extension otherwise preview
-	// make not work as expected
+	// may not work as expected
 	Filename string `json:"filename"`
 
 	// Path where the attachment file is hosted
