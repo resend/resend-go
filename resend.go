@@ -111,16 +111,14 @@ func (c *Client) NewRequest(method, path string, params interface{}) (*http.Requ
 // Perform sends the request to the Resend API
 func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
 	// Handle possible errors.
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		return nil, handleError(resp)
-	}
-
-	defer resp.Body.Close()
-
-	if err != nil {
-		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusNoContent && ret != nil {
