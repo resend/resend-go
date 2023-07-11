@@ -23,16 +23,17 @@ type _convertedSendEmailRequest struct {
 
 // https://resend.com/docs/api-reference/emails/send-email
 type SendEmailRequest struct {
-	From        string       `json:"from"`
-	To          []string     `json:"to"`
-	Subject     string       `json:"subject"`
-	Bcc         []string     `json:"bcc"`
-	Cc          []string     `json:"cc"`
-	ReplyTo     string       `json:"reply_to"`
-	Html        string       `json:"html"`
-	Text        string       `json:"text"`
-	Tags        []Tag        `json:"tags"`
-	Attachments []Attachment `json:"attachments"`
+	From        string            `json:"from"`
+	To          []string          `json:"to"`
+	Subject     string            `json:"subject"`
+	Bcc         []string          `json:"bcc"`
+	Cc          []string          `json:"cc"`
+	ReplyTo     string            `json:"reply_to"`
+	Html        string            `json:"html"`
+	Text        string            `json:"text"`
+	Tags        []Tag             `json:"tags"`
+	Attachments []Attachment      `json:"attachments"`
+	Headers     map[string]string `json:"headers"`
 }
 
 type SendEmailResponse struct {
@@ -41,7 +42,7 @@ type SendEmailResponse struct {
 
 type Email struct {
 	Id        string   `json:"id"`
-	Object    string   `json:"obejct"`
+	Object    string   `json:"object"`
 	To        []string `json:"to"`
 	From      string   `json:"from"`
 	CreatedAt string   `json:"created_at"`
