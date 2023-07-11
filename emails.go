@@ -9,16 +9,17 @@ import (
 // but with Attachments type fixed, for backwards compatibility
 // used only internally
 type _convertedSendEmailRequest struct {
-	From        string        `json:"from"`
-	To          []string      `json:"to"`
-	Subject     string        `json:"subject"`
-	Bcc         []string      `json:"bcc"`
-	Cc          []string      `json:"cc"`
-	ReplyTo     string        `json:"reply_to"`
-	Html        string        `json:"html"`
-	Text        string        `json:"text"`
-	Tags        []Tag         `json:"tags"`
-	Attachments []_attachment `json:"attachments"`
+	From        string            `json:"from"`
+	To          []string          `json:"to"`
+	Subject     string            `json:"subject"`
+	Bcc         []string          `json:"bcc"`
+	Cc          []string          `json:"cc"`
+	ReplyTo     string            `json:"reply_to"`
+	Html        string            `json:"html"`
+	Text        string            `json:"text"`
+	Tags        []Tag             `json:"tags"`
+	Attachments []_attachment     `json:"attachments"`
+	Headers     map[string]string `json:"headers"`
 }
 
 // https://resend.com/docs/api-reference/emails/send-email
@@ -125,6 +126,9 @@ func convertRequest(params *SendEmailRequest) (_convertedSendEmailRequest, error
 	}
 	if params.Tags != nil {
 		newReq.Tags = params.Tags
+	}
+	if params.Headers != nil {
+		newReq.Headers = params.Headers
 	}
 	// Backwards compatibility Attachment handling
 	if params.Attachments != nil {
