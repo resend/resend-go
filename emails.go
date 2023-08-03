@@ -1,46 +1,34 @@
 package resend
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 )
 
-// _convertedSendEmailRequest is the same as SendEmailRequest
-// but with Attachments type fixed, for backwards compatibility
-// used only internally
-type _convertedSendEmailRequest struct {
-	From        string            `json:"from"`
-	To          []string          `json:"to"`
-	Subject     string            `json:"subject"`
-	Bcc         []string          `json:"bcc"`
-	Cc          []string          `json:"cc"`
-	ReplyTo     string            `json:"reply_to"`
-	Html        string            `json:"html"`
-	Text        string            `json:"text"`
-	Tags        []Tag             `json:"tags"`
-	Attachments []_attachment     `json:"attachments"`
-	Headers     map[string]string `json:"headers"`
-}
-
-// https://resend.com/docs/api-reference/emails/send-email
+// SendEmailRequest is the request object for the SendEmail call.
+//
+// See also https://resend.com/docs/api-reference/emails/send-email
 type SendEmailRequest struct {
 	From        string            `json:"from"`
 	To          []string          `json:"to"`
 	Subject     string            `json:"subject"`
-	Bcc         []string          `json:"bcc"`
-	Cc          []string          `json:"cc"`
-	ReplyTo     string            `json:"reply_to"`
-	Html        string            `json:"html"`
-	Text        string            `json:"text"`
-	Tags        []Tag             `json:"tags"`
-	Attachments []Attachment      `json:"attachments"`
-	Headers     map[string]string `json:"headers"`
+	Bcc         []string          `json:"bcc,omitempty"`
+	Cc          []string          `json:"cc,omitempty"`
+	ReplyTo     string            `json:"reply_to,omitempty"`
+	Html        string            `json:"html,omitempty"`
+	Text        string            `json:"text,omitempty"`
+	Tags        []Tag             `json:"tags,omitempty"`
+	Attachments []*Attachment     `json:"attachments,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
 }
 
+// SendEmailResponse is the response from the SendEmail call.
 type SendEmailResponse struct {
 	Id string `json:"id"`
 }
 
+// Email provides the structure for the response from the GetEmail call.
 type Email struct {
 	Id        string   `json:"id"`
 	Object    string   `json:"object"`
@@ -56,100 +44,60 @@ type Email struct {
 	LastEvent string   `json:"last_event"`
 }
 
+// Tags are used to define custom metadata for emails
 type Tag struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
-// _attachment is the struct for internal use
-// Different from Attachment, Content here is an array of strings
-// which represent an array of bytes in string form
-type _attachment struct {
-	Content  []string `json:"content,omitempty"`
-	Filename string   `json:"filename"`
-	Path     string   `json:"path,omitempty"`
-}
-
 // Attachment is the public struct used for adding attachments to emails
 type Attachment struct {
-
-	// Content is a string here, but this will be converted back to
-	// an array of strings representing an array of bytes
-	Content string `json:"content,omitempty"`
+	// Content is the binary content of the attachment to use when a Path
+	// is not available.
+	Content []byte
 
 	// Filename that will appear in the email.
 	// Make sure you pick the correct extension otherwise preview
 	// may not work as expected
-	Filename string `json:"filename"`
+	Filename string
 
-	// Path where the attachment file is hosted
-	Path string `json:"path,omitempty"`
+	// Path where the attachment file is hosted instead of providing the
+	// content directly.
+	Path string
+}
+
+// MarshalJSON overrides the regular JSON Marshaller to ensure that the
+// attachment content is provided in the way Resend expects.
+func (a *Attachment) MarshalJSON() ([]byte, error) {
+	na := struct {
+		Content  []int  `json:"content,omitempty"`
+		Filename string `json:"filename,omitempty"`
+		Path     string `json:"path,omitempty"`
+	}{
+		Filename: a.Filename,
+		Path:     a.Path,
+		Content:  BytesToIntArray(a.Content),
+	}
+	return json.Marshal(na)
 }
 
 type EmailsSvc interface {
-	Send(*SendEmailRequest) (SendEmailResponse, error)
-	Get(emailId string) (Email, error)
+	Send(*SendEmailRequest) (*SendEmailResponse, error)
+	Get(emailID string) (*Email, error)
 }
 
 type EmailsSvcImpl struct {
 	client *Client
 }
 
-// convertRequest gets a SendEmailRequest and builds an internal sendEmailRequest
-func convertRequest(params *SendEmailRequest) (_convertedSendEmailRequest, error) {
-
-	newReq := _convertedSendEmailRequest{}
-
-	if params.To != nil {
-		newReq.To = params.To
-	}
-	if params.From != "" {
-		newReq.From = params.From
-	}
-	if params.Subject != "" {
-		newReq.Subject = params.Subject
-	}
-	if params.Bcc != nil {
-		newReq.Bcc = params.Bcc
-	}
-	if params.Cc != nil {
-		newReq.Cc = params.Cc
-	}
-	if params.ReplyTo != "" {
-		newReq.ReplyTo = params.ReplyTo
-	}
-	if params.Html != "" {
-		newReq.Html = params.Html
-	}
-	if params.Text != "" {
-		newReq.Text = params.Text
-	}
-	if params.Tags != nil {
-		newReq.Tags = params.Tags
-	}
-	if params.Headers != nil {
-		newReq.Headers = params.Headers
-	}
-	// Backwards compatibility Attachment handling
-	if params.Attachments != nil {
-		newReq.Attachments = PrepareAttachments(params.Attachments)
-	}
-	return newReq, nil
-}
-
 // Send sends an email with the given params
-func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (SendEmailResponse, error) {
+func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, error) {
 	path := "emails"
 
-	convertedParams, err := convertRequest(params)
-	if err != nil {
-		return SendEmailResponse{}, errors.New("[ERROR]: Failed to create SendEmail request")
-	}
-
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodPost, path, convertedParams)
+	req, err := s.client.NewRequest(http.MethodPost, path, params)
 	if err != nil {
-		return SendEmailResponse{}, errors.New("[ERROR]: Failed to create SendEmail request")
+		return nil, errors.New("[ERROR]: Failed to create SendEmail request")
 	}
 
 	// Build response recipient obj
@@ -159,21 +107,21 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (SendEmailResponse, error
 	_, err = s.client.Perform(req, emailResponse)
 
 	if err != nil {
-		return SendEmailResponse{}, err
+		return nil, err
 	}
 
-	return *emailResponse, nil
+	return emailResponse, nil
 }
 
-// Get retrives an email with the given emailId
+// Get retrieves an email with the given emailID
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(emailId string) (Email, error) {
-	path := "emails/" + emailId
+func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
+	path := "emails/" + emailID
 
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return Email{}, errors.New("[ERROR]: Failed to create GetEmail request")
+		return nil, errors.New("[ERROR]: Failed to create GetEmail request")
 	}
 
 	// Build response recipient obj
@@ -183,34 +131,8 @@ func (s *EmailsSvcImpl) Get(emailId string) (Email, error) {
 	_, err = s.client.Perform(req, emailResponse)
 
 	if err != nil {
-		return Email{}, err
+		return nil, err
 	}
 
-	return *emailResponse, nil
-}
-
-// PrepareAttachments converts a Attachment into _attachment
-func PrepareAttachments(attachments []Attachment) []_attachment {
-
-	var atts []_attachment
-
-	// Loop through attachments and transform
-	for _, a := range attachments {
-		attachment := _attachment{}
-
-		if a.Content != "" {
-			attachment.Content = ByteArrayToStringArray([]byte(a.Content))
-		}
-
-		if a.Filename != "" {
-			attachment.Filename = a.Filename
-		}
-
-		if a.Path != "" {
-			attachment.Path = a.Path
-		}
-
-		atts = append(atts, attachment)
-	}
-	return atts
+	return emailResponse, nil
 }

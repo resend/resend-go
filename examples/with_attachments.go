@@ -26,7 +26,7 @@ func withAttachments() {
 
 	// Create attachments objects
 	pdfAttachmentFromLocalFile := &resend.Attachment{
-		Content:  string(f),
+		Content:  f,
 		Filename: "invoice1.pdf",
 	}
 
@@ -41,7 +41,7 @@ func withAttachments() {
 		Text:        "email with attachments !!",
 		Html:        "<strong>email with attachments !!</strong>",
 		Subject:     "Email with attachment",
-		Attachments: []resend.Attachment{*pdfAttachmentFromLocalFile, *pdfAttachmentFromRemotePath},
+		Attachments: []*resend.Attachment{pdfAttachmentFromLocalFile, pdfAttachmentFromRemotePath},
 	}
 
 	sent, err := client.Emails.Send(params)

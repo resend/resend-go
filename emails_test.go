@@ -1,8 +1,10 @@
 package resend
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -49,6 +51,46 @@ func TestSendEmail(t *testing.T) {
 
 	req := &SendEmailRequest{
 		To: []string{"d@e.com"},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "1923781293")
+}
+
+func TestSendEmailWithAttachment(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		content, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("failed to read request body: %v", err)
+		}
+		exp := `"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt"}]`
+		if !bytes.Contains(content, []byte(exp)) {
+			t.Errorf("request body does not include attachment data")
+		}
+		w.WriteHeader(http.StatusOK)
+		ret := &SendEmailResponse{
+			Id: "1923781293",
+		}
+		if err := json.NewEncoder(w).Encode(&ret); err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		To: []string{"d@e.com"},
+		Attachments: []*Attachment{
+			{
+				Content:  []byte("hello"),
+				Filename: "hello.txt",
+			},
+		},
 	}
 	resp, err := client.Emails.Send(req)
 	if err != nil {
