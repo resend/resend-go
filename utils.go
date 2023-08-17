@@ -1,16 +1,13 @@
 package resend
 
-import "strconv"
-
-// ByteArrayToStringArray converts a byte array to string array
-// ie: []byte{44,45,46} becomes []string{44,45,46}
+// BytesToIntArray converts a byte array to rune array
+// ie: []byte(`hello`) becomes []int{104,101,108,108,111}
 // which will then be properly marshalled into JSON
 // in the way Resend supports
-func ByteArrayToStringArray(a []byte) []string {
-	res := []string{}
-	for _, v := range a {
-		v := strconv.Itoa(int(v))
-		res = append(res, v)
+func BytesToIntArray(a []byte) []int {
+	res := make([]int, len(a))
+	for i, v := range a {
+		res[i] = int(v)
 	}
 	return res
 }

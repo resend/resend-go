@@ -6,6 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestByteArrayToArrayString(t *testing.T) {
-	assert.Equal(t, ByteArrayToStringArray([]byte{44, 45, 46}), []string{"44", "45", "46"})
+func TestBytesToIntArray(t *testing.T) {
+	assert.Equal(t, BytesToIntArray([]byte{44, 45, 46}), []int{44, 45, 46})
 }
