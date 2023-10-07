@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"errors"
 	"net/http"
 )
@@ -27,9 +28,9 @@ type ApiKey struct {
 }
 
 type ApiKeysSvc interface {
-	Create(*CreateApiKeyRequest) (CreateApiKeyResponse, error)
-	List() (ListApiKeysResponse, error)
-	Remove(apiKeyId string) (bool, error)
+	Create(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
+	List(ctx context.Context) (ListApiKeysResponse, error)
+	Remove(ctx context.Context, apiKeyId string) (bool, error)
 }
 
 type ApiKeysSvcImpl struct {
@@ -38,11 +39,11 @@ type ApiKeysSvcImpl struct {
 
 // Create creates a new API Key based on the given params
 // https://resend.com/docs/api-reference/api-keys/create-api-key
-func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyResponse, error) {
+func (s *ApiKeysSvcImpl) Create(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error) {
 	path := "api-keys"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodPost, path, params)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return CreateApiKeyResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.Create request")
 	}
@@ -62,11 +63,11 @@ func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyRespon
 
 // List list all API Keys in the project
 // https://resend.com/docs/api-reference/api-keys/list-api-keys
-func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
+func (s *ApiKeysSvcImpl) List(ctx context.Context) (ListApiKeysResponse, error) {
 	path := "api-keys"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return ListApiKeysResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.List request")
 	}
@@ -86,11 +87,11 @@ func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 
 // Remove deletes a given api key by id
 // https://resend.com/docs/api-reference/api-keys/delete-api-key
-func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
+func (s *ApiKeysSvcImpl) Remove(ctx context.Context, apiKeyId string) (bool, error) {
 	path := "api-keys/" + apiKeyId
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodDelete, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return false, errors.New("[ERROR]: Failed to create ApiKeys.List request")
 	}

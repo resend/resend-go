@@ -2,6 +2,7 @@ package resend
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,9 +15,10 @@ import (
 )
 
 var (
-	mux    *http.ServeMux
-	client *Client
-	server *httptest.Server
+	mux     *http.ServeMux
+	client  *Client
+	server  *httptest.Server
+	testCtx = context.Background()
 )
 
 func setup() {
@@ -52,7 +54,7 @@ func TestSendEmail(t *testing.T) {
 	req := &SendEmailRequest{
 		To: []string{"d@e.com"},
 	}
-	resp, err := client.Emails.Send(req)
+	resp, err := client.Emails.Send(testCtx, req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
@@ -92,7 +94,7 @@ func TestSendEmailWithAttachment(t *testing.T) {
 			},
 		},
 	}
-	resp, err := client.Emails.Send(req)
+	resp, err := client.Emails.Send(testCtx, req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
@@ -120,7 +122,7 @@ func TestGetEmail(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	resp, err := client.Emails.Get(testCtx, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 	if err != nil {
 		t.Errorf("Emails.Get returned error: %v", err)
 	}

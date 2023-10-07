@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func apiKeysExample() {
-
+	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
 	client := resend.NewClient(apiKey)
@@ -18,7 +19,7 @@ func apiKeysExample() {
 		Name: "nice api key",
 	}
 
-	resp, err := client.ApiKeys.Create(params)
+	resp, err := client.ApiKeys.Create(ctx, params)
 	if err != nil {
 		panic(err)
 	}
@@ -26,13 +27,16 @@ func apiKeysExample() {
 	fmt.Println("Token: " + resp.Token)
 
 	// List
-	apiKeys, err := client.ApiKeys.List()
+	apiKeys, err := client.ApiKeys.List(ctx)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("You have %d api keys in your project\n", len(apiKeys.Data))
 
 	// Delete
-	client.ApiKeys.Remove(resp.Id)
+	_, err = client.ApiKeys.Remove(ctx, resp.Id)
+	if err != nil {
+		panic(err)
+	}
 	println("deleted api key id: " + resp.Id)
 }

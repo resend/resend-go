@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func sendEmailExample() {
-
+	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
 	client := resend.NewClient(apiKey)
@@ -24,14 +25,14 @@ func sendEmailExample() {
 		ReplyTo: "to@example.com",
 	}
 
-	sent, err := client.Emails.Send(params)
+	sent, err := client.Emails.Send(ctx, params)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(sent.Id)
 
 	// Get
-	email, err := client.Emails.Get(sent.Id)
+	email, err := client.Emails.Get(ctx, sent.Id)
 	if err != nil {
 		panic(err)
 	}

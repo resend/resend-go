@@ -28,7 +28,7 @@ func TestCreateApiKey(t *testing.T) {
 	req := &CreateApiKeyRequest{
 		Name: "new api key",
 	}
-	resp, err := client.ApiKeys.Create(req)
+	resp, err := client.ApiKeys.Create(testCtx, req)
 	if err != nil {
 		t.Errorf("ApiKeys.Create returned error: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestListApiKeys(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.ApiKeys.List()
+	resp, err := client.ApiKeys.List(testCtx)
 	if err != nil {
 		t.Errorf("ApiKeys.List returned error: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestRemoveApiKey(t *testing.T) {
 		fmt.Fprint(w, nil)
 	})
 
-	deleted, err := client.ApiKeys.Remove("keyid")
+	deleted, err := client.ApiKeys.Remove(testCtx, "keyid")
 	if err != nil {
 		t.Errorf("ApiKeys.Remove returned error: %v", err)
 	}

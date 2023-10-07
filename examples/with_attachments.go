@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func withAttachments() {
-
+	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
 	if apiKey == "" {
@@ -44,7 +45,7 @@ func withAttachments() {
 		Attachments: []*resend.Attachment{pdfAttachmentFromLocalFile, pdfAttachmentFromRemotePath},
 	}
 
-	sent, err := client.Emails.Send(params)
+	sent, err := client.Emails.Send(ctx, params)
 	if err != nil {
 		panic(err)
 	}
