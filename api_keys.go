@@ -1,7 +1,6 @@
 package resend
 
 import (
-	"errors"
 	"net/http"
 )
 
@@ -44,7 +43,7 @@ func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyRespon
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodPost, path, params)
 	if err != nil {
-		return CreateApiKeyResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.Create request")
+		return CreateApiKeyResponse{}, ErrFailedToCreateApiKeysCreateRequest
 	}
 
 	// Build response recipient obj
@@ -60,7 +59,7 @@ func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyRespon
 	return *apiKeysResp, nil
 }
 
-// List list all API Keys in the project
+// List all API Keys in the project
 // https://resend.com/docs/api-reference/api-keys/list-api-keys
 func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 	path := "api-keys"
@@ -68,7 +67,7 @@ func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return ListApiKeysResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.List request")
+		return ListApiKeysResponse{}, ErrFailedToCreateApiKeysListRequest
 	}
 
 	// Build response recipient obj
@@ -92,7 +91,7 @@ func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodDelete, path, nil)
 	if err != nil {
-		return false, errors.New("[ERROR]: Failed to create ApiKeys.List request")
+		return false, ErrFailedToCreateApiKeysRemoveRequest
 	}
 
 	// Send Request
