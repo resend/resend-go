@@ -7,20 +7,22 @@ import (
 	"github.com/resendlabs/resend-go"
 )
 
-func sendEmailExample() {
+func sendBatchEmailExample() {
 
 	apiKey := os.Getenv("RESEND_API_KEY")
 
 	client := resend.NewClient(apiKey)
 
-	// Send
+	// Batch Send
 	var batchEmails = []*resend.SendEmailRequest{
-		&resend.SendEmailRequest{
+		{
 			To:      []string{"delivered@resend.dev"},
+			From:    "onboarding@resend.dev",
 			Text:    "hey",
 			Subject: "Hello from emails",
 		},
-		&resend.SendEmailRequest{
+		{
+			To:      []string{"delivered@resend.dev"},
 			From:    "onboarding@resend.dev",
 			Text:    "hellooo",
 			Subject: "Hello from batch emails 2",
