@@ -24,7 +24,7 @@ func (s *BatchSvcImpl) Send(params []*SendEmailRequest) (*BatchEmailResponse, er
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodPost, path, params)
 	if err != nil {
-		return nil, errors.New("[ERROR]: Failed to create SendEmail request")
+		return nil, errors.New("[ERROR]: Failed to create BatchEmail request")
 	}
 
 	// Build response recipient obj

@@ -39,7 +39,7 @@ func TestBatchSendEmail(t *testing.T) {
 	}
 	resp, err := client.Batch.Send(req)
 	if err != nil {
-		t.Errorf("Emails.Send returned error: %v", err)
+		t.Errorf("BatchEmail.Send returned error: %v", err)
 	}
 	assert.Equal(t, resp.Data[0].Id, "1")
 	assert.Equal(t, resp.Data[1].Id, "2")
