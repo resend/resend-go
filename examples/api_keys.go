@@ -19,7 +19,7 @@ func apiKeysExample() {
 		Name: "nice api key",
 	}
 
-	resp, err := client.ApiKeys.Create(ctx, params)
+	resp, err := client.ApiKeys.CreateWithContext(ctx, params)
 	if err != nil {
 		panic(err)
 	}
@@ -27,14 +27,14 @@ func apiKeysExample() {
 	fmt.Println("Token: " + resp.Token)
 
 	// List
-	apiKeys, err := client.ApiKeys.List(ctx)
+	apiKeys, err := client.ApiKeys.ListWithContext(ctx)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("You have %d api keys in your project\n", len(apiKeys.Data))
 
 	// Delete
-	_, err = client.ApiKeys.Remove(ctx, resp.Id)
+	_, err = client.ApiKeys.RemoveWithContext(ctx, resp.Id)
 	if err != nil {
 		panic(err)
 	}

@@ -8,11 +8,16 @@ import (
 )
 
 type DomainsSvc interface {
-	Create(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
-	Verify(ctx context.Context, domainId string) (bool, error)
-	List(ctx context.Context) (ListDomainsResponse, error)
-	Get(ctx context.Context, domainId string) (Domain, error)
-	Remove(ctx context.Context, domainId string) (bool, error)
+	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
+	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
+	VerifyWithContext(ctx context.Context, domainId string) (bool, error)
+	Verify(domainId string) (bool, error)
+	ListWithContext(ctx context.Context) (ListDomainsResponse, error)
+	List() (ListDomainsResponse, error)
+	GetWithContext(ctx context.Context, domainId string) (Domain, error)
+	Get(domainId string) (Domain, error)
+	RemoveWithContext(ctx context.Context, domainId string) (bool, error)
+	Remove(domainId string) (bool, error)
 }
 
 type DomainsSvcImpl struct {
@@ -57,9 +62,9 @@ type Record struct {
 	Priority json.Number `json:"priority,omitempty"`
 }
 
-// Create creates a new Domain entry based on the given params
+// CreateWithContext creates a new Domain entry based on the given params
 // https://resend.com/docs/api-reference/domains/create-domain
-func (s *DomainsSvcImpl) Create(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error) {
+func (s *DomainsSvcImpl) CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error) {
 	path := "domains"
 
 	// Prepare request
@@ -81,9 +86,15 @@ func (s *DomainsSvcImpl) Create(ctx context.Context, params *CreateDomainRequest
 	return *domainsResp, nil
 }
 
-// Verify verifies a given domain Id
+// Create creates a new Domain entry based on the given params
+// https://resend.com/docs/api-reference/domains/create-domain
+func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainResponse, error) {
+	return s.CreateWithContext(context.Background(), params)
+}
+
+// VerifyWithContext verifies a given domain Id
 // https://resend.com/docs/api-reference/domains/verify-domain
-func (s *DomainsSvcImpl) Verify(ctx context.Context, domainId string) (bool, error) {
+func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) {
 	path := "domains/" + domainId + "/verify"
 
 	// Prepare request
@@ -102,9 +113,15 @@ func (s *DomainsSvcImpl) Verify(ctx context.Context, domainId string) (bool, err
 	return true, nil
 }
 
-// List returns the list of all doamins
+// Verify verifies a given domain Id
+// https://resend.com/docs/api-reference/domains/verify-domain
+func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
+	return s.VerifyWithContext(context.Background(), domainId)
+}
+
+// ListWithContext returns the list of all domains
 // https://resend.com/docs/api-reference/domains/list-domains
-func (s *DomainsSvcImpl) List(ctx context.Context) (ListDomainsResponse, error) {
+func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsResponse, error) {
 	path := "domains"
 
 	// Prepare request
@@ -125,9 +142,15 @@ func (s *DomainsSvcImpl) List(ctx context.Context) (ListDomainsResponse, error) 
 	return *domains, nil
 }
 
-// Remove removes a given domain entry by id
+// List returns the list of all domains
+// https://resend.com/docs/api-reference/domains/list-domains
+func (s *DomainsSvcImpl) List() (ListDomainsResponse, error) {
+	return s.ListWithContext(context.Background())
+}
+
+// RemoveWithContext removes a given domain entry by id
 // https://resend.com/docs/api-reference/domains/delete-domain
-func (s *DomainsSvcImpl) Remove(ctx context.Context, domainId string) (bool, error) {
+func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string) (bool, error) {
 	path := "domains/" + domainId
 
 	// Prepare request
@@ -146,9 +169,15 @@ func (s *DomainsSvcImpl) Remove(ctx context.Context, domainId string) (bool, err
 	return true, nil
 }
 
-// Get retrieves a domain object
+// Remove removes a given domain entry by id
+// https://resend.com/docs/api-reference/domains/delete-domain
+func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
+	return s.RemoveWithContext(context.Background(), domainId)
+}
+
+// GetWithContext retrieves a domain object
 // https://resend.com/docs/api-reference/domains/get-domain
-func (s *DomainsSvcImpl) Get(ctx context.Context, domainId string) (Domain, error) {
+func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (Domain, error) {
 	path := "domains/" + domainId
 
 	// Prepare request
@@ -167,4 +196,10 @@ func (s *DomainsSvcImpl) Get(ctx context.Context, domainId string) (Domain, erro
 	}
 
 	return *domain, nil
+}
+
+// Get retrieves a domain object
+// https://resend.com/docs/api-reference/domains/get-domain
+func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
+	return s.GetWithContext(context.Background(), domainId)
 }

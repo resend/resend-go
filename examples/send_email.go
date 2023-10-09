@@ -25,14 +25,14 @@ func sendEmailExample() {
 		ReplyTo: "to@example.com",
 	}
 
-	sent, err := client.Emails.Send(ctx, params)
+	sent, err := client.Emails.SendWithContext(ctx, params)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(sent.Id)
 
 	// Get
-	email, err := client.Emails.Get(ctx, sent.Id)
+	email, err := client.Emails.GetWithContext(ctx, sent.Id)
 	if err != nil {
 		panic(err)
 	}

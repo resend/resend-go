@@ -83,16 +83,19 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 }
 
 type EmailsSvc interface {
-	Send(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
-	Get(ctx context.Context, emailID string) (*Email, error)
+	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
+	Send(params *SendEmailRequest) (*SendEmailResponse, error)
+	GetWithContext(ctx context.Context, emailID string) (*Email, error)
+	Get(emailID string) (*Email, error)
 }
 
 type EmailsSvcImpl struct {
 	client *Client
 }
 
-// Send sends an email with the given params
-func (s *EmailsSvcImpl) Send(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error) {
+// SendWithContext sends an email with the given params
+// https://resend.com/docs/api-reference/emails/send-email
+func (s *EmailsSvcImpl) SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error) {
 	path := "emails"
 
 	// Prepare request
@@ -114,9 +117,15 @@ func (s *EmailsSvcImpl) Send(ctx context.Context, params *SendEmailRequest) (*Se
 	return emailResponse, nil
 }
 
-// Get retrieves an email with the given emailID
+// Send sends an email with the given params
+// https://resend.com/docs/api-reference/emails/send-email
+func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, error) {
+	return s.SendWithContext(context.Background(), params)
+}
+
+// GetWithContext retrieves an email with the given emailID
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(ctx context.Context, emailID string) (*Email, error) {
+func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailID string) (*Email, error) {
 	path := "emails/" + emailID
 
 	// Prepare request
@@ -136,4 +145,10 @@ func (s *EmailsSvcImpl) Get(ctx context.Context, emailID string) (*Email, error)
 	}
 
 	return emailResponse, nil
+}
+
+// Get retrieves an email with the given emailID
+// https://resend.com/docs/api-reference/emails/retrieve-email
+func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
+	return s.GetWithContext(context.Background(), emailID)
 }

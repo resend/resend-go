@@ -28,18 +28,21 @@ type ApiKey struct {
 }
 
 type ApiKeysSvc interface {
-	Create(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
-	List(ctx context.Context) (ListApiKeysResponse, error)
-	Remove(ctx context.Context, apiKeyId string) (bool, error)
+	CreateWithContext(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
+	Create(params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
+	ListWithContext(ctx context.Context) (ListApiKeysResponse, error)
+	List() (ListApiKeysResponse, error)
+	RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error)
+	Remove(apiKeyId string) (bool, error)
 }
 
 type ApiKeysSvcImpl struct {
 	client *Client
 }
 
-// Create creates a new API Key based on the given params
+// CreateWithContext creates a new API Key based on the given params
 // https://resend.com/docs/api-reference/api-keys/create-api-key
-func (s *ApiKeysSvcImpl) Create(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error) {
+func (s *ApiKeysSvcImpl) CreateWithContext(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error) {
 	path := "api-keys"
 
 	// Prepare request
@@ -61,9 +64,14 @@ func (s *ApiKeysSvcImpl) Create(ctx context.Context, params *CreateApiKeyRequest
 	return *apiKeysResp, nil
 }
 
-// List list all API Keys in the project
+// Create creates a new API Key based on the given params
+func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyResponse, error) {
+	return s.CreateWithContext(context.Background(), params)
+}
+
+// ListWithContext list all API Keys in the project
 // https://resend.com/docs/api-reference/api-keys/list-api-keys
-func (s *ApiKeysSvcImpl) List(ctx context.Context) (ListApiKeysResponse, error) {
+func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysResponse, error) {
 	path := "api-keys"
 
 	// Prepare request
@@ -85,9 +93,14 @@ func (s *ApiKeysSvcImpl) List(ctx context.Context) (ListApiKeysResponse, error) 
 	return *apiKeysResp, nil
 }
 
-// Remove deletes a given api key by id
+// List list all API Keys in the project
+func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
+	return s.ListWithContext(context.Background())
+}
+
+// RemoveWithContext deletes a given api key by id
 // https://resend.com/docs/api-reference/api-keys/delete-api-key
-func (s *ApiKeysSvcImpl) Remove(ctx context.Context, apiKeyId string) (bool, error) {
+func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error) {
 	path := "api-keys/" + apiKeyId
 
 	// Prepare request
@@ -104,4 +117,9 @@ func (s *ApiKeysSvcImpl) Remove(ctx context.Context, apiKeyId string) (bool, err
 	}
 
 	return true, nil
+}
+
+// Remove deletes a given api key by id
+func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
+	return s.RemoveWithContext(context.Background(), apiKeyId)
 }

@@ -78,7 +78,7 @@ func TestCreateDomain(t *testing.T) {
 	req := &CreateDomainRequest{
 		Name: "example.com",
 	}
-	resp, err := client.Domains.Create(testCtx, req)
+	resp, err := client.Domains.Create(req)
 	if err != nil {
 		t.Errorf("Domains.Create returned error: %v", err)
 	}
@@ -112,7 +112,7 @@ func TestVerifyDomain(t *testing.T) {
 		fmt.Fprint(w, nil)
 	})
 
-	verified, err := client.Domains.Verify(testCtx, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	verified, err := client.Domains.Verify("d91cd9bd-1176-453e-8fc1-35364d380206")
 	if err != nil {
 		t.Errorf("Domains.Verify returned error: %v", err)
 	}
@@ -143,7 +143,7 @@ func TestListDomains(t *testing.T) {
 		fmt.Fprint(w, ret)
 	})
 
-	domains, err := client.Domains.List(testCtx)
+	domains, err := client.Domains.List()
 	if err != nil {
 		t.Errorf("Domains.List returned error: %v", err)
 	}
@@ -167,7 +167,7 @@ func TestRemoveDomain(t *testing.T) {
 		fmt.Fprint(w, nil)
 	})
 
-	deleted, err := client.Domains.Remove(testCtx, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
+	deleted, err := client.Domains.Remove("b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
 	if err != nil {
 		t.Errorf("Domains.Remove returned error: %v", err)
 	}
@@ -196,7 +196,7 @@ func TestGetDomain(t *testing.T) {
 		fmt.Fprint(w, ret)
 	})
 
-	domain, err := client.Domains.Get(testCtx, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	domain, err := client.Domains.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
 	if err != nil {
 		t.Errorf("Domains.Get returned error: %v", err)
 	}

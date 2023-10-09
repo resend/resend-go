@@ -15,11 +15,12 @@ func TestResend(t *testing.T) {
 }
 
 func TestResendRequestHeaders(t *testing.T) {
+	ctx := context.TODO()
 	client := NewClient("123")
 	params := &SendEmailRequest{
 		To: []string{"email@example.com", "email2@example.com"},
 	}
-	req, err := client.NewRequest(testCtx, "POST", "/emails/", params)
+	req, err := client.NewRequest(ctx, "POST", "/emails/", params)
 	if err != nil {
 		t.Error(err)
 	}

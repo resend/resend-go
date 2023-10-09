@@ -19,7 +19,7 @@ func domainsExample() {
 		Name: "exampledomain.com",
 	}
 
-	domain, err := client.Domains.Create(ctx, params)
+	domain, err := client.Domains.CreateWithContext(ctx, params)
 	if err != nil {
 		panic(err)
 	}
@@ -31,21 +31,21 @@ func domainsExample() {
 	}
 
 	// Get
-	retrievedDomain, err := client.Domains.Get(ctx, domain.Id)
+	retrievedDomain, err := client.Domains.GetWithContext(ctx, domain.Id)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Retrieved domain: %v", retrievedDomain)
 
 	// List
-	domains, err := client.Domains.List(ctx)
+	domains, err := client.Domains.ListWithContext(ctx)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("You have %d domains in your project\n", len(domains.Data))
 
 	// Verify
-	verified, err := client.Domains.Verify(ctx, domain.Id)
+	verified, err := client.Domains.VerifyWithContext(ctx, domain.Id)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +56,7 @@ func domainsExample() {
 	}
 
 	// Remove
-	removed, err := client.Domains.Remove(ctx, domain.Id)
+	removed, err := client.Domains.RemoveWithContext(ctx, domain.Id)
 	if err != nil {
 		panic(err)
 	}

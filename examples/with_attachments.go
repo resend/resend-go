@@ -45,7 +45,7 @@ func withAttachments() {
 		Attachments: []*resend.Attachment{pdfAttachmentFromLocalFile, pdfAttachmentFromRemotePath},
 	}
 
-	sent, err := client.Emails.Send(ctx, params)
+	sent, err := client.Emails.SendWithContext(ctx, params)
 	if err != nil {
 		panic(err)
 	}
