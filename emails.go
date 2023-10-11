@@ -2,7 +2,6 @@ package resend
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 )
 
@@ -97,7 +96,7 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, erro
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodPost, path, params)
 	if err != nil {
-		return nil, errors.New("[ERROR]: Failed to create SendEmail request")
+		return nil, ErrFailedToCreateEmailsSendRequest
 	}
 
 	// Build response recipient obj
@@ -121,7 +120,7 @@ func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
 	// Prepare request
 	req, err := s.client.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return nil, errors.New("[ERROR]: Failed to create GetEmail request")
+		return nil, ErrFailedToCreateEmailsGetRequest
 	}
 
 	// Build response recipient obj
