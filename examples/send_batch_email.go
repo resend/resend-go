@@ -7,8 +7,9 @@ import (
 	"github.com/resendlabs/resend-go"
 )
 
-func sendBatchEmailExample() {
+func sendBatchEmails() {
 
+	// ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
 	client := resend.NewClient(apiKey)
@@ -30,6 +31,7 @@ func sendBatchEmailExample() {
 	}
 
 	sent, err := client.Batch.Send(batchEmails)
+	// sent, err := client.Batch.SendWithContext(ctx, batchEmails)
 	if err != nil {
 		panic(err)
 	}
