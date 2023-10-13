@@ -5,7 +5,8 @@ import (
 	"net/http"
 )
 
-// BatchSendEmailResponse is the response from the BatchSendEmail call.
+// BatchEmailResponse is the response from the BatchSendEmail call.
+// see https://resend.com/docs/api-reference/emails/send-batch-emails
 type BatchEmailResponse struct {
 	Data []SendEmailResponse `json:"data"`
 }
