@@ -2,6 +2,7 @@ package resend
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -67,33 +68,22 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 
 // NewRequest builds and returns a new HTTP request object
 // based on the given arguments
-func (c *Client) NewRequest(method, path string, params interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, path string, params interface{}) (*http.Request, error) {
 	u, err := c.BaseURL.Parse(path)
 	if err != nil {
 		return nil, err
 	}
 
 	var req *http.Request
-	switch method {
-	case http.MethodGet, http.MethodHead, http.MethodOptions:
-		req, err = http.NewRequest(method, u.String(), nil)
-		if err != nil {
-			return nil, err
-		}
-
-	default:
+	req, err = http.NewRequestWithContext(ctx, method, u.String(), nil)
+	if params != nil {
 		buf := new(bytes.Buffer)
-		if params != nil {
-			err = json.NewEncoder(buf).Encode(params)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		req, err = http.NewRequest(method, u.String(), buf)
+		err = json.NewEncoder(buf).Encode(params)
 		if err != nil {
 			return nil, err
 		}
+
+		req.Body = io.NopCloser(buf)
 		req.Header.Set("Content-Type", contentType)
 	}
 

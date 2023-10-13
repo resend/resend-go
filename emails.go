@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 )
@@ -81,7 +82,9 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 }
 
 type EmailsSvc interface {
-	Send(*SendEmailRequest) (*SendEmailResponse, error)
+	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
+	Send(params *SendEmailRequest) (*SendEmailResponse, error)
+	GetWithContext(ctx context.Context, emailID string) (*Email, error)
 	Get(emailID string) (*Email, error)
 }
 
@@ -89,12 +92,13 @@ type EmailsSvcImpl struct {
 	client *Client
 }
 
-// Send sends an email with the given params
-func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, error) {
+// SendWithContext sends an email with the given params
+// https://resend.com/docs/api-reference/emails/send-email
+func (s *EmailsSvcImpl) SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error) {
 	path := "emails"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodPost, path, params)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return nil, ErrFailedToCreateEmailsSendRequest
 	}
@@ -112,13 +116,19 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, erro
 	return emailResponse, nil
 }
 
-// Get retrieves an email with the given emailID
+// Send sends an email with the given params
+// https://resend.com/docs/api-reference/emails/send-email
+func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, error) {
+	return s.SendWithContext(context.Background(), params)
+}
+
+// GetWithContext retrieves an email with the given emailID
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
+func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailID string) (*Email, error) {
 	path := "emails/" + emailID
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, ErrFailedToCreateEmailsGetRequest
 	}
@@ -134,4 +144,10 @@ func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
 	}
 
 	return emailResponse, nil
+}
+
+// Get retrieves an email with the given emailID
+// https://resend.com/docs/api-reference/emails/retrieve-email
+func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
+	return s.GetWithContext(context.Background(), emailID)
 }

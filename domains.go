@@ -1,16 +1,22 @@
 package resend
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 )
 
 type DomainsSvc interface {
-	Create(*CreateDomainRequest) (CreateDomainResponse, error)
+	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
+	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
+	VerifyWithContext(ctx context.Context, domainId string) (bool, error)
 	Verify(domainId string) (bool, error)
+	ListWithContext(ctx context.Context) (ListDomainsResponse, error)
 	List() (ListDomainsResponse, error)
+	GetWithContext(ctx context.Context, domainId string) (Domain, error)
 	Get(domainId string) (Domain, error)
+	RemoveWithContext(ctx context.Context, domainId string) (bool, error)
 	Remove(domainId string) (bool, error)
 }
 
@@ -56,13 +62,13 @@ type Record struct {
 	Priority json.Number `json:"priority,omitempty"`
 }
 
-// Create creates a new Domain entry based on the given params
+// CreateWithContext creates a new Domain entry based on the given params
 // https://resend.com/docs/api-reference/domains/create-domain
-func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainResponse, error) {
+func (s *DomainsSvcImpl) CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error) {
 	path := "domains"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodPost, path, params)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return CreateDomainResponse{}, errors.New("[ERROR]: Failed to create Domains.Create request")
 	}
@@ -80,13 +86,19 @@ func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainRespon
 	return *domainsResp, nil
 }
 
-// Verify verifies a given domain Id
+// Create creates a new Domain entry based on the given params
+// https://resend.com/docs/api-reference/domains/create-domain
+func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainResponse, error) {
+	return s.CreateWithContext(context.Background(), params)
+}
+
+// VerifyWithContext verifies a given domain Id
 // https://resend.com/docs/api-reference/domains/verify-domain
-func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
+func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) {
 	path := "domains/" + domainId + "/verify"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodPost, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
 		return false, errors.New("[ERROR]: Failed to create Domains.Verify request")
 	}
@@ -101,13 +113,19 @@ func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
 	return true, nil
 }
 
-// List returns the list of all doamins
+// Verify verifies a given domain Id
+// https://resend.com/docs/api-reference/domains/verify-domain
+func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
+	return s.VerifyWithContext(context.Background(), domainId)
+}
+
+// ListWithContext returns the list of all domains
 // https://resend.com/docs/api-reference/domains/list-domains
-func (s *DomainsSvcImpl) List() (ListDomainsResponse, error) {
+func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsResponse, error) {
 	path := "domains"
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return ListDomainsResponse{}, errors.New("[ERROR]: Failed to create Domains.Verify request")
 	}
@@ -124,13 +142,19 @@ func (s *DomainsSvcImpl) List() (ListDomainsResponse, error) {
 	return *domains, nil
 }
 
-// Remove removes a given domain entry by id
+// List returns the list of all domains
+// https://resend.com/docs/api-reference/domains/list-domains
+func (s *DomainsSvcImpl) List() (ListDomainsResponse, error) {
+	return s.ListWithContext(context.Background())
+}
+
+// RemoveWithContext removes a given domain entry by id
 // https://resend.com/docs/api-reference/domains/delete-domain
-func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
+func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string) (bool, error) {
 	path := "domains/" + domainId
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodDelete, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return false, errors.New("[ERROR]: Failed to create Domains.Remove request")
 	}
@@ -145,13 +169,19 @@ func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
 	return true, nil
 }
 
-// Get retrieves a domain object
+// Remove removes a given domain entry by id
+// https://resend.com/docs/api-reference/domains/delete-domain
+func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
+	return s.RemoveWithContext(context.Background(), domainId)
+}
+
+// GetWithContext retrieves a domain object
 // https://resend.com/docs/api-reference/domains/get-domain
-func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
+func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (Domain, error) {
 	path := "domains/" + domainId
 
 	// Prepare request
-	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return Domain{}, errors.New("[ERROR]: Failed to create Domains.Get request")
 	}
@@ -166,4 +196,10 @@ func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
 	}
 
 	return *domain, nil
+}
+
+// Get retrieves a domain object
+// https://resend.com/docs/api-reference/domains/get-domain
+func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
+	return s.GetWithContext(context.Background(), domainId)
 }
