@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -48,7 +47,7 @@ func (s *ApiKeysSvcImpl) CreateWithContext(ctx context.Context, params *CreateAp
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return CreateApiKeyResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.Create request")
+		return CreateApiKeyResponse{}, ErrFailedToCreateApiKeysCreateRequest
 	}
 
 	// Build response recipient obj
@@ -77,7 +76,7 @@ func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysRespon
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListApiKeysResponse{}, errors.New("[ERROR]: Failed to create ApiKeys.List request")
+		return ListApiKeysResponse{}, ErrFailedToCreateApiKeysListRequest
 	}
 
 	// Build response recipient obj
@@ -93,7 +92,7 @@ func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysRespon
 	return *apiKeysResp, nil
 }
 
-// List list all API Keys in the project
+// List all API Keys in the project
 func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 	return s.ListWithContext(context.Background())
 }
@@ -106,7 +105,7 @@ func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string)
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return false, errors.New("[ERROR]: Failed to create ApiKeys.List request")
+		return false, ErrFailedToCreateApiKeysRemoveRequest
 	}
 
 	// Send Request
