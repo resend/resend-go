@@ -16,8 +16,8 @@ func sendEmailExample() {
 
 	// Send
 	params := &resend.SendEmailRequest{
-		To:      []string{"to@example.com", "to2@example.com"},
-		From:    "from@example.com",
+		To:      []string{"delivered@resend.dev"},
+		From:    "onboarding@resend.dev",
 		Text:    "hello world",
 		Subject: "Hello from Golang",
 		Cc:      []string{"cc@example.com"},

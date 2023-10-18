@@ -37,6 +37,7 @@ type Client struct {
 
 	// Services
 	Emails  EmailsSvc
+	Batch   BatchSvc
 	ApiKeys ApiKeysSvc
 	Domains DomainsSvc
 }
@@ -58,6 +59,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c := &Client{client: httpClient, BaseURL: baseURL, UserAgent: userAgent}
 
 	c.Emails = &EmailsSvcImpl{client: c}
+	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
 	c.Domains = &DomainsSvcImpl{client: c}
 
