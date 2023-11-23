@@ -1,4 +1,4 @@
-module github.com/resendlabs/resend-go
+module github.com/resendlabs/resend-go/v2
 
 go 1.19
 

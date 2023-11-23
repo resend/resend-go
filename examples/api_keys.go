@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resendlabs/resend-go"
+	"github.com/resendlabs/resend-go/v2"
 )
 
 func apiKeysExample() {
