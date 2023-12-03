@@ -10,7 +10,7 @@
 To install the Go SDK, simply execute the following command on a terminal:
 
 ```
-go get github.com/resendlabs/resend-go
+go get github.com/resendlabs/resend-go/v2
 ```
 
 ## Setup
@@ -20,7 +20,7 @@ First, you need to get an API key, which is available in the [Resend Dashboard](
 ## Example
 
 ```go
-import "github.com/resendlabs/resend-go"
+import "github.com/resendlabs/resend-go/v2"
 
 func main() {
     apiKey = "re_123"
