@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	version        = "2.2.0"
+	version        = "2.3.0"
 	defaultBaseURL = "https://api.resend.com/"
 	userAgent      = "resend-go/" + version
 	contentType    = "application/json"
@@ -36,10 +36,11 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails  EmailsSvc
-	Batch   BatchSvc
-	ApiKeys ApiKeysSvc
-	Domains DomainsSvc
+	Emails    EmailsSvc
+	Batch     BatchSvc
+	ApiKeys   ApiKeysSvc
+	Domains   DomainsSvc
+	Audiences AudiencesSvc
 }
 
 // NewClient is the default client constructor
@@ -62,6 +63,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
 	c.Domains = &DomainsSvcImpl{client: c}
+	c.Audiences = &AudiencesSvcImpl{client: c}
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
