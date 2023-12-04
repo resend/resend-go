@@ -37,7 +37,7 @@ func audiencesExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("You have %d domains in your project\n", len(audiences.Data))
+	fmt.Printf("You have %d audiences in your project\n", len(audiences.Data))
 
 	// Remove
 	removed, err := client.Audiences.RemoveWithContext(ctx, audience.Id)
