@@ -1,8 +1,8 @@
 # Resend Go SDK
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Build](https://github.com/resendlabs/resend-go/actions/workflows/go.yml/badge.svg)
-![Release](https://img.shields.io/github/release/resendlabs/resend-go.svg?style=flat-square)
+![Build](https://github.com/resend/resend-go/actions/workflows/go.yml/badge.svg)
+![Release](https://img.shields.io/github/release/resend/resend-go.svg?style=flat-square)
 ---
 
 ## Installation
@@ -10,7 +10,7 @@
 To install the Go SDK, simply execute the following command on a terminal:
 
 ```
-go get github.com/resendlabs/resend-go/v2
+go get github.com/resend/resend-go/v2
 ```
 
 ## Setup
@@ -20,7 +20,7 @@ First, you need to get an API key, which is available in the [Resend Dashboard](
 ## Example
 
 ```go
-import "github.com/resendlabs/resend-go/v2"
+import "github.com/resend/resend-go/v2"
 
 func main() {
     apiKey = "re_123"
@@ -46,4 +46,4 @@ func main() {
 
 ```
 
-You can view all the examples in the [examples folder](https://github.com/resendlabs/resend-go/tree/main/examples)
+You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)
