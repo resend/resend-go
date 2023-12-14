@@ -107,7 +107,7 @@ func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, audienceId string
 	return *contacts, nil
 }
 
-// List returns the list of all audiences
+// List returns the list of all contacts in an audience
 // https://resend.com/docs/api-reference/contacts/list-contacts
 func (s *ContactsSvcImpl) List(audienceId string) (ListContactsResponse, error) {
 	return s.ListWithContext(context.Background(), audienceId)
