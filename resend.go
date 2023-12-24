@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	version        = "2.2.0"
+	version        = "2.3.0"
 	defaultBaseURL = "https://api.resend.com/"
 	userAgent      = "resend-go/" + version
 	contentType    = "application/json"
