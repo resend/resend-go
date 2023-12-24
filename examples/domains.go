@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resendlabs/resend-go/v2"
+	"github.com/resend/resend-go/v2"
 )
 
 func domainsExample() {
