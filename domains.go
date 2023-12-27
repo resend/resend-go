@@ -127,7 +127,7 @@ func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsRespon
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListDomainsResponse{}, errors.New("[ERROR]: Failed to create Domains.Verify request")
+		return ListDomainsResponse{}, errors.New("[ERROR]: Failed to create Domains.List request")
 	}
 
 	domains := new(ListDomainsResponse)
