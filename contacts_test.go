@@ -30,9 +30,10 @@ func TestCreateContact(t *testing.T) {
 	})
 
 	req := &CreateContactRequest{
-		Email: "email@example.com",
+		Email:      "email@example.com",
+		AudienceId: audienceId,
 	}
-	resp, err := client.Contacts.Create(audienceId, req)
+	resp, err := client.Contacts.Create(req)
 	if err != nil {
 		t.Errorf("Contacts.Create returned error: %v", err)
 	}
@@ -147,4 +148,42 @@ func TestGetContact(t *testing.T) {
 	assert.Equal(t, contact.LastName, "Wozniak")
 	assert.Equal(t, contact.CreatedAt, "2023-10-06T23:47:56.678Z")
 	assert.Equal(t, contact.Unsubscribed, false)
+}
+
+func TestUpdateContact(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	id := "109d077c-2bb1-4be6-84ed-ff8f32612dc2"
+
+	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+id, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		var ret interface{}
+		ret = `
+		{
+			"data": {
+				"id": "479e3145-dd38-476b-932c-529ceb705947"
+			},
+			"error": null
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &UpdateContactRequest{
+		AudienceId: audienceId,
+		Id:         id,
+		FirstName:  "Updated First Name",
+	}
+	resp, err := client.Contacts.Update(req)
+	if err != nil {
+		t.Errorf("Contacts.Update returned error: %v", err)
+	}
+	assert.NotNil(t, resp.Data)
+	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
+	assert.Equal(t, resp.Error, struct{}{})
 }

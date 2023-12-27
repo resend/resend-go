@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resendlabs/resend-go/v2"
+	"github.com/resend/resend-go/v2"
 )
 
-// func contactsExample() {
-func main() {
+func contactsExample() {
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "78b8d3bc-a55a-45a3-aee6-6ec0a5e13d7e"
 
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
@@ -20,14 +19,30 @@ func main() {
 
 	// Create Contact params
 	params := &resend.CreateContactRequest{
-		Email: "hi2@example.com",
+		Email:      "hi@example.com",
+		AudienceId: audienceId,
+		FirstName:  "Steve",
+		LastName:   "Woz",
 	}
 
-	contact, err := client.Contacts.CreateWithContext(ctx, audienceId, params)
+	contact, err := client.Contacts.CreateWithContext(ctx, params)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Created contact with entry id: " + contact.Id)
+
+	// Update
+	updateParams := &resend.UpdateContactRequest{
+		AudienceId:   audienceId,
+		Id:           contact.Id,
+		FirstName:    "Updated First Name",
+		LastName:     "Updated Last Name",
+		Unsubscribed: true,
+	}
+	_, err = client.Contacts.UpdateWithContext(ctx, updateParams)
+	if err != nil {
+		panic(err)
+	}
 
 	// Get
 	retrievedContact, err := client.Contacts.GetWithContext(ctx, audienceId, contact.Id)

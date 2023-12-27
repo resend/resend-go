@@ -7,14 +7,16 @@ import (
 )
 
 type ContactsSvc interface {
-	CreateWithContext(ctx context.Context, audienceId string, params *CreateContactRequest) (CreateContactResponse, error)
-	Create(audienceId string, params *CreateContactRequest) (CreateContactResponse, error)
+	CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error)
+	Create(params *CreateContactRequest) (CreateContactResponse, error)
 	ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error)
 	List(audienceId string) (ListContactsResponse, error)
 	GetWithContext(ctx context.Context, audienceId, contactId string) (Contact, error)
 	Get(audienceId, contactId string) (Contact, error)
 	RemoveWithContext(ctx context.Context, audienceId, contactId string) (RemoveContactResponse, error)
 	Remove(audienceId, contactId string) (RemoveContactResponse, error)
+	UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error)
+	Update(params *UpdateContactRequest) (UpdateContactResponse, error)
 }
 
 type ContactsSvcImpl struct {
@@ -23,9 +25,23 @@ type ContactsSvcImpl struct {
 
 type CreateContactRequest struct {
 	Email        string `json:"email"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	Unsubscribed bool   `json:"unsubscribed"`
+	AudienceId   string `json:"audience_id"`
+	Unsubscribed bool   `json:"unsubscribed,omitempty"`
+	FirstName    string `json:"first_name,omitempty"`
+	LastName     string `json:"last_name,omitempty"`
+}
+
+type UpdateContactRequest struct {
+	Id           string `json:"id"`
+	AudienceId   string `json:"audience_id"`
+	FirstName    string `json:"first_name,omitempty"`
+	LastName     string `json:"last_name,omitempty"`
+	Unsubscribed bool   `json:"unsubscribed,omitempty"`
+}
+
+type UpdateContactResponse struct {
+	Data  Contact  `json:"data"`
+	Error struct{} `json:"error"` // Fix this
 }
 
 type CreateContactResponse struct {
@@ -56,8 +72,12 @@ type Contact struct {
 
 // CreateWithContext creates a new Contact based on the given params
 // https://resend.com/docs/api-reference/contacts/create-contact
-func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, audienceId string, params *CreateContactRequest) (CreateContactResponse, error) {
-	path := "audiences/" + audienceId + "/contacts"
+func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error) {
+	if params.AudienceId == "" {
+		return CreateContactResponse{}, errors.New("[ERROR]: AudienceId is missing")
+	}
+
+	path := "audiences/" + params.AudienceId + "/contacts"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
@@ -80,8 +100,8 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, audienceId stri
 
 // Create creates a new Contact entry based on the given params
 // https://resend.com/docs/api-reference/contacts/create-contact
-func (s *ContactsSvcImpl) Create(audienceId string, params *CreateContactRequest) (CreateContactResponse, error) {
-	return s.CreateWithContext(context.Background(), audienceId, params)
+func (s *ContactsSvcImpl) Create(params *CreateContactRequest) (CreateContactResponse, error) {
+	return s.CreateWithContext(context.Background(), params)
 }
 
 // ListWithContext returns the list of all contacts in an audience
@@ -169,4 +189,42 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, contac
 // https://resend.com/docs/api-reference/contacts/get-contact
 func (s *ContactsSvcImpl) Get(audienceId, contactId string) (Contact, error) {
 	return s.GetWithContext(context.Background(), audienceId, contactId)
+}
+
+// UpdateWithContext updates an existing Contact based on the given params
+// https://resend.com/docs/api-reference/contacts/update-contact
+func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error) {
+	if params.AudienceId == "" {
+		return UpdateContactResponse{}, errors.New("[ERROR]: AudienceId is missing")
+	}
+
+	if params.Id == "" {
+		return UpdateContactResponse{}, errors.New("[ERROR]: Id is missing")
+	}
+
+	path := "audiences/" + params.AudienceId + "/contacts/" + params.Id
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return UpdateContactResponse{}, errors.New("[ERROR]: Failed to create Contacts.Update request")
+	}
+
+	// Build response recipient obj
+	contactsResp := new(UpdateContactResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, contactsResp)
+
+	if err != nil {
+		return UpdateContactResponse{}, err
+	}
+
+	return *contactsResp, nil
+}
+
+// UpdateWithContext updates an existing Contact based on the given params
+// https://resend.com/docs/api-reference/contacts/update-contact
+func (s *ContactsSvcImpl) Update(params *UpdateContactRequest) (UpdateContactResponse, error) {
+	return s.UpdateWithContext(context.Background(), params)
 }

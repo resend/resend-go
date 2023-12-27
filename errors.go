@@ -10,7 +10,6 @@ var (
 )
 
 // EmailsSvc errors
-
 var (
 	ErrFailedToCreateEmailsSendRequest = errors.New("[ERROR]: Failed to create SendEmail request")
 	ErrFailedToCreateEmailsGetRequest  = errors.New("[ERROR]: Failed to create GetEmail request")
