@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resendlabs/resend-go/v2"
+	"github.com/resend/resend-go/v2"
 )
 
 func withAttachments() {
@@ -32,7 +32,7 @@ func withAttachments() {
 	}
 
 	pdfAttachmentFromRemotePath := &resend.Attachment{
-		Path:     "https://github.com/resendlabs/resend-go/raw/main/resources/invoice.pdf",
+		Path:     "https://github.com/resend/resend-go/raw/main/resources/invoice.pdf",
 		Filename: "invoice2.pdf",
 	}
 
