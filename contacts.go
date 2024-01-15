@@ -158,7 +158,7 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, con
 
 // Remove removes a given contact entry by id or email
 //
-// @param [contactId] - the audience id or audience email
+// @param [contactId] - the contact id or contact email
 //
 // https://resend.com/docs/api-reference/contacts/delete-contact
 func (s *ContactsSvcImpl) Remove(audienceId, contactId string) (RemoveContactResponse, error) {
