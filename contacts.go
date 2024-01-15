@@ -133,7 +133,7 @@ func (s *ContactsSvcImpl) List(audienceId string) (ListContactsResponse, error) 
 	return s.ListWithContext(context.Background(), audienceId)
 }
 
-// RemoveWithContext removes a given contact by id
+// RemoveWithContext same as Remove but with context
 // https://resend.com/docs/api-reference/contacts/delete-contact
 func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, contactId string) (RemoveContactResponse, error) {
 	path := "audiences/" + audienceId + "/contacts/" + contactId
@@ -156,7 +156,10 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, con
 	return *resp, nil
 }
 
-// Remove removes a given contact entry by id
+// Remove removes a given contact entry by id or email
+//
+// @param [contactId] - the audience id or audience email
+//
 // https://resend.com/docs/api-reference/contacts/delete-contact
 func (s *ContactsSvcImpl) Remove(audienceId, contactId string) (RemoveContactResponse, error) {
 	return s.RemoveWithContext(context.Background(), audienceId, contactId)

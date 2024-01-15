@@ -61,8 +61,11 @@ func contactsExample() {
 		fmt.Printf("%v\n", c)
 	}
 
-	// Remove
+	// Remove by id
 	removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, contact.Id)
+
+	// Remove by email
+	// removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, "hi@example.com")
 	if err != nil {
 		panic(err)
 	}
