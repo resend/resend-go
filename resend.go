@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	version        = "2.3.0"
-	defaultBaseURL = "https://api.resend.com/"
-	userAgent      = "resend-go/" + version
-	contentType    = "application/json"
+	version     = "2.5.0"
+	userAgent   = "resend-go/" + version
+	contentType = "application/json"
 )
+
+var defaultBaseURL = getEnv("RESEND_BASE_URL", "https://api.resend.com/")
 
 // Client handles communication with Resend API.
 type Client struct {

@@ -1,5 +1,7 @@
 package resend
 
+import "os"
+
 // BytesToIntArray converts a byte array to rune array
 // ie: []byte(`hello`) becomes []int{104,101,108,108,111}
 // which will then be properly marshalled into JSON
@@ -10,4 +12,11 @@ func BytesToIntArray(a []byte) []int {
 		res[i] = int(v)
 	}
 	return res
+}
+
+func getEnv(key, df string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return df
 }
