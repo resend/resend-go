@@ -208,3 +208,35 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.CreatedAt, "2023-04-26T20:21:26.347412+00:00")
 	assert.Equal(t, domain.Region, "us-east-1")
 }
+
+func TestUpdateDomain(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"data": {
+				"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+				"object": "domain"
+			},
+			"error": null
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	params := &UpdateDomainRequest{
+		OpenTracking: true,
+	}
+	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
+	if err != nil {
+		t.Errorf("Domains.Update returned error: %v", err)
+	}
+	assert.True(t, updated.Data.Id == "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.True(t, updated.Data.Object == "domain")
+}

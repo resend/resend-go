@@ -37,6 +37,17 @@ func domainsExample() {
 	}
 	fmt.Printf("Retrieved domain: %v", retrievedDomain)
 
+	updateDomainParams := &resend.UpdateDomainRequest{
+		OpenTracking:  true,
+		ClickTracking: true,
+	}
+
+	updated, err := client.Domains.UpdateWithContext(ctx, domain.Id, updateDomainParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", updated)
+
 	// List
 	domains, err := client.Domains.ListWithContext(ctx)
 	if err != nil {
