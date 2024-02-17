@@ -220,11 +220,8 @@ func TestUpdateDomain(t *testing.T) {
 
 		ret := `
 		{
-			"data": {
-				"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
-				"object": "domain"
-			},
-			"error": null
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"object": "domain"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -237,6 +234,6 @@ func TestUpdateDomain(t *testing.T) {
 	if err != nil {
 		t.Errorf("Domains.Update returned error: %v", err)
 	}
-	assert.True(t, updated.Data.Id == "d91cd9bd-1176-453e-8fc1-35364d380206")
-	assert.True(t, updated.Data.Object == "domain")
+	assert.True(t, updated.Id == "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.True(t, updated.Object == "domain")
 }
