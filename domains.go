@@ -18,6 +18,8 @@ type DomainsSvc interface {
 	Get(domainId string) (Domain, error)
 	RemoveWithContext(ctx context.Context, domainId string) (bool, error)
 	Remove(domainId string) (bool, error)
+	UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error)
+	Update(domainId string, params *UpdateDomainRequest) (Domain, error)
 }
 
 type DomainsSvcImpl struct {
@@ -43,13 +45,18 @@ type ListDomainsResponse struct {
 	Data []Domain `json:"data"`
 }
 
+type UpdateDomainRequest struct {
+	OpenTracking  bool `json:"open_tracking,omitempty"`
+	ClickTracking bool `json:"click_tracking,omitempty"`
+}
+
 type Domain struct {
-	Id        string `json:"id"`
-	Object    string `json:"object"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"created_at"`
-	Status    string `json:"status"`
-	Region    string `json:"region"`
+	Id        string `json:"id,omitempty"`
+	Object    string `json:"object,omitempty"`
+	Name      string `json:"name,omitempty"`
+	CreatedAt string `json:"created_at,omitempty"`
+	Status    string `json:"status,omitempty"`
+	Region    string `json:"region,omitempty"`
 }
 
 type Record struct {
@@ -60,6 +67,34 @@ type Record struct {
 	Status   string      `json:"status"`
 	Value    string      `json:"value"`
 	Priority json.Number `json:"priority,omitempty"`
+}
+
+// UpdateWithContext updates an existing Domain entry based on the given params
+// https://resend.com/docs/api-reference/domains/update-domain
+func (s *DomainsSvcImpl) UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error) {
+	path := "domains/" + domainId
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return Domain{}, errors.New("[ERROR]: Failed to create Domains.Update request")
+	}
+
+	domainUpdatedResp := new(Domain)
+
+	// Send Request
+	_, err = s.client.Perform(req, domainUpdatedResp)
+
+	if err != nil {
+		return Domain{}, err
+	}
+
+	return *domainUpdatedResp, nil
+}
+
+// Update is a wrapper around UpdateWithContext
+func (s *DomainsSvcImpl) Update(domainId string, params *UpdateDomainRequest) (Domain, error) {
+	return s.UpdateWithContext(context.Background(), domainId, params)
 }
 
 // CreateWithContext creates a new Domain entry based on the given params
