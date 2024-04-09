@@ -20,10 +20,13 @@ First, you need to get an API key, which is available in the [Resend Dashboard](
 ## Example
 
 ```go
-import "github.com/resend/resend-go/v2"
+import (
+    "fmt"
+    "github.com/resend/resend-go/v2"
+)
 
 func main() {
-    apiKey = "re_123"
+    apiKey := "re_123"
 
     client := resend.NewClient(apiKey)
 
