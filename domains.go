@@ -46,8 +46,9 @@ type ListDomainsResponse struct {
 }
 
 type UpdateDomainRequest struct {
-	OpenTracking  bool `json:"open_tracking,omitempty"`
-	ClickTracking bool `json:"click_tracking,omitempty"`
+	OpenTracking  bool   `json:"open_tracking,omitempty"`
+	ClickTracking bool   `json:"click_tracking,omitempty"`
+	Tls           string `json:"tls,omitempty"`
 }
 
 type Domain struct {
