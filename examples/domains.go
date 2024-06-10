@@ -40,6 +40,7 @@ func domainsExample() {
 	updateDomainParams := &resend.UpdateDomainRequest{
 		OpenTracking:  true,
 		ClickTracking: true,
+		Tls:           "opportunistic",
 	}
 
 	updated, err := client.Domains.UpdateWithContext(ctx, domain.Id, updateDomainParams)
