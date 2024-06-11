@@ -8,7 +8,7 @@ import (
 	"github.com/resend/resend-go/v2"
 )
 
-func domainsExample() {
+func domainExample() {
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
@@ -40,7 +40,7 @@ func domainsExample() {
 	updateDomainParams := &resend.UpdateDomainRequest{
 		OpenTracking:  true,
 		ClickTracking: true,
-		Tls:           "opportunistic",
+		Tls:           resend.Enforced,
 	}
 
 	updated, err := client.Domains.UpdateWithContext(ctx, domain.Id, updateDomainParams)

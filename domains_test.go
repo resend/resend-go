@@ -229,7 +229,7 @@ func TestUpdateDomain(t *testing.T) {
 
 	params := &UpdateDomainRequest{
 		OpenTracking: true,
-		Tls:          "opportunistic",
+		Tls:          Opportunistic,
 	}
 	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
 	if err != nil {

@@ -7,6 +7,13 @@ import (
 	"net/http"
 )
 
+type TlsOption = string
+
+const (
+	Enforced      TlsOption = "enforced"
+	Opportunistic TlsOption = "opportunistic"
+)
+
 type DomainsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
@@ -46,9 +53,9 @@ type ListDomainsResponse struct {
 }
 
 type UpdateDomainRequest struct {
-	OpenTracking  bool   `json:"open_tracking,omitempty"`
-	ClickTracking bool   `json:"click_tracking,omitempty"`
-	Tls           string `json:"tls,omitempty"`
+	OpenTracking  bool      `json:"open_tracking,omitempty"`
+	ClickTracking bool      `json:"click_tracking,omitempty"`
+	Tls           TlsOption `json:"tls,omitempty"`
 }
 
 type Domain struct {
