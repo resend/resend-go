@@ -64,19 +64,25 @@ type Attachment struct {
 	// Path where the attachment file is hosted instead of providing the
 	// content directly.
 	Path string
+
+	// Content type for the attachment, if not set will be derived from
+	// the filename property
+	ContentType string
 }
 
 // MarshalJSON overrides the regular JSON Marshaller to ensure that the
 // attachment content is provided in the way Resend expects.
 func (a *Attachment) MarshalJSON() ([]byte, error) {
 	na := struct {
-		Content  []int  `json:"content,omitempty"`
-		Filename string `json:"filename,omitempty"`
-		Path     string `json:"path,omitempty"`
+		Content     []int  `json:"content,omitempty"`
+		Filename    string `json:"filename,omitempty"`
+		Path        string `json:"path,omitempty"`
+		ContentType string `json:"content_type,omitempty"`
 	}{
-		Filename: a.Filename,
-		Path:     a.Path,
-		Content:  BytesToIntArray(a.Content),
+		Filename:    a.Filename,
+		Path:        a.Path,
+		Content:     BytesToIntArray(a.Content),
+		ContentType: a.ContentType,
 	}
 	return json.Marshal(na)
 }

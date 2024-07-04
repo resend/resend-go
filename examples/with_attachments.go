@@ -27,13 +27,15 @@ func withAttachments() {
 
 	// Create attachments objects
 	pdfAttachmentFromLocalFile := &resend.Attachment{
-		Content:  f,
-		Filename: "invoice1.pdf",
+		Content:     f,
+		Filename:    "invoice1.pdf",
+		ContentType: "application/pdf",
 	}
 
 	pdfAttachmentFromRemotePath := &resend.Attachment{
-		Path:     "https://github.com/resend/resend-go/raw/main/resources/invoice.pdf",
-		Filename: "invoice2.pdf",
+		Path:        "https://github.com/resend/resend-go/raw/main/resources/invoice.pdf",
+		Filename:    "invoice2.pdf",
+		ContentType: "application/pdf",
 	}
 
 	params := &resend.SendEmailRequest{
