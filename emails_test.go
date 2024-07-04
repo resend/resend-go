@@ -70,7 +70,7 @@ func TestSendEmailWithAttachment(t *testing.T) {
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
 		}
-		exp := `"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt"}]`
+		exp := `"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt","content_type":"text/plain"}]`
 		if !bytes.Contains(content, []byte(exp)) {
 			t.Errorf("request body does not include attachment data")
 		}
@@ -87,8 +87,9 @@ func TestSendEmailWithAttachment(t *testing.T) {
 		To: []string{"d@e.com"},
 		Attachments: []*Attachment{
 			{
-				Content:  []byte("hello"),
-				Filename: "hello.txt",
+				Content:     []byte("hello"),
+				Filename:    "hello.txt",
+				ContentType: "text/plain",
 			},
 		},
 	}
