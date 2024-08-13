@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// SendEmailRequest is the request object for the SendEmail call.
+// SendEmailRequest is the request object for the Send call.
 //
 // See also https://resend.com/docs/api-reference/emails/send-email
 type SendEmailRequest struct {
@@ -24,30 +24,30 @@ type SendEmailRequest struct {
 	ScheduledAt string            `json:"scheduled_at,omitempty"`
 }
 
-// CancelScheduledEmailResponse is the response from the CancelEmail call.
+// CancelScheduledEmailResponse is the response from the Cancel call.
 type CancelScheduledEmailResponse struct {
 	Id     string `json:"id"`
 	Object string `json:"object"`
 }
 
-// SendEmailResponse is the response from the SendEmail call.
+// SendEmailResponse is the response from the Send call.
 type SendEmailResponse struct {
 	Id string `json:"id"`
 }
 
-// UpdateEmailRequest is the request object for the UpdateEmail call.
+// UpdateEmailRequest is the request object for the Update call.
 type UpdateEmailRequest struct {
 	Id          string `json:"id"`
 	ScheduledAt string `json:"scheduled_at"`
 }
 
-// UpdateEmailResponse is the type that represents the response from the UpdateEmail call.
+// UpdateEmailResponse is the type that represents the response from the Update call.
 type UpdateEmailResponse struct {
 	Id     string `json:"id"`
 	Object string `json:"object"`
 }
 
-// Email provides the structure for the response from the GetEmail call.
+// Email provides the structure for the response from the Get call.
 type Email struct {
 	Id        string   `json:"id"`
 	Object    string   `json:"object"`
