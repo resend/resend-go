@@ -8,7 +8,7 @@ import (
 	"github.com/resend/resend-go/v2"
 )
 
-func scheduledEmailExample() {
+func scheduleEmail() {
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
@@ -35,16 +35,15 @@ func scheduledEmailExample() {
 	}
 
 	// Update the scheduled email
-	email, err := client.Emails.UpdateWithContext(ctx, updateParams)
-	if err != nil {
-		panic(err)
-
-	}
-	fmt.Printf("%v\n", email)
-
-	cancelled, err := client.Emails.CancelWithContext(ctx, sent.Id)
+	updatedEmail, err := client.Emails.UpdateWithContext(ctx, updateParams)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v\n", cancelled)
+	fmt.Printf("%v\n", updatedEmail)
+
+	canceled, err := client.Emails.CancelWithContext(ctx, "32723fee-8502-4b58-8b5e-bfd98f453ced")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", canceled)
 }
