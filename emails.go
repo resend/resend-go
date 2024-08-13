@@ -21,11 +21,30 @@ type SendEmailRequest struct {
 	Tags        []Tag             `json:"tags,omitempty"`
 	Attachments []*Attachment     `json:"attachments,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
+	ScheduledAt string            `json:"scheduled_at,omitempty"`
+}
+
+// CancelScheduledEmailResponse is the response from the CancelEmail call.
+type CancelScheduledEmailResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
 }
 
 // SendEmailResponse is the response from the SendEmail call.
 type SendEmailResponse struct {
 	Id string `json:"id"`
+}
+
+// UpdateEmailRequest is the request object for the UpdateEmail call.
+type UpdateEmailRequest struct {
+	Id          string `json:"id"`
+	ScheduledAt string `json:"scheduled_at"`
+}
+
+// UpdateEmailResponse is the type that represents the response from the UpdateEmail call.
+type UpdateEmailResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
 }
 
 // Email provides the structure for the response from the GetEmail call.
@@ -88,6 +107,10 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 }
 
 type EmailsSvc interface {
+	CancelWithContext(ctx context.Context, emailID string) (*CancelScheduledEmailResponse, error)
+	Cancel(emailID string) (*CancelScheduledEmailResponse, error)
+	UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error)
+	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
 	GetWithContext(ctx context.Context, emailID string) (*Email, error)
@@ -96,6 +119,66 @@ type EmailsSvc interface {
 
 type EmailsSvcImpl struct {
 	client *Client
+}
+
+// Cancel cancels an email by ID
+// https://resend.com/docs/api-reference/emails/cancel-email
+func (s *EmailsSvcImpl) Cancel(emailID string) (*CancelScheduledEmailResponse, error) {
+	return s.CancelWithContext(context.Background(), emailID)
+}
+
+// CancelWithContext cancels an email by ID
+// https://resend.com/docs/api-reference/emails/cancel-email
+func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailID string) (*CancelScheduledEmailResponse, error) {
+	path := "emails/" + emailID + "/cancel"
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateEmailsSendRequest
+	}
+
+	// Build response recipient obj
+	resp := new(CancelScheduledEmailResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+// Update updates an email with the given params
+// https://resend.com/docs/api-reference/emails/update-email
+func (s *EmailsSvcImpl) Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error) {
+	return s.UpdateWithContext(context.Background(), params)
+}
+
+// UpdateWithContext sends an email with the given params
+// https://resend.com/docs/api-reference/emails/update-email
+func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error) {
+	path := "emails/" + params.Id
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return nil, ErrFailedToCreateUpdateEmailRequest
+	}
+
+	// Build response recipient obj
+	updateEmailResponse := new(UpdateEmailResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, updateEmailResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updateEmailResponse, nil
 }
 
 // SendWithContext sends an email with the given params
