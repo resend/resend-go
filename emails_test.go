@@ -31,6 +31,35 @@ func teardown() {
 	server.Close()
 }
 
+func TestScheduleEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &SendEmailResponse{
+			Id: "1923781293",
+		}
+		err := json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		To:          []string{"d@e.com"},
+		ScheduledAt: "2024-09-05T11:52:01.858Z",
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "1923781293")
+}
+
 func TestSendEmail(t *testing.T) {
 	setup()
 	defer teardown()
@@ -130,6 +159,31 @@ func TestGetEmail(t *testing.T) {
 	assert.Equal(t, resp.Html, "html")
 	assert.Equal(t, resp.To[0], "james@bond.com")
 	assert.Equal(t, resp.Subject, "Hello World")
+}
+
+func TestCancelScheduledEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
+			"object": "email"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Emails.Cancel("dacf4072-4119-4d88-932f-6202748ac7c8")
+	if err != nil {
+		t.Errorf("Emails.Cancel returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
+	assert.Equal(t, resp.Object, "email")
 }
 
 func testMethod(t *testing.T, r *http.Request, expected string) {
