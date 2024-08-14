@@ -157,7 +157,7 @@ func (s *EmailsSvcImpl) Update(params *UpdateEmailRequest) (*UpdateEmailResponse
 	return s.UpdateWithContext(context.Background(), params)
 }
 
-// UpdateWithContext sends an email with the given params
+// UpdateWithContext updates an email with the given params
 // https://resend.com/docs/api-reference/emails/update-email
 func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error) {
 	path := "emails/" + params.Id
