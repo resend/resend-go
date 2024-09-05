@@ -16,9 +16,9 @@ jobs:
     strategy:
       matrix:
         go:
-          - "1.19"
-          - "1.18"
-          - "1.17"
+          - "1.23"
+          - "1.22"
+          - "1.21"
     name: "Test: go v${{ matrix.go }}"
     steps:
       - uses: actions/checkout@v3
