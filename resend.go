@@ -144,18 +144,28 @@ func handleError(resp *http.Response) error {
 	// Handles errors most likely caused by the client
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		r := &InvalidRequestError{}
-		err := json.NewDecoder(resp.Body).Decode(r)
-		if err != nil {
-			return err
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
+			err := json.NewDecoder(resp.Body).Decode(r)
+			if err != nil {
+				r.Message = resp.Status
+			}
+		} else {
+			r.Message = resp.Status
 		}
 		return errors.New("[ERROR]: " + r.Message)
 	default:
 		// Tries to parse `message` attr from error
 		r := &DefaultError{}
-		err := json.NewDecoder(resp.Body).Decode(r)
-		if err != nil {
-			return err
+
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
+			err := json.NewDecoder(resp.Body).Decode(r)
+			if err != nil {
+				r.Message = resp.Status
+			}
+		} else {
+			r.Message = resp.Status
 		}
+
 		if r.Message != "" {
 			return errors.New("[ERROR]: " + r.Message)
 		}
