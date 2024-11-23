@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -18,6 +19,10 @@ const (
 )
 
 var defaultBaseURL = getEnv("RESEND_BASE_URL", "https://api.resend.com/")
+
+var defaultHTTPClient = &http.Client{
+	Timeout: time.Minute,
+}
 
 // Client handles communication with Resend API.
 type Client struct {
@@ -48,13 +53,13 @@ type Client struct {
 // NewClient is the default client constructor
 func NewClient(apiKey string) *Client {
 	key := strings.Trim(strings.TrimSpace(apiKey), "'")
-	return NewCustomClient(http.DefaultClient, key)
+	return NewCustomClient(defaultHTTPClient, key)
 }
 
 // NewCustomClient builds a new Resend API client, using a provided Http client.
 func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	if httpClient == nil {
-		httpClient = http.DefaultClient
+		httpClient = defaultHTTPClient
 	}
 
 	baseURL, _ := url.Parse(defaultBaseURL)
