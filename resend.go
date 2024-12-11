@@ -42,12 +42,13 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails    EmailsSvc
-	Batch     BatchSvc
-	ApiKeys   ApiKeysSvc
-	Domains   DomainsSvc
-	Audiences AudiencesSvc
-	Contacts  ContactsSvc
+	Emails     EmailsSvc
+	Batch      BatchSvc
+	ApiKeys    ApiKeysSvc
+	Domains    DomainsSvc
+	Audiences  AudiencesSvc
+	Contacts   ContactsSvc
+	Broadcasts BroadcastsSvc
 }
 
 // NewClient is the default client constructor
@@ -72,6 +73,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Domains = &DomainsSvcImpl{client: c}
 	c.Audiences = &AudiencesSvcImpl{client: c}
 	c.Contacts = &ContactsSvcImpl{client: c}
+	c.Broadcasts = &BroadcastsSvcImpl{client: c}
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
