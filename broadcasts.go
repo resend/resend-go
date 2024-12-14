@@ -121,7 +121,7 @@ func (s *BroadcastsSvcImpl) Create(params *CreateBroadcastRequest) (CreateBroadc
 }
 
 // GetWithContext Retrieve a single audience.
-// https://resend.com/docs/api-reference/broadcasts/get-audience
+// https://resend.com/docs/api-reference/broadcasts/get-broadcast
 func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) {
 
 	if broadcastId == "" {
@@ -149,7 +149,6 @@ func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId stri
 }
 
 // Get retrieves a single broadcast.
-// https://resend.com/docs/api-reference/broadcasts/get-broadcast
 func (s *BroadcastsSvcImpl) Get(broadcastId string) (Broadcast, error) {
 	return s.GetWithContext(context.Background(), broadcastId)
 }
@@ -211,7 +210,6 @@ func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId s
 }
 
 // Remove removes a given broadcast entry by id
-// https://resend.com/docs/api-reference/broadcasts/delete-broadcast
 func (s *BroadcastsSvcImpl) Remove(broadcastId string) (RemoveBroadcastResponse, error) {
 	return s.RemoveWithContext(context.Background(), broadcastId)
 }
@@ -240,7 +238,6 @@ func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcasts
 }
 
 // List returns the list of all broadcasts
-// https://resend.com/docs/api-reference/broadcasts/list-broadcasts
 func (s *BroadcastsSvcImpl) List() (ListBroadcastsResponse, error) {
 	return s.ListWithContext(context.Background())
 }
