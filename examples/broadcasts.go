@@ -17,7 +17,7 @@ func broadcastsExample() {
 	// Create Broadcast
 	params := &resend.CreateBroadcastRequest{
 		AudienceId: "78b8d3bc-a55a-45a3-aee6-6ec0a5e13d7e",
-		From:       "hi@presenteia.se",
+		From:       "onboarding@resend.dev",
 		Html:       "<html><body><h1>Hello, world!</h1></body></html>",
 		Name:       "Test Broadcast",
 		Subject:    "Hello, world!",
