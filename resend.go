@@ -159,6 +159,8 @@ func handleError(resp *http.Response) error {
 		} else {
 			r.Message = resp.Status
 		}
+
+		// TODO: replace this with a new ResendError type
 		return errors.New("[ERROR]: " + r.Message)
 	default:
 		// Tries to parse `message` attr from error
@@ -174,6 +176,7 @@ func handleError(resp *http.Response) error {
 		}
 
 		if r.Message != "" {
+			// TODO: replace this with a new ResendError type
 			return errors.New("[ERROR]: " + r.Message)
 		}
 		return errors.New("[ERROR]: Unknown Error")
