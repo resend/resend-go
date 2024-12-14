@@ -121,7 +121,7 @@ func (s *BroadcastsSvcImpl) Create(params *CreateBroadcastRequest) (CreateBroadc
 }
 
 // GetWithContext Retrieve a single audience.
-// https://resend.com/docs/api-reference/audiences/get-audience
+// https://resend.com/docs/api-reference/broadcasts/get-audience
 func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) {
 
 	if broadcastId == "" {
@@ -188,7 +188,7 @@ func (s *BroadcastsSvcImpl) Send(params *SendBroadcastRequest) (SendBroadcastRes
 }
 
 // RemoveWithContext removes a given broadcast by id
-// https://resend.com/docs/api-reference/audiences/delete-broadcast
+// https://resend.com/docs/api-reference/broadcasts/delete-broadcast
 func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error) {
 	path := "broadcasts/" + broadcastId
 
@@ -211,13 +211,13 @@ func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId s
 }
 
 // Remove removes a given broadcast entry by id
-// https://resend.com/docs/api-reference/audiences/delete-broadcast
+// https://resend.com/docs/api-reference/broadcasts/delete-broadcast
 func (s *BroadcastsSvcImpl) Remove(broadcastId string) (RemoveBroadcastResponse, error) {
 	return s.RemoveWithContext(context.Background(), broadcastId)
 }
 
 // ListWithContext returns the list of all broadcasts
-// https://resend.com/docs/api-reference/audiences/list-broadcasts
+// https://resend.com/docs/api-reference/broadcasts/list-broadcasts
 func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcastsResponse, error) {
 	path := "broadcasts"
 
@@ -240,7 +240,7 @@ func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcasts
 }
 
 // List returns the list of all broadcasts
-// https://resend.com/docs/api-reference/audiences/list-broadcasts
+// https://resend.com/docs/api-reference/broadcasts/list-broadcasts
 func (s *BroadcastsSvcImpl) List() (ListBroadcastsResponse, error) {
 	return s.ListWithContext(context.Background())
 }
