@@ -120,7 +120,7 @@ func (s *BroadcastsSvcImpl) Create(params *CreateBroadcastRequest) (CreateBroadc
 	return s.CreateWithContext(context.Background(), params)
 }
 
-// GetWithContext Retrieve a single audience.
+// GetWithContext Retrieve a single broadcast.
 // https://resend.com/docs/api-reference/broadcasts/get-broadcast
 func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) {
 
