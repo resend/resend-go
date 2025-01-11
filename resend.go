@@ -42,12 +42,13 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails    EmailsSvc
-	Batch     BatchSvc
-	ApiKeys   ApiKeysSvc
-	Domains   DomainsSvc
-	Audiences AudiencesSvc
-	Contacts  ContactsSvc
+	Emails     EmailsSvc
+	Batch      BatchSvc
+	ApiKeys    ApiKeysSvc
+	Domains    DomainsSvc
+	Audiences  AudiencesSvc
+	Contacts   ContactsSvc
+	Broadcasts BroadcastsSvc
 }
 
 // NewClient is the default client constructor
@@ -72,6 +73,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Domains = &DomainsSvcImpl{client: c}
 	c.Audiences = &AudiencesSvcImpl{client: c}
 	c.Contacts = &ContactsSvcImpl{client: c}
+	c.Broadcasts = &BroadcastsSvcImpl{client: c}
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
@@ -157,6 +159,8 @@ func handleError(resp *http.Response) error {
 		} else {
 			r.Message = resp.Status
 		}
+
+		// TODO: replace this with a new ResendError type
 		return errors.New("[ERROR]: " + r.Message)
 	default:
 		// Tries to parse `message` attr from error
@@ -172,6 +176,7 @@ func handleError(resp *http.Response) error {
 		}
 
 		if r.Message != "" {
+			// TODO: replace this with a new ResendError type
 			return errors.New("[ERROR]: " + r.Message)
 		}
 		return errors.New("[ERROR]: Unknown Error")

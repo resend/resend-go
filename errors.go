@@ -2,6 +2,12 @@ package resend
 
 import "errors"
 
+// BroadcastsSvc errors
+var (
+	ErrFailedToCreateBroadcastSendRequest   = errors.New("[ERROR]: Failed to create Broadcasts.Send request")
+	ErrFailedToCreateBroadcastCreateRequest = errors.New("[ERROR]: Failed to create Broadcasts.Create request")
+)
+
 // ApiKeySvc errors
 var (
 	ErrFailedToCreateApiKeysCreateRequest = errors.New("[ERROR]: Failed to create ApiKeys.Create request")
