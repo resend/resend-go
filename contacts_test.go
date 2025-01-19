@@ -150,7 +150,7 @@ func TestGetContact(t *testing.T) {
 	assert.Equal(t, contact.Unsubscribed, false)
 }
 
-func TestUpdateContact(t *testing.T) {
+func TestUpdateContactById(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -186,4 +186,102 @@ func TestUpdateContact(t *testing.T) {
 	assert.NotNil(t, resp.Data)
 	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
 	assert.Equal(t, resp.Error, struct{}{})
+}
+
+func TestUpdateContactByEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	email := "hi@resend.com"
+
+	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+email, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		var ret interface{}
+		ret = `
+		{
+			"data": {
+				"id": "479e3145-dd38-476b-932c-529ceb705947"
+			},
+			"error": null
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &UpdateContactRequest{
+		AudienceId: audienceId,
+		Email:      email,
+		FirstName:  "Updated First Name",
+	}
+	resp, err := client.Contacts.Update(req)
+	if err != nil {
+		t.Errorf("Contacts.Update returned error: %v", err)
+	}
+	assert.NotNil(t, resp.Data)
+	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
+	assert.Equal(t, resp.Error, struct{}{})
+}
+
+func TestUpdateContactIdMissing(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	id := ""
+
+	params := &UpdateContactRequest{
+		AudienceId: audienceId,
+		Id:         id,
+		FirstName:  "Updated First Name",
+	}
+	resp, err := client.Contacts.Update(params)
+
+	var missingRequiredFieldsErr *MissingRequiredFieldsError
+
+	assert.Equal(t, resp, UpdateContactResponse{})
+	assert.ErrorAsf(t, err, &missingRequiredFieldsErr, "expected error to be of type %T, got %T", &missingRequiredFieldsErr, err)
+	assert.Containsf(t, err.Error(), "Missing `id` or `email` field.", "expected error containing %q, got %s", "Missing `id` or `email` field.", err)
+}
+
+func TestUpdateContactEmailMissing(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+
+	params := &UpdateContactRequest{
+		AudienceId: audienceId,
+		Email:      "",
+		FirstName:  "Updated First Name",
+	}
+	resp, err := client.Contacts.Update(params)
+
+	var missingRequiredFieldsErr *MissingRequiredFieldsError
+
+	assert.Equal(t, resp, UpdateContactResponse{})
+	assert.ErrorAsf(t, err, &missingRequiredFieldsErr, "expected error to be of type %T, got %T", &missingRequiredFieldsErr, err)
+	assert.Containsf(t, err.Error(), "Missing `id` or `email` field.", "expected error containing %q, got %s", "Missing `id` or `email` field.", err)
+}
+
+func TestUpdateContactAudienceIdMissing(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := ""
+	id := "123123123"
+
+	params := &UpdateContactRequest{
+		AudienceId: audienceId,
+		Id:         id,
+		FirstName:  "Updated First Name",
+	}
+	resp, err := client.Contacts.Update(params)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, resp, UpdateContactResponse{})
+	assert.Containsf(t, err.Error(), "[ERROR]: AudienceId is missing", "expected error containing %q, got %s", "[ERROR]: AudienceId is missing", err)
 }

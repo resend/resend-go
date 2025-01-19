@@ -33,6 +33,7 @@ type CreateContactRequest struct {
 
 type UpdateContactRequest struct {
 	Id           string `json:"id"`
+	Email        string `json:"email,omitempty"`
 	AudienceId   string `json:"audience_id"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
@@ -201,11 +202,18 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 		return UpdateContactResponse{}, errors.New("[ERROR]: AudienceId is missing")
 	}
 
-	if params.Id == "" {
-		return UpdateContactResponse{}, errors.New("[ERROR]: Id is missing")
+	if params.Id == "" && params.Email == "" {
+		return UpdateContactResponse{}, &MissingRequiredFieldsError{message: "[ERROR]: Missing `id` or `email` field."}
 	}
 
-	path := "audiences/" + params.AudienceId + "/contacts/" + params.Id
+	var val string
+	if params.Id != "" {
+		val = params.Id
+	} else {
+		val = params.Email
+	}
+
+	path := "audiences/" + params.AudienceId + "/contacts/" + val
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
