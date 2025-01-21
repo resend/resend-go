@@ -1,6 +1,18 @@
 package resend
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
+
+// MissingRequiredFieldsError is used when a required field is missing before making an API request
+type MissingRequiredFieldsError struct {
+	message string
+}
+
+func (e *MissingRequiredFieldsError) Error() string {
+	return fmt.Sprintf("%s", e.message)
+}
 
 // BroadcastsSvc errors
 var (
