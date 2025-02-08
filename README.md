@@ -59,8 +59,7 @@ func main() {
 
     client := resend.NewClient(apiKey)
     // No need to create objects manually
-    sent, err := client.Emails.Send(
-        client.Emails.SendWithOption(
+    sent, err := client.Emails.SendWithOption(
         WithSendEmailTo([]string{"to@example", "you@example.com"}),
         WithSendEmailFrom("me@exemple.io"),
         WithSendEmailText("hello world"),
