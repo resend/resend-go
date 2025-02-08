@@ -48,5 +48,44 @@ func main() {
 }
 
 ```
+```go
+import (
+    "fmt"
+    "github.com/resend/resend-go/v2"
+)
+
+func main() {
+    apiKey := "re_123"
+
+    client := resend.NewClient(apiKey)
+    // No need to create objects manually
+    sent, err := client.Emails.Send(
+        client.Emails.SendWithOption(
+        WithSendEmailTo([]string{"to@example", "you@example.com"}),
+        WithSendEmailFrom("me@exemple.io"),
+        WithSendEmailText("hello world"),
+        WithSendEmailSubject("Hello from Golang"),
+        WithSendEmailCc([]string{"cc@example.com"}),
+        WithSendEmailBcc([]string{"cc@example.com"}),
+        WithSendEmailReplyTo("replyto@example.com"),
+        WithSendEmailScheduledAt(""),
+        WithSendEmailAttachment(
+            WithAttachmentPath("/test"),
+            WithAttachmentContent([]byte{}),
+            WithAttachmentFilename("test.txt"),
+        ),
+        WithSendEmailAttachment(
+            WithAttachmentPath("/test"),
+            WithAttachmentContent([]byte{}),
+            WithAttachmentFilename("test2.txt"),
+        ),
+        )
+    )
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(sent.Id)
+}
+```
 
 You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)

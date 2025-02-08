@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+type EmailOptions[T any] func(*T)
+
+
+
 // SendEmailRequest is the request object for the Send call.
 //
 // See also https://resend.com/docs/api-reference/emails/send-email
@@ -89,6 +93,122 @@ type Attachment struct {
 	ContentType string
 }
 
+// WithSendEmailFrom sets the sender email address
+func WithSendEmailFrom(from string) EmailOptions[SendEmailRequest] {
+	return func(req *SendEmailRequest) {
+		req.From = from
+	}
+}
+
+// WithSendEmailTo sets the recipient list
+func WithSendEmailTo(to []string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.To = to
+	}
+}
+
+// WithSendEmailSubject sets the email subject
+func WithSendEmailSubject(subject string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Subject = subject
+	}
+}
+
+// WithSendEmailBcc sets the blind carbon copy (BCC) recipients
+func WithSendEmailBcc(bcc []string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Bcc = bcc
+	}
+}
+
+// WithSendEmailCc sets the carbon copy (CC) recipients
+func WithSendEmailCc(cc []string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Cc = cc
+	}
+}
+
+// WithSendEmailReplyTo sets the reply-to email address
+func WithSendEmailReplyTo(replyTo string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.ReplyTo = replyTo
+	}
+}
+
+// WithSendEmailHtml sets the email HTML content
+func WithSendEmailHtml(html string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Html = html
+	}
+}
+
+// WithSendEmailText sets the email plain text content
+func WithSendEmailText(text string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Text = text
+	}
+}
+
+// WithSendEmailTags sets the email tags
+func WithSendEmailTags(tags []Tag) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Tags = tags
+	}
+}
+
+// WithSendEmailHeaders sets custom email headers
+func WithSendEmailHeaders(headers map[string]string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.Headers = headers
+	}
+}
+
+// WithSendEmailScheduledAt sets the scheduled send time for the email
+func WithSendEmailScheduledAt(scheduledAt string) EmailOptions[SendEmailRequest] {
+	return func(ser *SendEmailRequest) {
+		ser.ScheduledAt = scheduledAt
+	}
+}
+
+// WithAttachmentContent sets the attachment content
+func WithAttachmentContent(content []byte) EmailOptions[Attachment] {
+	return func(att *Attachment) {
+		att.Content = content
+	}
+}
+
+// WithAttachmentFilename sets the attachment filename
+func WithAttachmentFilename(filename string) EmailOptions[Attachment] {
+	return func(a *Attachment) {
+		a.Filename = filename
+	}
+}
+
+// WithAttachmentContentType sets the MIME type of the attachment
+func WithAttachmentContentType(contentType string) EmailOptions[Attachment] {
+	return func(a *Attachment) {
+		a.ContentType = contentType
+	}
+}
+
+// WithAttachmentPath sets the local file path for the attachment
+func WithAttachmentPath(path string) EmailOptions[Attachment] {
+	return func(a *Attachment) {
+		a.Path = path
+	}
+}
+
+// WithSendEmailAttachment adds an attachment to the email
+func WithSendEmailAttachment(opts ...EmailOptions[Attachment]) EmailOptions[SendEmailRequest] {
+	attach := new(Attachment)
+	for _, opt := range opts {
+		opt(attach)
+	}
+	return func(ser *SendEmailRequest) {
+		ser.Attachments = append(ser.Attachments, attach)
+	}
+}
+
 // MarshalJSON overrides the regular JSON Marshaller to ensure that the
 // attachment content is provided in the way Resend expects.
 func (a *Attachment) MarshalJSON() ([]byte, error) {
@@ -113,6 +233,7 @@ type EmailsSvc interface {
 	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
+	SendWithOption(params ...EmailOptions[SendEmailRequest]) (*SendEmailResponse, error)
 	GetWithContext(ctx context.Context, emailID string) (*Email, error)
 	Get(emailID string) (*Email, error)
 }
@@ -209,6 +330,15 @@ func (s *EmailsSvcImpl) SendWithContext(ctx context.Context, params *SendEmailRe
 // https://resend.com/docs/api-reference/emails/send-email
 func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, error) {
 	return s.SendWithContext(context.Background(), params)
+}
+
+func (s *EmailsSvcImpl) SendWithOption(opts ...EmailOptions[SendEmailRequest])(*SendEmailResponse, error){
+	params := &SendEmailRequest{}
+
+	for _,opt := range opts {
+		opt(params)
+	}
+	return s.Send(params)
 }
 
 // GetWithContext retrieves an email with the given emailID

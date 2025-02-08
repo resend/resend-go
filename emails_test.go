@@ -31,6 +31,26 @@ func teardown() {
 	server.Close()
 }
 
+func TestCreateRequest(t *testing.T){
+	client := NewClient("")
+	client.Emails.SendWithOption(
+		WithSendEmailTo([]string{"to@example", "you@example.com"}),
+		WithSendEmailFrom("me@exemple.io"),
+		WithSendEmailText("hello world"),
+		WithSendEmailSubject("Hello from Golang"),
+		WithSendEmailCc([]string{"cc@example.com"}),
+		WithSendEmailBcc([]string{"cc@example.com"}),
+		WithSendEmailReplyTo("replyto@example.com"),
+		WithSendEmailScheduledAt(""),
+		WithSendEmailAttachment(
+			WithAttachmentPath(""),
+			WithAttachmentContent([]byte{}),
+			WithAttachmentFilename("test.txt"),
+			WithAttachmentContentType(""),
+		),
+	)
+}
+
 func TestScheduleEmail(t *testing.T) {
 	setup()
 	defer teardown()
