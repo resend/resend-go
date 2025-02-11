@@ -135,7 +135,13 @@ func TestListDomains(t *testing.T) {
 				"name": "example.com",
 				"status": "not_started",
 				"created_at": "2023-04-26T20:21:26.347412+00:00",
-				"region": "us-east-1"
+				"region": "us-east-1",
+				"records": [
+					{
+						"record": "SPF",
+						"name": "bounces"
+					}
+				]
 			  }
 			]
 		}`
@@ -154,6 +160,7 @@ func TestListDomains(t *testing.T) {
 	assert.Equal(t, domains.Data[0].Status, "not_started")
 	assert.Equal(t, domains.Data[0].CreatedAt, "2023-04-26T20:21:26.347412+00:00")
 	assert.Equal(t, domains.Data[0].Region, "us-east-1")
+	assert.Equal(t, domains.Data[0].Records[0].Record, "SPF")
 }
 
 func TestRemoveDomain(t *testing.T) {
@@ -190,7 +197,13 @@ func TestGetDomain(t *testing.T) {
 			"name": "example.com",
 			"status": "not_started",
 			"created_at": "2023-04-26T20:21:26.347412+00:00",
-			"region": "us-east-1"
+			"region": "us-east-1",
+			"records": [
+				{
+					"record": "SPF",
+					"name": "bounces"
+				}
+			]
 		}`
 
 		fmt.Fprint(w, ret)
@@ -207,6 +220,8 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.Status, "not_started")
 	assert.Equal(t, domain.CreatedAt, "2023-04-26T20:21:26.347412+00:00")
 	assert.Equal(t, domain.Region, "us-east-1")
+	assert.Equal(t, domain.Records[0].Record, "SPF")
+	assert.Equal(t, domain.Records[0].Name, "bounces")
 }
 
 func TestUpdateDomain(t *testing.T) {

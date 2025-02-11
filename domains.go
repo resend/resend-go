@@ -65,6 +65,7 @@ type Domain struct {
 	CreatedAt string `json:"created_at,omitempty"`
 	Status    string `json:"status,omitempty"`
 	Region    string `json:"region,omitempty"`
+	Records   []Record `json:"records,omitempty"`
 }
 
 type Record struct {
