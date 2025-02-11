@@ -90,6 +90,10 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params int
 
 	var req *http.Request
 	req, err = http.NewRequestWithContext(ctx, method, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	if params != nil {
 		buf := new(bytes.Buffer)
 		err = json.NewEncoder(buf).Encode(params)
