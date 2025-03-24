@@ -15,16 +15,31 @@ type SendBroadcastRequest struct {
 }
 
 type CreateBroadcastRequest struct {
-	AudienceId string   `json:"audience_id"`
-	From       string   `json:"from"`
-	Subject    string   `json:"subject"`
-	ReplyTo    []string `json:"reply_to"`
-	Html       string   `json:"html"`
-	Text       string   `json:"text"`
-	Name       string   `json:"name"`
+	AudienceId string   `json:"audience_id,omitempty"`
+	From       string   `json:"from,omitempty"`
+	Subject    string   `json:"subject,omitempty"`
+	ReplyTo    []string `json:"reply_to,omitempty"`
+	Html       string   `json:"html,omitempty"`
+	Text       string   `json:"text,omitempty"`
+	Name       string   `json:"name,omitempty""`
+}
+
+type UpdateBroadcastRequest struct {
+	BroadcastId string   `json:"broadcast_id,omitempty"`
+	AudienceId  string   `json:"audience_id,omitempty"`
+	From        string   `json:"from,omitempty"`
+	Subject     string   `json:"subject,omitempty"`
+	ReplyTo     []string `json:"reply_to,omitempty"`
+	Html        string   `json:"html,omitempty"`
+	Text        string   `json:"text,omitempty"`
+	Name        string   `json:"name,omitempty"`
 }
 
 type CreateBroadcastResponse struct {
+	Id string `json:"id"`
+}
+
+type UpdateBroadcastResponse struct {
 	Id string `json:"id"`
 }
 
@@ -61,6 +76,9 @@ type Broadcast struct {
 type BroadcastsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateBroadcastRequest) (CreateBroadcastResponse, error)
 	Create(params *CreateBroadcastRequest) (CreateBroadcastResponse, error)
+
+	UpdateWithContext(ctx context.Context, params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error)
+	Update(params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error)
 
 	ListWithContext(ctx context.Context) (ListBroadcastsResponse, error)
 	List() (ListBroadcastsResponse, error)
@@ -118,6 +136,38 @@ func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *Creat
 // Create creates a new Broadcast based on the given params
 func (s *BroadcastsSvcImpl) Create(params *CreateBroadcastRequest) (CreateBroadcastResponse, error) {
 	return s.CreateWithContext(context.Background(), params)
+}
+
+// UpdateWithContext updates a given broadcast entry
+// https://resend.com/docs/api-reference/broadcasts/update-broadcast
+func (s *BroadcastsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error) {
+	if params.BroadcastId == "" {
+		return UpdateBroadcastResponse{}, errors.New("[ERROR]: BroadcastId cannot be empty")
+	}
+
+	path := "/broadcasts/" + params.BroadcastId
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return UpdateBroadcastResponse{}, ErrFailedToCreateBroadcastUpdateRequest
+	}
+
+	// Build response recipient obj
+	broadcastResp := new(UpdateBroadcastResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, broadcastResp)
+
+	if err != nil {
+		return UpdateBroadcastResponse{}, err
+	}
+
+	return *broadcastResp, nil
+}
+
+func (s *BroadcastsSvcImpl) Update(params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error) {
+	return s.UpdateWithContext(context.Background(), params)
 }
 
 // GetWithContext Retrieve a single broadcast.

@@ -8,7 +8,7 @@ import (
 	"github.com/resend/resend-go/v2"
 )
 
-func domainExample() {
+func domainsExample() {
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
