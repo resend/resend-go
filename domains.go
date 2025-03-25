@@ -59,12 +59,12 @@ type UpdateDomainRequest struct {
 }
 
 type Domain struct {
-	Id        string `json:"id,omitempty"`
-	Object    string `json:"object,omitempty"`
-	Name      string `json:"name,omitempty"`
-	CreatedAt string `json:"created_at,omitempty"`
-	Status    string `json:"status,omitempty"`
-	Region    string `json:"region,omitempty"`
+	Id        string   `json:"id,omitempty"`
+	Object    string   `json:"object,omitempty"`
+	Name      string   `json:"name,omitempty"`
+	CreatedAt string   `json:"created_at,omitempty"`
+	Status    string   `json:"status,omitempty"`
+	Region    string   `json:"region,omitempty"`
 	Records   []Record `json:"records,omitempty"`
 }
 

@@ -39,6 +39,34 @@ func TestCreateBroadcast(t *testing.T) {
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 }
 
+func TestUpdateBroadcast(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "559ac32e-9ef5-46fb-82a1-b76b840c0f7b"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &UpdateBroadcastRequest{
+		BroadcastId: "559ac32e-9ef5-46fb-82a1-b76b840c0f7b",
+		Name:        "Updated Broadcast",
+	}
+	resp, err := client.Broadcasts.Update(req)
+	if err != nil {
+		t.Errorf("Broadcasts.Update returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
+}
+
 func TestCreateBroadcastValidations(t *testing.T) {
 	setup()
 	defer teardown()
