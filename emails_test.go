@@ -2,6 +2,7 @@ package resend
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -184,6 +185,28 @@ func TestCancelScheduledEmail(t *testing.T) {
 	}
 	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
 	assert.Equal(t, resp.Object, "email")
+}
+
+func TestSendEmailWithOptions(t *testing.T) {
+	ctx := context.TODO()
+	client := NewClient("123")
+	params := &SendEmailRequest{
+		To: []string{"email@example.com", "email2@example.com"},
+	}
+	options := &SendEmailOptions{
+		IdempotencyKey: "unique-idempotency-key",
+	}
+
+	req, err := client.NewRequestWithOptions(ctx, "POST", "/emails/", params, options)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, req.Header["Accept"][0], "application/json")
+	assert.Equal(t, req.Header["Content-Type"][0], "application/json")
+	assert.Equal(t, req.Method, http.MethodPost)
+	assert.Equal(t, req.URL.String(), "https://api.resend.com/emails/")
+	assert.Equal(t, req.Header["Authorization"][0], "Bearer 123")
+	assert.Equal(t, req.Header["Idempotency-Key"][0], "unique-idempotency-key")
 }
 
 func testMethod(t *testing.T, r *http.Request, expected string) {

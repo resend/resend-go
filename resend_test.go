@@ -32,6 +32,9 @@ func TestResendRequestHeaders(t *testing.T) {
 	assert.Equal(t, req.Method, http.MethodPost)
 	assert.Equal(t, req.URL.String(), "https://api.resend.com/emails/")
 	assert.Equal(t, req.Header["Authorization"][0], "Bearer 123")
+
+	_, ok := req.Header["Idempotency-Key"]
+	assert.False(t, ok, "expected 'Idempotency-Key' header to be absent")
 }
 
 func TestResendRequestShouldReturnErrorIfContextIsCancelled(t *testing.T) {
