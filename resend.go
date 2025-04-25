@@ -24,6 +24,13 @@ var defaultHTTPClient = &http.Client{
 	Timeout: time.Minute,
 }
 
+// Options interface is used to define additional options that can be passed
+// to the API methods.
+type Options interface {
+	// GetIdempotencyKey returns the idempotency key
+	GetIdempotencyKey() string
+}
+
 // Client handles communication with Resend API.
 type Client struct {
 	// HTTP client
@@ -78,6 +85,26 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
 	return c
+}
+
+// NewRequestWithOptions builds and returns a new HTTP request object
+// based on the given arguments and options
+// It is used to set additional options like idempotency key
+func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string, params interface{}, options Options) (*http.Request, error) {
+	req, err := c.NewRequest(ctx, method, path, params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the idempotency key if provided and the method is POST for now.
+	if options != nil {
+		if options.GetIdempotencyKey() != "" && method == http.MethodPost {
+			req.Header.Set("Idempotency-Key", options.GetIdempotencyKey())
+		}
+	}
+
+	return req, nil
 }
 
 // NewRequest builds and returns a new HTTP request object

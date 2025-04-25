@@ -14,7 +14,7 @@ func sendEmailExample() {
 
 	client := resend.NewClient(apiKey)
 
-	// Send
+	// Send params
 	params := &resend.SendEmailRequest{
 		To:      []string{"delivered@resend.dev"},
 		From:    "onboarding@resend.dev",
@@ -29,13 +29,23 @@ func sendEmailExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(sent.Id)
+	fmt.Printf("Sent basic email: %s\n", sent.Id)
 
-	// Get
+	// Sending with IdempotencyKey
+	options := &resend.SendEmailOptions{
+		IdempotencyKey: "unique-idempotency-key",
+	}
+
+	sent, err = client.Emails.SendWithOptions(ctx, params, options)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Sent email with idempotency key: %s\n", sent.Id)
+
+	// Get Email
 	email, err := client.Emails.GetWithContext(ctx, sent.Id)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("%v\n", email)
-
 }

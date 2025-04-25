@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+type SendEmailOptions struct {
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+func (o SendEmailOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 // SendEmailRequest is the request object for the Send call.
 //
 // See also https://resend.com/docs/api-reference/emails/send-email
@@ -111,6 +119,7 @@ type EmailsSvc interface {
 	Cancel(emailID string) (*CancelScheduledEmailResponse, error)
 	UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
+	SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error)
 	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
 	GetWithContext(ctx context.Context, emailID string) (*Email, error)
@@ -179,6 +188,31 @@ func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEma
 	}
 
 	return updateEmailResponse, nil
+}
+
+// SendWithOptions sends an email with the given params
+// and additional options
+// https://resend.com/docs/api-reference/emails/send-email
+func (s *EmailsSvcImpl) SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error) {
+	path := "emails"
+
+	// Prepare request
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, path, params, options)
+	if err != nil {
+		return nil, ErrFailedToCreateEmailsSendRequest
+	}
+
+	// Build response recipient obj
+	emailResponse := new(SendEmailResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, emailResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return emailResponse, nil
 }
 
 // SendWithContext sends an email with the given params
