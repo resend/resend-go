@@ -10,16 +10,17 @@ import (
 
 func contactsExample() {
 
-	audienceId := "78b8d3bc-a55a-45a3-aee6-6ec0a5e13d7e"
+	audienceId := "ca4e37c5-a82a-4199-a3b8-bf912a6472aa"
 
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
+	contactEmail := "hi@example.com"
 
 	client := resend.NewClient(apiKey)
 
 	// Create Contact params
 	params := &resend.CreateContactRequest{
-		Email:      "hi@example.com",
+		Email:      contactEmail,
 		AudienceId: audienceId,
 		FirstName:  "Steve",
 		LastName:   "Woz",
@@ -44,12 +45,19 @@ func contactsExample() {
 		panic(err)
 	}
 
-	// Get
+	// Get by ID
 	retrievedContact, err := client.Contacts.GetWithContext(ctx, audienceId, contact.Id)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("\nRetrieved contact: %v\n", retrievedContact)
+
+	// Get by email
+	retrievedByEmail, err := client.Contacts.GetWithContext(ctx, audienceId, contactEmail)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nRetrieved contact by email: %v\n", retrievedByEmail)
 
 	// List
 	contacts, err := client.Contacts.ListWithContext(ctx, audienceId)

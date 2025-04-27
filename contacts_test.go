@@ -150,6 +150,46 @@ func TestGetContact(t *testing.T) {
 	assert.Equal(t, contact.Unsubscribed, false)
 }
 
+func TestGetContactByEmail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	contactEmail := "steve.wozniak@gmail.com"
+
+	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+contactEmail, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "contact",
+			"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+			"email": "steve.wozniak@gmail.com",
+			"first_name": "Steve",
+			"last_name": "Wozniak",
+			"created_at": "2023-10-06T23:47:56.678Z",
+			"unsubscribed": false
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	contact, err := client.Contacts.Get(audienceId, contactEmail)
+	if err != nil {
+		t.Errorf("Contacts.Get returned error: %v", err)
+	}
+
+	assert.Equal(t, contact.Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
+	assert.Equal(t, contact.Object, "contact")
+	assert.Equal(t, contact.FirstName, "Steve")
+	assert.Equal(t, contact.LastName, "Wozniak")
+	assert.Equal(t, contact.Email, contactEmail)
+	assert.Equal(t, contact.CreatedAt, "2023-10-06T23:47:56.678Z")
+	assert.Equal(t, contact.Unsubscribed, false)
+}
+
 func TestUpdateContactById(t *testing.T) {
 	setup()
 	defer teardown()
