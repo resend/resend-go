@@ -11,10 +11,10 @@ type ContactsSvc interface {
 	Create(params *CreateContactRequest) (CreateContactResponse, error)
 	ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error)
 	List(audienceId string) (ListContactsResponse, error)
-	GetWithContext(ctx context.Context, audienceId, contactId string) (Contact, error)
-	Get(audienceId, contactId string) (Contact, error)
-	RemoveWithContext(ctx context.Context, audienceId, contactId string) (RemoveContactResponse, error)
-	Remove(audienceId, contactId string) (RemoveContactResponse, error)
+	GetWithContext(ctx context.Context, audienceId, id string) (Contact, error)
+	Get(audienceId, id string) (Contact, error)
+	RemoveWithContext(ctx context.Context, audienceId, id string) (RemoveContactResponse, error)
+	Remove(audienceId, id string) (RemoveContactResponse, error)
 	UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error)
 	Update(params *UpdateContactRequest) (UpdateContactResponse, error)
 }
@@ -136,8 +136,8 @@ func (s *ContactsSvcImpl) List(audienceId string) (ListContactsResponse, error) 
 
 // RemoveWithContext same as Remove but with context
 // https://resend.com/docs/api-reference/contacts/delete-contact
-func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, contactId string) (RemoveContactResponse, error) {
-	path := "audiences/" + audienceId + "/contacts/" + contactId
+func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, id string) (RemoveContactResponse, error) {
+	path := "audiences/" + audienceId + "/contacts/" + id
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
@@ -159,17 +159,21 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, con
 
 // Remove removes a given contact entry by id or email
 //
-// @param [contactId] - can be either a contact id or email
+// @param [id] - can be either a contact id or email
 //
 // https://resend.com/docs/api-reference/contacts/delete-contact
-func (s *ContactsSvcImpl) Remove(audienceId, contactId string) (RemoveContactResponse, error) {
-	return s.RemoveWithContext(context.Background(), audienceId, contactId)
+func (s *ContactsSvcImpl) Remove(audienceId, id string) (RemoveContactResponse, error) {
+	return s.RemoveWithContext(context.Background(), audienceId, id)
 }
 
 // GetWithContext Retrieve a single contact.
+// This method can be used to retrieve a contact by either its ID or email address.
+//
+// @param [id] - can be either a contact id or email
+//
 // https://resend.com/docs/api-reference/contacts/get-contact
-func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, contactId string) (Contact, error) {
-	path := "audiences/" + audienceId + "/contacts/" + contactId
+func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, id string) (Contact, error) {
+	path := "audiences/" + audienceId + "/contacts/" + id
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)

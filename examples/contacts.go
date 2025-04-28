@@ -50,7 +50,7 @@ func contactsExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\nRetrieved contact: %v\n", retrievedContact)
+	fmt.Printf("\nRetrieved contact by ID: %v\n", retrievedContact)
 
 	// Get by email
 	retrievedByEmail, err := client.Contacts.GetWithContext(ctx, audienceId, contactEmail)
