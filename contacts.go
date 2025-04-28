@@ -194,9 +194,12 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, id str
 }
 
 // Get Retrieve a single contact.
+// This method can be used to retrieve a contact by either its ID or email address.
+//
+// @param [id] - can be either a contact id or email
 // https://resend.com/docs/api-reference/contacts/get-contact
-func (s *ContactsSvcImpl) Get(audienceId, contactId string) (Contact, error) {
-	return s.GetWithContext(context.Background(), audienceId, contactId)
+func (s *ContactsSvcImpl) Get(audienceId, id string) (Contact, error) {
+	return s.GetWithContext(context.Background(), audienceId, id)
 }
 
 // UpdateWithContext updates an existing Contact based on the given params
