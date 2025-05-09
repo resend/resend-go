@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Build](https://github.com/resend/resend-go/actions/workflows/go.yml/badge.svg)
 ![Release](https://img.shields.io/github/release/resend/resend-go.svg?style=flat-square)
+[![Go Reference](https://pkg.go.dev/badge/github.com/resend/resend-go/v2.svg)](https://pkg.go.dev/github.com/resend/resend-go/v2)
 ---
 
 ## Installation
