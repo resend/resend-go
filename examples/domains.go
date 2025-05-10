@@ -16,7 +16,9 @@ func domainsExample() {
 
 	// Create Domain params
 	params := &resend.CreateDomainRequest{
-		Name: "exampledomain.com",
+		Name:             "drish.dev",
+		Region:           "us-east-1",
+		CustomReturnPath: "outbound",
 	}
 
 	domain, err := client.Domains.CreateWithContext(ctx, params)
