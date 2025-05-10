@@ -76,7 +76,9 @@ func TestCreateDomain(t *testing.T) {
 	})
 
 	req := &CreateDomainRequest{
-		Name: "example.com",
+		Name:             "example.com",
+		Region:           "us-east-1",
+		CustomReturnPath: "outbound",
 	}
 	resp, err := client.Domains.Create(req)
 	if err != nil {
