@@ -34,8 +34,9 @@ type DomainsSvcImpl struct {
 }
 
 type CreateDomainRequest struct {
-	Name   string `json:"name"`
-	Region string `json:"region,omitempty"`
+	Name             string `json:"name"`
+	Region           string `json:"region,omitempty"`
+	CustomReturnPath string `json:"custom_return_path,omitempty"`
 }
 
 type CreateDomainResponse struct {
