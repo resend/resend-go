@@ -6,6 +6,16 @@ import (
 	"net/http"
 )
 
+// BatchSendEmailOptions is the additional options struct for the Batch.SendEmail call.
+type BatchSendEmailOptions struct {
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// GetIdempotencyKey returns the idempotency key for the batch send email request.
+func (o BatchSendEmailOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 // BatchEmailResponse is the response from the BatchSendEmail call.
 // see https://resend.com/docs/api-reference/emails/send-batch-emails
 type BatchEmailResponse struct {
@@ -15,6 +25,7 @@ type BatchEmailResponse struct {
 type BatchSvc interface {
 	Send([]*SendEmailRequest) (*BatchEmailResponse, error)
 	SendWithContext(ctx context.Context, params []*SendEmailRequest) (*BatchEmailResponse, error)
+	SendWithOptions(ctx context.Context, params []*SendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error)
 }
 
 type BatchSvcImpl struct {
@@ -33,6 +44,29 @@ func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailR
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
+	if err != nil {
+		return nil, errors.New("[ERROR]: Failed to create BatchEmail request")
+	}
+
+	// Build response recipient obj
+	batchSendEmailResponse := new(BatchEmailResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, batchSendEmailResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return batchSendEmailResponse, nil
+}
+
+// SendWithOptions is the same as Send but accepts a ctx and options as arguments
+func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error) {
+	path := "emails/batch"
+
+	// Prepare request
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, path, params, options)
 	if err != nil {
 		return nil, errors.New("[ERROR]: Failed to create BatchEmail request")
 	}
