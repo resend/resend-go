@@ -2,6 +2,7 @@ package resend
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 )
@@ -38,6 +39,13 @@ type UpdateContactRequest struct {
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	Unsubscribed bool   `json:"unsubscribed,omitempty"`
+
+	unsubscribedSet bool `json:"-"`
+}
+
+func (r *UpdateContactRequest) SetUnsubscribed(val bool) {
+	r.Unsubscribed = val
+	r.unsubscribedSet = true
 }
 
 type UpdateContactResponse struct {
@@ -239,6 +247,32 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 	}
 
 	return *contactsResp, nil
+}
+
+// Patches the JSON representation of the UpdateContactRequest
+// in order to properly omit the `unsubscribed` field if it is not set
+// This is marked to be fixed properly in v3, since the actual fix would
+// require a breaking change
+func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
+	type Alias UpdateContactRequest
+	aux := make(map[string]interface{})
+
+	aux["id"] = r.Id
+	if r.Email != "" {
+		aux["email"] = r.Email
+	}
+	aux["audience_id"] = r.AudienceId
+	if r.FirstName != "" {
+		aux["first_name"] = r.FirstName
+	}
+	if r.LastName != "" {
+		aux["last_name"] = r.LastName
+	}
+	if r.unsubscribedSet {
+		aux["unsubscribed"] = r.Unsubscribed
+	}
+
+	return json.Marshal(aux)
 }
 
 // UpdateWithContext updates an existing Contact based on the given params
