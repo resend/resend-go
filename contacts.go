@@ -43,6 +43,11 @@ type UpdateContactRequest struct {
 	unsubscribedSet bool `json:"-"`
 }
 
+// Temporary setter for the `unsubscribed` field. This is here
+// as a backwards compatible way to set the unsubscribed field as false, since the
+// default zero value for a bool is false with omitempty, and setting as false
+// would omit the field from the JSON representation.
+// Proper fix for this is coming in v3.
 func (r *UpdateContactRequest) SetUnsubscribed(val bool) {
 	r.Unsubscribed = val
 	r.unsubscribedSet = true

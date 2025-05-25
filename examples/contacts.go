@@ -77,7 +77,7 @@ func contactsExample() {
 	removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, contact.Id)
 
 	// Remove by email
-	// removed, err = client.Contacts.RemoveWithContext(ctx, audienceId, "hi@example.com")
+	// removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, "hi@example.com")
 	if err != nil {
 		panic(err)
 	}
