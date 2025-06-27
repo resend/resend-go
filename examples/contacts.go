@@ -20,10 +20,11 @@ func contactsExample() {
 
 	// Create Contact params
 	params := &resend.CreateContactRequest{
-		Email:      contactEmail,
-		AudienceId: audienceId,
-		FirstName:  "Steve",
-		LastName:   "Woz",
+		Email:        contactEmail,
+		AudienceId:   audienceId,
+		FirstName:    "Steve",
+		LastName:     "Woz",
+		Unsubscribed: true,
 	}
 
 	contact, err := client.Contacts.CreateWithContext(ctx, params)
@@ -34,12 +35,15 @@ func contactsExample() {
 
 	// Update
 	updateParams := &resend.UpdateContactRequest{
-		AudienceId:   audienceId,
-		Id:           contact.Id,
-		FirstName:    "Updated First Name",
-		LastName:     "Updated Last Name",
-		Unsubscribed: true,
+		AudienceId: audienceId,
+		Id:         "88ffbe62-9bd6-4a39-9ddc-4d51053e172a",
+		FirstName:  "new Updated First Name",
+		LastName:   "new Updated Last Name",
 	}
+
+	// Set unsubscribed to false
+	updateParams.SetUnsubscribed(false)
+
 	_, err = client.Contacts.UpdateWithContext(ctx, updateParams)
 	if err != nil {
 		panic(err)
