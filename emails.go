@@ -95,21 +95,28 @@ type Attachment struct {
 	// Content type for the attachment, if not set will be derived from
 	// the filename property
 	ContentType string
+
+	// Optional content ID for the attachment, to be used as a reference in the HTML content.
+	// If set, this attachment will be sent as an inline attachment and you can reference it
+	// in the HTML content using the `cid:` prefix.
+	InlineContentId string
 }
 
 // MarshalJSON overrides the regular JSON Marshaller to ensure that the
 // attachment content is provided in the way Resend expects.
 func (a *Attachment) MarshalJSON() ([]byte, error) {
 	na := struct {
-		Content     []int  `json:"content,omitempty"`
-		Filename    string `json:"filename,omitempty"`
-		Path        string `json:"path,omitempty"`
-		ContentType string `json:"content_type,omitempty"`
+		Content         []int  `json:"content,omitempty"`
+		Filename        string `json:"filename,omitempty"`
+		Path            string `json:"path,omitempty"`
+		ContentType     string `json:"content_type,omitempty"`
+		InlineContentId string `json:"inline_content_id,omitempty"`
 	}{
-		Filename:    a.Filename,
-		Path:        a.Path,
-		Content:     BytesToIntArray(a.Content),
-		ContentType: a.ContentType,
+		Filename:        a.Filename,
+		Path:            a.Path,
+		Content:         BytesToIntArray(a.Content),
+		ContentType:     a.ContentType,
+		InlineContentId: a.InlineContentId,
 	}
 	return json.Marshal(na)
 }
