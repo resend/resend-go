@@ -130,7 +130,7 @@ func TestSendEmailWithAttachment(t *testing.T) {
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
-func TestSendEmailWithInlineAttachment(t *testing.T) {
+func TestSendEmailWithInlineAttachmentUsingContentId(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -141,9 +141,53 @@ func TestSendEmailWithInlineAttachment(t *testing.T) {
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
 		}
-		exp := `"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt","content_type":"text/plain","inline_content_id":"test-cid"}]`
-		if !bytes.Contains(content, []byte(exp)) {
-			t.Errorf("request body does not include inline attachment data, got: %s", string(content))
+		// Check that content_id is sent when ContentId is used
+		expContentId := `"content_id":"test-cid"`
+		if !bytes.Contains(content, []byte(expContentId)) {
+			t.Errorf("request body does not include content_id field, got: %s", string(content))
+		}
+		w.WriteHeader(http.StatusOK)
+		ret := &SendEmailResponse{
+			Id: "1923781293",
+		}
+		if err := json.NewEncoder(w).Encode(&ret); err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		To: []string{"d@e.com"},
+		Attachments: []*Attachment{
+			{
+				Content:     []byte("hello"),
+				Filename:    "hello.txt",
+				ContentType: "text/plain",
+				ContentId:   "test-cid",
+			},
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "1923781293")
+}
+
+func TestSendEmailWithInlineAttachmentUsingInlineContentId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		content, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("failed to read request body: %v", err)
+		}
+		// Check that inline_content_id is sent when InlineContentId is used
+		expInlineContentId := `"inline_content_id":"legacy-cid"`
+		if !bytes.Contains(content, []byte(expInlineContentId)) {
+			t.Errorf("request body does not include inline_content_id field, got: %s", string(content))
 		}
 		w.WriteHeader(http.StatusOK)
 		ret := &SendEmailResponse{
@@ -161,7 +205,55 @@ func TestSendEmailWithInlineAttachment(t *testing.T) {
 				Content:         []byte("hello"),
 				Filename:        "hello.txt",
 				ContentType:     "text/plain",
-				InlineContentId: "test-cid",
+				InlineContentId: "legacy-cid",
+			},
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "1923781293")
+}
+
+func TestSendEmailWithBothContentIdAndInlineContentId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		content, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("failed to read request body: %v", err)
+		}
+		// When both are set, both should be sent to maintain compatibility
+		expContentId := `"content_id":"preferred-cid"`
+		expInlineContentId := `"inline_content_id":"legacy-cid"`
+		if !bytes.Contains(content, []byte(expContentId)) {
+			t.Errorf("request body does not include content_id field, got: %s", string(content))
+		}
+		if !bytes.Contains(content, []byte(expInlineContentId)) {
+			t.Errorf("request body does not include inline_content_id field, got: %s", string(content))
+		}
+		w.WriteHeader(http.StatusOK)
+		ret := &SendEmailResponse{
+			Id: "1923781293",
+		}
+		if err := json.NewEncoder(w).Encode(&ret); err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		To: []string{"d@e.com"},
+		Attachments: []*Attachment{
+			{
+				Content:         []byte("hello"),
+				Filename:        "hello.txt",
+				ContentType:     "text/plain",
+				ContentId:       "preferred-cid",
+				InlineContentId: "legacy-cid",
 			},
 		},
 	}

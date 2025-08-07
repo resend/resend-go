@@ -99,6 +99,12 @@ type Attachment struct {
 	// Optional content ID for the attachment, to be used as a reference in the HTML content.
 	// If set, this attachment will be sent as an inline attachment and you can reference it
 	// in the HTML content using the `cid:` prefix.
+	ContentId string
+
+	// Deprecated: Use ContentId instead. Kept for backwards compatibility.
+	// Optional content ID for the attachment, to be used as a reference in the HTML content.
+	// If set, this attachment will be sent as an inline attachment and you can reference it
+	// in the HTML content using the `cid:` prefix.
 	InlineContentId string
 }
 
@@ -110,12 +116,14 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 		Filename        string `json:"filename,omitempty"`
 		Path            string `json:"path,omitempty"`
 		ContentType     string `json:"content_type,omitempty"`
+		ContentId       string `json:"content_id,omitempty"`
 		InlineContentId string `json:"inline_content_id,omitempty"`
 	}{
 		Filename:        a.Filename,
 		Path:            a.Path,
 		Content:         BytesToIntArray(a.Content),
 		ContentType:     a.ContentType,
+		ContentId:       a.ContentId,
 		InlineContentId: a.InlineContentId,
 	}
 	return json.Marshal(na)
