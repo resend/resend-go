@@ -20,9 +20,9 @@ func inlineAttachmentExample() {
 
 	// Create attachments objects
 	attachment := &resend.Attachment{
-		Path:            "https://resend.com/static/brand/resend-wordmark-black.png",
-		Filename:        "resend-wordmark-black.png",
-		InlineContentId: "my-test-image",
+		Path:      "https://resend.com/static/brand/resend-wordmark-black.png",
+		Filename:  "resend-wordmark-black.png",
+		ContentId: "my-test-image",
 	}
 
 	params := &resend.SendEmailRequest{
