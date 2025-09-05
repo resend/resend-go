@@ -348,3 +348,147 @@ func testMethod(t *testing.T, r *http.Request, expected string) {
 		t.Errorf("Request method = %v, expected %v", r.Method, expected)
 	}
 }
+
+func TestListEmails(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &ListEmailsResponse{
+			Object:  "list",
+			HasMore: true,
+			Data: []Email{
+				{
+					Id:        "1",
+					Object:    "email",
+					To:        []string{"recipient@example.com"},
+					From:      "sender@example.com",
+					CreatedAt: "2024-01-01T00:00:00Z",
+					Subject:   "Test Email 1",
+					Html:      "<p>Test content</p>",
+					Text:      "Test content",
+					LastEvent: "delivered",
+				},
+				{
+					Id:        "2",
+					Object:    "email",
+					To:        []string{"recipient2@example.com"},
+					From:      "sender@example.com",
+					CreatedAt: "2024-01-02T00:00:00Z",
+					Subject:   "Test Email 2",
+					Html:      "<p>Test content 2</p>",
+					Text:      "Test content 2",
+					LastEvent: "delivered",
+				},
+			},
+		}
+		err := json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	resp, err := client.Emails.List(nil)
+	if err != nil {
+		t.Errorf("Emails.List returned error: %v", err)
+	}
+
+	assert.Equal(t, "list", resp.Object)
+	assert.Equal(t, true, resp.HasMore)
+	assert.Equal(t, 2, len(resp.Data))
+	assert.Equal(t, "1", resp.Data[0].Id)
+	assert.Equal(t, "Test Email 1", resp.Data[0].Subject)
+	assert.Equal(t, "2", resp.Data[1].Id)
+	assert.Equal(t, "Test Email 2", resp.Data[1].Subject)
+}
+
+func TestListEmailsWithParameters(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "50", query.Get("limit"))
+		assert.Equal(t, "cursor123", query.Get("after"))
+		assert.Equal(t, "cursor456", query.Get("before"))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &ListEmailsResponse{
+			Object:  "list",
+			HasMore: false,
+			Data: []Email{
+				{
+					Id:        "3",
+					Object:    "email",
+					To:        []string{"recipient3@example.com"},
+					From:      "sender@example.com",
+					CreatedAt: "2024-01-03T00:00:00Z",
+					Subject:   "Test Email 3",
+					Html:      "<p>Test content 3</p>",
+					Text:      "Test content 3",
+					LastEvent: "delivered",
+				},
+			},
+		}
+		err := json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &ListEmailsRequest{
+		Limit:  50,
+		After:  "cursor123",
+		Before: "cursor456",
+	}
+	resp, err := client.Emails.List(req)
+	if err != nil {
+		t.Errorf("Emails.List returned error: %v", err)
+	}
+
+	assert.Equal(t, "list", resp.Object)
+	assert.Equal(t, false, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "3", resp.Data[0].Id)
+	assert.Equal(t, "Test Email 3", resp.Data[0].Subject)
+}
+
+func TestListEmailsWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &ListEmailsResponse{
+			Object:  "list",
+			HasMore: false,
+			Data:    []Email{},
+		}
+		err := json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	ctx := context.Background()
+	resp, err := client.Emails.ListWithContext(ctx, nil)
+	if err != nil {
+		t.Errorf("Emails.ListWithContext returned error: %v", err)
+	}
+
+	assert.Equal(t, "list", resp.Object)
+	assert.Equal(t, false, resp.HasMore)
+	assert.Equal(t, 0, len(resp.Data))
+}
