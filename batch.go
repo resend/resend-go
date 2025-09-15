@@ -9,6 +9,11 @@ import (
 // BatchSendEmailOptions is the additional options struct for the Batch.SendEmail call.
 type BatchSendEmailOptions struct {
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
+	// BatchValidation controls the validation behavior for batch emails.
+	// Can be "strict" (default) or "permissive".
+	// - "strict": Only sends the batch if all emails are valid
+	// - "permissive": Processes all emails, allowing partial success
+	BatchValidation string `json:"-"`
 }
 
 // GetIdempotencyKey returns the idempotency key for the batch send email request.
@@ -16,10 +21,23 @@ func (o BatchSendEmailOptions) GetIdempotencyKey() string {
 	return o.IdempotencyKey
 }
 
+// GetBatchValidation returns the batch validation mode for the batch send email request.
+func (o BatchSendEmailOptions) GetBatchValidation() string {
+	return o.BatchValidation
+}
+
+// BatchError represents an error for a specific email in a batch request
+// when using permissive validation mode.
+type BatchError struct {
+	Index   int    `json:"index"`
+	Message string `json:"message"`
+}
+
 // BatchEmailResponse is the response from the BatchSendEmail call.
 // see https://resend.com/docs/api-reference/emails/send-batch-emails
 type BatchEmailResponse struct {
-	Data []SendEmailResponse `json:"data"`
+	Data   []SendEmailResponse `json:"data"`
+	Errors []BatchError        `json:"errors,omitempty"`
 }
 
 type BatchSvc interface {

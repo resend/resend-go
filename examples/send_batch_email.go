@@ -49,4 +49,61 @@ func sendBatchEmails() {
 	}
 	fmt.Println("Sent with idempotency key")
 	fmt.Println(sent.Data)
+
+	// Send with permissive validation mode
+	// This allows partial success - valid emails will be sent even if some are invalid
+	batchEmailsWithErrors := []*resend.SendEmailRequest{
+		{
+			To:      []string{"delivered@resend.dev"},
+			From:    "onboarding@resend.dev",
+			Text:    "This email is valid",
+			Subject: "Valid email",
+		},
+		{
+			To:      []string{}, // Missing 'to' field - will fail validation
+			From:    "onboarding@resend.dev",
+			Text:    "This email has no recipient",
+			Subject: "Invalid email",
+		},
+		{
+			To:      []string{"another@resend.dev"},
+			From:    "onboarding@resend.dev",
+			Text:    "This email is also valid",
+			Subject: "Another valid email",
+		},
+	}
+
+	permissiveOptions := &resend.BatchSendEmailOptions{
+		BatchValidation: "permissive",
+	}
+	sent, err = client.Batch.SendWithOptions(ctx, batchEmailsWithErrors, permissiveOptions)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("\nSent with permissive validation mode:")
+	fmt.Printf("Successfully sent %d emails\n", len(sent.Data))
+	for _, email := range sent.Data {
+		fmt.Printf("  - Email ID: %s\n", email.Id)
+	}
+	
+	if sent.Errors != nil && len(sent.Errors) > 0 {
+		fmt.Printf("Failed to send %d emails:\n", len(sent.Errors))
+		for _, err := range sent.Errors {
+			fmt.Printf("  - Index %d: %s\n", err.Index, err.Message)
+		}
+	}
+
+	// Send with strict validation mode (default behavior)
+	// All emails must be valid or the entire batch fails
+	strictOptions := &resend.BatchSendEmailOptions{
+		BatchValidation: "strict", // This is the default, shown for clarity
+	}
+	sent, err = client.Batch.SendWithOptions(ctx, batchEmails, strictOptions)
+	if err != nil {
+		// In strict mode, if any email is invalid, an error is returned
+		fmt.Printf("Batch send failed in strict mode: %v\n", err)
+	} else {
+		fmt.Println("\nSent with strict validation mode (all emails valid):")
+		fmt.Printf("Successfully sent %d emails\n", len(sent.Data))
+	}
 }

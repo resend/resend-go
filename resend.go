@@ -102,6 +102,13 @@ func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string,
 		if options.GetIdempotencyKey() != "" && method == http.MethodPost {
 			req.Header.Set("Idempotency-Key", options.GetIdempotencyKey())
 		}
+		
+		// Handle batch-specific options
+		if batchOptions, ok := options.(*BatchSendEmailOptions); ok {
+			if batchOptions.GetBatchValidation() != "" {
+				req.Header.Set("x-batch-validation", batchOptions.GetBatchValidation())
+			}
+		}
 	}
 
 	return req, nil
@@ -152,7 +159,8 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 	defer resp.Body.Close()
 
 	// Handle possible errors.
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+	// Any 2xx status code is considered success
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, handleError(resp)
 	}
 
