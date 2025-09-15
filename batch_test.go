@@ -210,7 +210,7 @@ func TestBatchSendWithStrictValidation(t *testing.T) {
 		testMethod(t, r, http.MethodPost)
 		// Verify x-batch-validation header is set to strict
 		assert.Equal(t, "strict", r.Header.Get("x-batch-validation"))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
@@ -242,4 +242,26 @@ func TestBatchSendWithStrictValidation(t *testing.T) {
 
 	assert.Equal(t, len(resp.Data), 2)
 	assert.Nil(t, resp.Errors)
+}
+
+func TestBatchSendWithInvalidValidationMode(t *testing.T) {
+	setup()
+	defer teardown()
+	ctx := context.Background()
+
+	req := []*SendEmailRequest{
+		{To: []string{"test@example.com"}},
+	}
+
+	// Test with invalid validation mode
+	options := &BatchSendEmailOptions{
+		BatchValidation: "invalid-mode",
+	}
+
+	resp, err := client.Batch.SendWithOptions(ctx, req, options)
+
+	// Should return an error for invalid validation mode
+	assert.NotNil(t, err)
+	assert.Nil(t, resp)
+	assert.Contains(t, err.Error(), "BatchValidation must be either BatchValidationStrict or BatchValidationPermissive")
 }

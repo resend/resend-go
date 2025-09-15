@@ -74,7 +74,7 @@ func sendBatchEmails() {
 	}
 
 	permissiveOptions := &resend.BatchSendEmailOptions{
-		BatchValidation: "permissive",
+		BatchValidation: resend.BatchValidationPermissive,
 	}
 	sent, err = client.Batch.SendWithOptions(ctx, batchEmailsWithErrors, permissiveOptions)
 	if err != nil {
@@ -96,7 +96,7 @@ func sendBatchEmails() {
 	// Send with strict validation mode (default behavior)
 	// All emails must be valid or the entire batch fails
 	strictOptions := &resend.BatchSendEmailOptions{
-		BatchValidation: "strict", // This is the default, shown for clarity
+		BatchValidation: resend.BatchValidationStrict, // This is the default, shown for clarity
 	}
 	sent, err = client.Batch.SendWithOptions(ctx, batchEmails, strictOptions)
 	if err != nil {
