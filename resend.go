@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	version     = "2.23.0"
+	version     = "2.24.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -102,7 +102,7 @@ func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string,
 		if options.GetIdempotencyKey() != "" && method == http.MethodPost {
 			req.Header.Set("Idempotency-Key", options.GetIdempotencyKey())
 		}
-		
+
 		// Handle batch-specific options
 		if batchOptions, ok := options.(*BatchSendEmailOptions); ok {
 			if batchOptions.GetBatchValidation() != "" {
