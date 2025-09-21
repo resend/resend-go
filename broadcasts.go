@@ -54,8 +54,9 @@ type RemoveBroadcastResponse struct {
 }
 
 type ListBroadcastsResponse struct {
-	Object string      `json:"object"`
-	Data   []Broadcast `json:"data"`
+	Object  string      `json:"object"`
+	Data    []Broadcast `json:"data"`
+	HasMore bool        `json:"has_more"`
 }
 
 type Broadcast struct {
@@ -80,6 +81,7 @@ type BroadcastsSvc interface {
 	UpdateWithContext(ctx context.Context, params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error)
 	Update(params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error)
 
+	ListWithOptions(ctx context.Context, options *ListOptions) (ListBroadcastsResponse, error)
 	ListWithContext(ctx context.Context) (ListBroadcastsResponse, error)
 	List() (ListBroadcastsResponse, error)
 
@@ -264,10 +266,10 @@ func (s *BroadcastsSvcImpl) Remove(broadcastId string) (RemoveBroadcastResponse,
 	return s.RemoveWithContext(context.Background(), broadcastId)
 }
 
-// ListWithContext returns the list of all broadcasts
+// ListWithOptions returns the list of all broadcasts with pagination options
 // https://resend.com/docs/api-reference/broadcasts/list-broadcasts
-func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcastsResponse, error) {
-	path := "broadcasts"
+func (s *BroadcastsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListBroadcastsResponse, error) {
+	path := "broadcasts" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -285,6 +287,12 @@ func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcasts
 	}
 
 	return *broadcasts, nil
+}
+
+// ListWithContext returns the list of all broadcasts
+// https://resend.com/docs/api-reference/broadcasts/list-broadcasts
+func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcastsResponse, error) {
+	return s.ListWithOptions(ctx, nil)
 }
 
 // List returns the list of all broadcasts
