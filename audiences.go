@@ -9,6 +9,7 @@ import (
 type AudiencesSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateAudienceRequest) (CreateAudienceResponse, error)
 	Create(params *CreateAudienceRequest) (CreateAudienceResponse, error)
+	ListWithOptions(ctx context.Context, options *ListOptions) (ListAudiencesResponse, error)
 	ListWithContext(ctx context.Context) (ListAudiencesResponse, error)
 	List() (ListAudiencesResponse, error)
 	GetWithContext(ctx context.Context, audienceId string) (Audience, error)
@@ -38,8 +39,9 @@ type RemoveAudienceResponse struct {
 }
 
 type ListAudiencesResponse struct {
-	Object string     `json:"object"`
-	Data   []Audience `json:"data"`
+	Object  string     `json:"object"`
+	Data    []Audience `json:"data"`
+	HasMore bool       `json:"has_more"`
 }
 
 type Audience struct {
@@ -79,10 +81,10 @@ func (s *AudiencesSvcImpl) Create(params *CreateAudienceRequest) (CreateAudience
 	return s.CreateWithContext(context.Background(), params)
 }
 
-// ListWithContext returns the list of all audiences
+// ListWithOptions returns the list of all audiences with pagination options
 // https://resend.com/docs/api-reference/audiences/list-audiences
-func (s *AudiencesSvcImpl) ListWithContext(ctx context.Context) (ListAudiencesResponse, error) {
-	path := "audiences"
+func (s *AudiencesSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListAudiencesResponse, error) {
+	path := "audiences" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -100,6 +102,12 @@ func (s *AudiencesSvcImpl) ListWithContext(ctx context.Context) (ListAudiencesRe
 	}
 
 	return *audiences, nil
+}
+
+// ListWithContext returns the list of all audiences
+// https://resend.com/docs/api-reference/audiences/list-audiences
+func (s *AudiencesSvcImpl) ListWithContext(ctx context.Context) (ListAudiencesResponse, error) {
+	return s.ListWithOptions(ctx, nil)
 }
 
 // List returns the list of all audiences

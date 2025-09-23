@@ -19,6 +19,7 @@ type DomainsSvc interface {
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
 	VerifyWithContext(ctx context.Context, domainId string) (bool, error)
 	Verify(domainId string) (bool, error)
+	ListWithOptions(ctx context.Context, options *ListOptions) (ListDomainsResponse, error)
 	ListWithContext(ctx context.Context) (ListDomainsResponse, error)
 	List() (ListDomainsResponse, error)
 	GetWithContext(ctx context.Context, domainId string) (Domain, error)
@@ -50,7 +51,9 @@ type CreateDomainResponse struct {
 }
 
 type ListDomainsResponse struct {
-	Data []Domain `json:"data"`
+	Object  string   `json:"object"`
+	Data    []Domain `json:"data"`
+	HasMore bool     `json:"has_more"`
 }
 
 type UpdateDomainRequest struct {
@@ -164,10 +167,10 @@ func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
 	return s.VerifyWithContext(context.Background(), domainId)
 }
 
-// ListWithContext returns the list of all domains
+// ListWithOptions returns the list of all domains with pagination options
 // https://resend.com/docs/api-reference/domains/list-domains
-func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsResponse, error) {
-	path := "domains"
+func (s *DomainsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListDomainsResponse, error) {
+	path := "domains" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -185,6 +188,12 @@ func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsRespon
 	}
 
 	return *domains, nil
+}
+
+// ListWithContext returns the list of all domains
+// https://resend.com/docs/api-reference/domains/list-domains
+func (s *DomainsSvcImpl) ListWithContext(ctx context.Context) (ListDomainsResponse, error) {
+	return s.ListWithOptions(ctx, nil)
 }
 
 // List returns the list of all domains

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -230,4 +231,34 @@ type InvalidRequestError struct {
 
 type DefaultError struct {
 	Message string `json:"message"`
+}
+
+// ListOptions contains pagination parameters for list methods
+type ListOptions struct {
+	Limit  *int    `json:"limit,omitempty"`
+	After  *string `json:"after,omitempty"`
+	Before *string `json:"before,omitempty"`
+}
+
+// buildPaginationQuery constructs query parameters for pagination
+func buildPaginationQuery(options *ListOptions) string {
+	if options == nil {
+		return ""
+	}
+
+	query := make(url.Values)
+	if options.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%d", *options.Limit))
+	}
+	if options.After != nil {
+		query.Set("after", *options.After)
+	}
+	if options.Before != nil {
+		query.Set("before", *options.Before)
+	}
+
+	if len(query) > 0 {
+		return "?" + query.Encode()
+	}
+	return ""
 }

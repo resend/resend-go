@@ -10,6 +10,7 @@ import (
 type ContactsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error)
 	Create(params *CreateContactRequest) (CreateContactResponse, error)
+	ListWithOptions(ctx context.Context, audienceId string, options *ListOptions) (ListContactsResponse, error)
 	ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error)
 	List(audienceId string) (ListContactsResponse, error)
 	GetWithContext(ctx context.Context, audienceId, id string) (Contact, error)
@@ -70,8 +71,9 @@ type RemoveContactResponse struct {
 }
 
 type ListContactsResponse struct {
-	Object string    `json:"object"`
-	Data   []Contact `json:"data"`
+	Object  string    `json:"object"`
+	Data    []Contact `json:"data"`
+	HasMore bool      `json:"has_more"`
 }
 
 type Contact struct {
@@ -118,10 +120,10 @@ func (s *ContactsSvcImpl) Create(params *CreateContactRequest) (CreateContactRes
 	return s.CreateWithContext(context.Background(), params)
 }
 
-// ListWithContext returns the list of all contacts in an audience
+// ListWithOptions returns the list of all contacts in an audience with pagination options
 // https://resend.com/docs/api-reference/contacts/list-contacts
-func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error) {
-	path := "audiences/" + audienceId + "/contacts"
+func (s *ContactsSvcImpl) ListWithOptions(ctx context.Context, audienceId string, options *ListOptions) (ListContactsResponse, error) {
+	path := "audiences/" + audienceId + "/contacts" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -139,6 +141,12 @@ func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, audienceId string
 	}
 
 	return *contacts, nil
+}
+
+// ListWithContext returns the list of all contacts in an audience
+// https://resend.com/docs/api-reference/contacts/list-contacts
+func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error) {
+	return s.ListWithOptions(ctx, audienceId, nil)
 }
 
 // List returns the list of all contacts in an audience
