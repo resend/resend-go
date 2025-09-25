@@ -392,7 +392,7 @@ func TestListEmails(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Emails.List(nil)
+	resp, err := client.Emails.List()
 	if err != nil {
 		t.Errorf("Emails.List returned error: %v", err)
 	}
@@ -445,12 +445,15 @@ func TestListEmailsWithParameters(t *testing.T) {
 		}
 	})
 
-	req := &ListEmailsRequest{
-		Limit:  50,
-		After:  "cursor123",
-		Before: "cursor456",
+	limit := 50
+	after := "cursor123"
+	before := "cursor456"
+	options := &ListOptions{
+		Limit:  &limit,
+		After:  &after,
+		Before: &before,
 	}
-	resp, err := client.Emails.List(req)
+	resp, err := client.Emails.ListWithOptions(context.Background(), options)
 	if err != nil {
 		t.Errorf("Emails.List returned error: %v", err)
 	}
@@ -483,7 +486,7 @@ func TestListEmailsWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Emails.ListWithContext(ctx, nil)
+	resp, err := client.Emails.ListWithContext(ctx)
 	if err != nil {
 		t.Errorf("Emails.ListWithContext returned error: %v", err)
 	}
