@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 type SendEmailOptions struct {
@@ -73,14 +71,6 @@ type Email struct {
 	LastEvent string   `json:"last_event"`
 }
 
-// ListEmailsRequest is the request object for the List call.
-//
-// See also https://resend.com/docs/api-reference/emails/list-emails
-type ListEmailsRequest struct {
-	Limit  int    `json:"limit,omitempty"`
-	After  string `json:"after,omitempty"`
-	Before string `json:"before,omitempty"`
-}
 
 // ListEmailsResponse is the response from the List call.
 type ListEmailsResponse struct {
@@ -157,8 +147,7 @@ type EmailsSvc interface {
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
 	GetWithContext(ctx context.Context, emailID string) (*Email, error)
 	Get(emailID string) (*Email, error)
-	ListWithContext(ctx context.Context, params *ListEmailsRequest) (*ListEmailsResponse, error)
-	List(params *ListEmailsRequest) (*ListEmailsResponse, error)
+	List(options *ListOptions) (*ListEmailsResponse, error)
 }
 
 type EmailsSvcImpl struct {
@@ -310,27 +299,13 @@ func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
 	return s.GetWithContext(context.Background(), emailID)
 }
 
-// ListWithContext retrieves a list of emails with optional pagination
+// List retrieves a list of emails with optional pagination
 // https://resend.com/docs/api-reference/emails/list-emails
-func (s *EmailsSvcImpl) ListWithContext(ctx context.Context, params *ListEmailsRequest) (*ListEmailsResponse, error) {
-	path := "emails"
-
-	// Build query parameters
-	queryParams := url.Values{}
-	if params != nil {
-		if params.Limit > 0 {
-			queryParams.Set("limit", strconv.Itoa(params.Limit))
-		}
-		if params.After != "" {
-			queryParams.Set("after", params.After)
-		}
-		if params.Before != "" {
-			queryParams.Set("before", params.Before)
-		}
-	}
+func (s *EmailsSvcImpl) List(options *ListOptions) (*ListEmailsResponse, error) {
+	path := "emails" + buildPaginationQuery(options)
 
 	// Prepare request
-	req, err := s.client.NewRequestWithQuery(ctx, http.MethodGet, path, queryParams)
+	req, err := s.client.NewRequest(context.Background(), http.MethodGet, path, nil)
 	if err != nil {
 		return nil, ErrFailedToCreateEmailsListRequest
 	}
@@ -346,10 +321,4 @@ func (s *EmailsSvcImpl) ListWithContext(ctx context.Context, params *ListEmailsR
 	}
 
 	return listEmailsResponse, nil
-}
-
-// List retrieves a list of emails with optional pagination
-// https://resend.com/docs/api-reference/emails/list-emails
-func (s *EmailsSvcImpl) List(params *ListEmailsRequest) (*ListEmailsResponse, error) {
-	return s.ListWithContext(context.Background(), params)
 }

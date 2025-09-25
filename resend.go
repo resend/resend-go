@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	version     = "2.23.0"
+	version     = "2.25.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -102,6 +103,13 @@ func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string,
 		if options.GetIdempotencyKey() != "" && method == http.MethodPost {
 			req.Header.Set("Idempotency-Key", options.GetIdempotencyKey())
 		}
+
+		// Handle batch-specific options
+		if batchOptions, ok := options.(*BatchSendEmailOptions); ok {
+			if batchOptions.GetBatchValidation() != "" {
+				req.Header.Set("x-batch-validation", batchOptions.GetBatchValidation())
+			}
+		}
 	}
 
 	return req, nil
@@ -181,7 +189,8 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 	defer resp.Body.Close()
 
 	// Handle possible errors.
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+	// Any 2xx status code is considered success
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, handleError(resp)
 	}
 
@@ -251,4 +260,34 @@ type InvalidRequestError struct {
 
 type DefaultError struct {
 	Message string `json:"message"`
+}
+
+// ListOptions contains pagination parameters for list methods
+type ListOptions struct {
+	Limit  *int    `json:"limit,omitempty"`
+	After  *string `json:"after,omitempty"`
+	Before *string `json:"before,omitempty"`
+}
+
+// buildPaginationQuery constructs query parameters for pagination
+func buildPaginationQuery(options *ListOptions) string {
+	if options == nil {
+		return ""
+	}
+
+	query := make(url.Values)
+	if options.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%d", *options.Limit))
+	}
+	if options.After != nil {
+		query.Set("after", *options.After)
+	}
+	if options.Before != nil {
+		query.Set("before", *options.Before)
+	}
+
+	if len(query) > 0 {
+		return "?" + query.Encode()
+	}
+	return ""
 }

@@ -17,7 +17,9 @@ type CreateApiKeyResponse struct {
 }
 
 type ListApiKeysResponse struct {
-	Data []ApiKey `json:"data"`
+	Object  string   `json:"object"`
+	Data    []ApiKey `json:"data"`
+	HasMore bool     `json:"has_more"`
 }
 
 type ApiKey struct {
@@ -29,6 +31,7 @@ type ApiKey struct {
 type ApiKeysSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
 	Create(params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
+	ListWithOptions(ctx context.Context, options *ListOptions) (ListApiKeysResponse, error)
 	ListWithContext(ctx context.Context) (ListApiKeysResponse, error)
 	List() (ListApiKeysResponse, error)
 	RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error)
@@ -68,10 +71,10 @@ func (s *ApiKeysSvcImpl) Create(params *CreateApiKeyRequest) (CreateApiKeyRespon
 	return s.CreateWithContext(context.Background(), params)
 }
 
-// ListWithContext list all API Keys in the project
+// ListWithOptions list all API Keys in the project with pagination options
 // https://resend.com/docs/api-reference/api-keys/list-api-keys
-func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysResponse, error) {
-	path := "api-keys"
+func (s *ApiKeysSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListApiKeysResponse, error) {
+	path := "api-keys" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -90,6 +93,12 @@ func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysRespon
 	}
 
 	return *apiKeysResp, nil
+}
+
+// ListWithContext list all API Keys in the project
+// https://resend.com/docs/api-reference/api-keys/list-api-keys
+func (s *ApiKeysSvcImpl) ListWithContext(ctx context.Context) (ListApiKeysResponse, error) {
+	return s.ListWithOptions(ctx, nil)
 }
 
 // List all API Keys in the project
