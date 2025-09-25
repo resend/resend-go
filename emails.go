@@ -71,7 +71,6 @@ type Email struct {
 	LastEvent string   `json:"last_event"`
 }
 
-
 // ListEmailsResponse is the response from the List call.
 type ListEmailsResponse struct {
 	Object  string  `json:"object"`
@@ -147,7 +146,13 @@ type EmailsSvc interface {
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
 	GetWithContext(ctx context.Context, emailID string) (*Email, error)
 	Get(emailID string) (*Email, error)
-	List(options *ListOptions) (*ListEmailsResponse, error)
+
+	// Both List and ListWithOptions do the same thing, but since these List methods
+	// were introduced after some time, we kept both for overall consistency with
+	// the rest of the packages.
+	ListWithOptions(ctx context.Context, options *ListOptions) (ListEmailsResponse, error)
+	ListWithContext(ctx context.Context) (ListEmailsResponse, error)
+	List() (ListEmailsResponse, error)
 }
 
 type EmailsSvcImpl struct {
@@ -299,15 +304,15 @@ func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
 	return s.GetWithContext(context.Background(), emailID)
 }
 
-// List retrieves a list of emails with optional pagination
+// ListWithOptions retrieves a list of emails with pagination options
 // https://resend.com/docs/api-reference/emails/list-emails
-func (s *EmailsSvcImpl) List(options *ListOptions) (*ListEmailsResponse, error) {
+func (s *EmailsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListEmailsResponse, error) {
 	path := "emails" + buildPaginationQuery(options)
 
 	// Prepare request
-	req, err := s.client.NewRequest(context.Background(), http.MethodGet, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return nil, ErrFailedToCreateEmailsListRequest
+		return ListEmailsResponse{}, ErrFailedToCreateEmailsListRequest
 	}
 
 	// Build response recipient obj
@@ -317,8 +322,20 @@ func (s *EmailsSvcImpl) List(options *ListOptions) (*ListEmailsResponse, error) 
 	_, err = s.client.Perform(req, listEmailsResponse)
 
 	if err != nil {
-		return nil, err
+		return ListEmailsResponse{}, err
 	}
 
-	return listEmailsResponse, nil
+	return *listEmailsResponse, nil
+}
+
+// ListWithContext retrieves a list of emails
+// https://resend.com/docs/api-reference/emails/list-emails
+func (s *EmailsSvcImpl) ListWithContext(ctx context.Context) (ListEmailsResponse, error) {
+	return s.ListWithOptions(ctx, nil)
+}
+
+// List retrieves a list of emails
+// https://resend.com/docs/api-reference/emails/list-emails
+func (s *EmailsSvcImpl) List() (ListEmailsResponse, error) {
+	return s.ListWithContext(context.Background())
 }

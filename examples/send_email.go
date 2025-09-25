@@ -51,7 +51,7 @@ func sendEmailExample() {
 
 	// List emails
 	fmt.Println("\nListing recent emails:")
-	listResp, err := client.Emails.ListWithContext(ctx, nil)
+	listResp, err := client.Emails.ListWithContext(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -68,8 +68,9 @@ func sendEmailExample() {
 
 	// List emails with pagination
 	fmt.Println("\nListing emails with limit:")
-	paginatedResp, err := client.Emails.ListWithContext(ctx, &resend.ListEmailsRequest{
-		Limit: 3,
+	limit := 3
+	paginatedResp, err := client.Emails.ListWithOptions(ctx, &resend.ListOptions{
+		Limit: &limit,
 	})
 	if err != nil {
 		panic(err)
@@ -82,9 +83,10 @@ func sendEmailExample() {
 		lastEmailID := paginatedResp.Data[len(paginatedResp.Data)-1].Id
 		fmt.Printf("\nFetching next page after email ID: %s\n", lastEmailID)
 
-		nextPage, err := client.Emails.ListWithContext(ctx, &resend.ListEmailsRequest{
-			Limit: 3,
-			After: lastEmailID,
+		afterCursor := lastEmailID
+		nextPage, err := client.Emails.ListWithOptions(ctx, &resend.ListOptions{
+			Limit: &limit,
+			After: &afterCursor,
 		})
 		if err != nil {
 			panic(err)
