@@ -151,35 +151,6 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params int
 	return req, nil
 }
 
-// NewRequestWithQuery builds and returns a new HTTP request object
-// with query parameters for GET requests
-func (c *Client) NewRequestWithQuery(ctx context.Context, method, path string, queryParams url.Values) (*http.Request, error) {
-	u, err := c.BaseURL.Parse(path)
-	if err != nil {
-		return nil, err
-	}
-
-	if queryParams != nil && len(queryParams) > 0 {
-		u.RawQuery = queryParams.Encode()
-	}
-
-	var req *http.Request
-	req, err = http.NewRequestWithContext(ctx, method, u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range c.headers {
-		req.Header.Add(k, v)
-	}
-
-	req.Header.Set("Accept", contentType)
-	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Authorization", "Bearer "+c.ApiKey)
-
-	return req, nil
-}
-
 // Perform sends the request to the Resend API
 func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
