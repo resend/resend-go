@@ -58,6 +58,28 @@ func TestHandleError(t *testing.T) {
 		want error
 	}{
 		{
+			desc: "rate_limit_error",
+			resp: &http.Response{
+				StatusCode: http.StatusTooManyRequests,
+				Status:     fmt.Sprintf("%d %s", http.StatusTooManyRequests, http.StatusText(http.StatusTooManyRequests)),
+				Header: http.Header{
+					"Content-Type":        {"application/json; charset=utf-8"},
+					"Ratelimit-Limit":     {"2"},
+					"Ratelimit-Remaining": {"0"},
+					"Ratelimit-Reset":     {"1"},
+					"Retry-After":         {"1"},
+				},
+				Body: io.NopCloser(bytes.NewBufferString(`{"message":"Rate limit exceeded"}`)),
+			},
+			want: &RateLimitError{
+				Message:    "Rate limit exceeded",
+				Limit:      "2",
+				Remaining:  "0",
+				Reset:      "1",
+				RetryAfter: "1",
+			},
+		},
+		{
 			desc: "validation_error",
 			resp: &http.Response{
 				StatusCode: http.StatusUnprocessableEntity,
@@ -152,4 +174,52 @@ func TestHandleError(t *testing.T) {
 			assert.Equal(t, c.want, err)
 		})
 	}
+}
+
+func TestRateLimitErrorIs(t *testing.T) {
+	// Create a rate limit error
+	rateLimitErr := &RateLimitError{
+		Message:    "Rate limit exceeded",
+		Limit:      "2",
+		Remaining:  "0",
+		Reset:      "1",
+		RetryAfter: "1",
+	}
+
+	// Test that errors.Is correctly identifies RateLimitError
+	assert.True(t, errors.Is(rateLimitErr, ErrRateLimit))
+
+	// Test that a regular error is not identified as a rate limit error
+	regularErr := errors.New("some other error")
+	assert.False(t, errors.Is(regularErr, ErrRateLimit))
+}
+
+func TestRateLimitErrorHandling(t *testing.T) {
+	// Simulate a 429 response
+	resp := &http.Response{
+		StatusCode: http.StatusTooManyRequests,
+		Status:     fmt.Sprintf("%d %s", http.StatusTooManyRequests, http.StatusText(http.StatusTooManyRequests)),
+		Header: http.Header{
+			"Content-Type":        {"application/json; charset=utf-8"},
+			"Ratelimit-Limit":     {"10"},
+			"Ratelimit-Remaining": {"0"},
+			"Ratelimit-Reset":     {"60"},
+			"Retry-After":         {"60"},
+		},
+		Body: io.NopCloser(bytes.NewBufferString(`{"message":"Too many requests"}`)),
+	}
+
+	err := handleError(resp)
+
+	// Verify it's a RateLimitError
+	assert.True(t, errors.Is(err, ErrRateLimit))
+
+	// Verify we can type assert to access fields
+	var rateLimitErr *RateLimitError
+	assert.True(t, errors.As(err, &rateLimitErr))
+	assert.Equal(t, "Too many requests", rateLimitErr.Message)
+	assert.Equal(t, "10", rateLimitErr.Limit)
+	assert.Equal(t, "0", rateLimitErr.Remaining)
+	assert.Equal(t, "60", rateLimitErr.Reset)
+	assert.Equal(t, "60", rateLimitErr.RetryAfter)
 }
