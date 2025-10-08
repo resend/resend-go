@@ -48,4 +48,50 @@ func sendEmailExample() {
 		panic(err)
 	}
 	fmt.Printf("%v\n", email)
+
+	// List emails
+	fmt.Println("\nListing recent emails:")
+	listResp, err := client.Emails.ListWithContext(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Found %d emails\n", len(listResp.Data))
+	fmt.Printf("Has more emails: %v\n", listResp.HasMore)
+
+	for i, email := range listResp.Data {
+		if i < 5 { // Show first 5 emails
+			fmt.Printf("  - ID: %s, Subject: %s, To: %v\n",
+				email.Id, email.Subject, email.To)
+		}
+	}
+
+	// List emails with pagination
+	fmt.Println("\nListing emails with limit:")
+	limit := 3
+	paginatedResp, err := client.Emails.ListWithOptions(ctx, &resend.ListOptions{
+		Limit: &limit,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Found %d emails (limited to 3)\n", len(paginatedResp.Data))
+
+	// Example of cursor-based pagination
+	if paginatedResp.HasMore && len(paginatedResp.Data) > 0 {
+		lastEmailID := paginatedResp.Data[len(paginatedResp.Data)-1].Id
+		fmt.Printf("\nFetching next page after email ID: %s\n", lastEmailID)
+
+		afterCursor := lastEmailID
+		nextPage, err := client.Emails.ListWithOptions(ctx, &resend.ListOptions{
+			Limit: &limit,
+			After: &afterCursor,
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Found %d more emails in next page\n", len(nextPage.Data))
+	}
 }
