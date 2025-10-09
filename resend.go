@@ -188,6 +188,26 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 func handleError(resp *http.Response) error {
 	switch resp.StatusCode {
 
+	// Handle rate limit errors (429)
+	case http.StatusTooManyRequests:
+		r := &DefaultError{}
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
+			err := json.NewDecoder(resp.Body).Decode(r)
+			if err != nil {
+				r.Message = resp.Status
+			}
+		} else {
+			r.Message = resp.Status
+		}
+
+		return &RateLimitError{
+			Message:    r.Message,
+			Limit:      resp.Header.Get("ratelimit-limit"),
+			Remaining:  resp.Header.Get("ratelimit-remaining"),
+			Reset:      resp.Header.Get("ratelimit-reset"),
+			RetryAfter: resp.Header.Get("retry-after"),
+		}
+
 	// Handles errors most likely caused by the client
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		r := &InvalidRequestError{}
