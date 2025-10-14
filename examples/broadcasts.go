@@ -45,6 +45,8 @@ func broadcastExamples() {
 	fmt.Println("Created At: " + retrievedBroadcast.CreatedAt)
 	fmt.Println("Scheduled At: " + retrievedBroadcast.ScheduledAt)
 	fmt.Println("Sent At: " + retrievedBroadcast.SentAt)
+	fmt.Println("Html: " + retrievedBroadcast.Html)
+	fmt.Println("Text: " + retrievedBroadcast.Text)
 
 	updateParams := &resend.UpdateBroadcastRequest{
 		BroadcastId: retrievedBroadcast.Id,
@@ -85,6 +87,8 @@ func broadcastExamples() {
 		fmt.Println("Created At: " + b.CreatedAt)
 		fmt.Println("Scheduled At: " + b.ScheduledAt)
 		fmt.Println("Sent At: " + b.SentAt)
+		fmt.Println("Html: " + b.Html)
+		fmt.Println("Text: " + b.Text)
 	}
 
 	// Remove Broadcast (Only Draft Broadcasts can be deleted)

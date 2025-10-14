@@ -72,6 +72,8 @@ type Broadcast struct {
 	CreatedAt   string   `json:"created_at"`
 	ScheduledAt string   `json:"scheduled_at"`
 	SentAt      string   `json:"sent_at"`
+	Html        string   `json:"html"`
+	Text        string   `json:"text"`
 }
 
 type BroadcastsSvc interface {
