@@ -127,7 +127,9 @@ func TestGetBroadcast(t *testing.T) {
 			"status": "draft",
 			"created_at": "2024-12-01T19:32:22.980Z",
 			"scheduled_at": null,
-			"sent_at": null
+			"sent_at": null,
+			"html": "<h1>Hello world</h1>",
+			"text": "Hello world"
 		}`
 
 		fmt.Fprint(w, ret)
