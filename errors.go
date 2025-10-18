@@ -67,3 +67,9 @@ var (
 	ErrFailedToCreateEmailsGetRequest   = errors.New("[ERROR]: Failed to create GetEmail request")
 	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
 )
+
+// ReceivingSvc errors
+var (
+	ErrFailedToCreateReceivingGetRequest  = errors.New("[ERROR]: Failed to create Receiving.Get request")
+	ErrFailedToCreateReceivingListRequest = errors.New("[ERROR]: Failed to create Receiving.List request")
+)
