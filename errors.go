@@ -67,3 +67,8 @@ var (
 	ErrFailedToCreateEmailsGetRequest   = errors.New("[ERROR]: Failed to create GetEmail request")
 	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
 )
+
+// TemplatesSvc errors
+var (
+	ErrFailedToCreateTemplateCreateRequest = errors.New("[ERROR]: Failed to create Templates.Create request")
+)
