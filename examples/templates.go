@@ -205,4 +205,15 @@ func templatesExample() {
 	fmt.Printf("  Name: %s\n", duplicateCheck.Name)
 	fmt.Printf("  Status: %s\n", duplicateCheck.Status)
 	fmt.Printf("  CreatedAt: %s\n", duplicateCheck.CreatedAt)
+
+	// Remove a template
+	// Note: This permanently deletes the template
+	removedTemplate, err := client.Templates.RemoveWithContext(ctx, duplicatedTemplate.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nRemoved template:\n")
+	fmt.Printf("  Id: %s\n", removedTemplate.Id)
+	fmt.Printf("  Object: %s\n", removedTemplate.Object)
+	fmt.Printf("  Deleted: %t\n", removedTemplate.Deleted)
 }

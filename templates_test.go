@@ -899,3 +899,91 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 	assert.Equal(t, "context-duplicate-id-result", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
+
+func TestRemoveTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
+			"deleted": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Remove(templateID)
+	if err != nil {
+		t.Errorf("Templates.Remove returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
+	assert.True(t, resp.Deleted)
+}
+
+func TestRemoveTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateAlias := "my-template"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateAlias), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "removed-by-alias-id",
+			"deleted": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Remove(templateAlias)
+	if err != nil {
+		t.Errorf("Templates.Remove returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "removed-by-alias-id", resp.Id)
+	assert.True(t, resp.Deleted)
+}
+
+func TestRemoveTemplateWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "context-remove-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "context-remove-id",
+			"deleted": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.RemoveWithContext(ctx, templateID)
+	if err != nil {
+		t.Errorf("Templates.RemoveWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "context-remove-id", resp.Id)
+	assert.True(t, resp.Deleted)
+}

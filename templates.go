@@ -81,6 +81,13 @@ type DuplicateTemplateResponse struct {
 	Object string `json:"object"`
 }
 
+// RemoveTemplateResponse is the response from removing a template
+type RemoveTemplateResponse struct {
+	Object  string `json:"object"`
+	Id      string `json:"id"`
+	Deleted bool   `json:"deleted"`
+}
+
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
 	Id            string       `json:"id"`
@@ -121,6 +128,8 @@ type TemplatesSvc interface {
 	Publish(identifier string) (*PublishTemplateResponse, error)
 	DuplicateWithContext(ctx context.Context, identifier string) (*DuplicateTemplateResponse, error)
 	Duplicate(identifier string) (*DuplicateTemplateResponse, error)
+	RemoveWithContext(ctx context.Context, identifier string) (*RemoveTemplateResponse, error)
+	Remove(identifier string) (*RemoveTemplateResponse, error)
 }
 
 // TemplatesSvcImpl is the implementation of the TemplatesSvc interface
@@ -276,4 +285,34 @@ func (s *TemplatesSvcImpl) DuplicateWithContext(ctx context.Context, identifier 
 // https://resend.com/docs/api-reference/templates/duplicate-template
 func (s *TemplatesSvcImpl) Duplicate(identifier string) (*DuplicateTemplateResponse, error) {
 	return s.DuplicateWithContext(context.Background(), identifier)
+}
+
+// RemoveWithContext removes a template by ID or alias
+// https://resend.com/docs/api-reference/templates/delete-template
+func (s *TemplatesSvcImpl) RemoveWithContext(ctx context.Context, identifier string) (*RemoveTemplateResponse, error) {
+	path := "templates/" + identifier
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplateRemoveRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(RemoveTemplateResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// Remove removes a template by ID or alias
+// https://resend.com/docs/api-reference/templates/delete-template
+func (s *TemplatesSvcImpl) Remove(identifier string) (*RemoveTemplateResponse, error) {
+	return s.RemoveWithContext(context.Background(), identifier)
 }
