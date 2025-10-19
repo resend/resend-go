@@ -817,3 +817,85 @@ func TestPublishTemplateWithContext(t *testing.T) {
 	assert.Equal(t, "context-publish-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
+
+func TestDuplicateTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "duplicated-template-id-789",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Duplicate(templateID)
+	if err != nil {
+		t.Errorf("Templates.Duplicate returned error: %v", err)
+	}
+	assert.Equal(t, "duplicated-template-id-789", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestDuplicateTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateAlias := "my-template"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateAlias), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "duplicated-by-alias-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Duplicate(templateAlias)
+	if err != nil {
+		t.Errorf("Templates.Duplicate returned error: %v", err)
+	}
+	assert.Equal(t, "duplicated-by-alias-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestDuplicateTemplateWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "context-duplicate-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "context-duplicate-id-result",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.DuplicateWithContext(ctx, templateID)
+	if err != nil {
+		t.Errorf("Templates.DuplicateWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "context-duplicate-id-result", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}

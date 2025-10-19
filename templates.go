@@ -75,6 +75,12 @@ type PublishTemplateResponse struct {
 	Object string `json:"object"`
 }
 
+// DuplicateTemplateResponse is the response from duplicating a template
+type DuplicateTemplateResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
+}
+
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
 	Id            string       `json:"id"`
@@ -113,6 +119,8 @@ type TemplatesSvc interface {
 	Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 	PublishWithContext(ctx context.Context, identifier string) (*PublishTemplateResponse, error)
 	Publish(identifier string) (*PublishTemplateResponse, error)
+	DuplicateWithContext(ctx context.Context, identifier string) (*DuplicateTemplateResponse, error)
+	Duplicate(identifier string) (*DuplicateTemplateResponse, error)
 }
 
 // TemplatesSvcImpl is the implementation of the TemplatesSvc interface
@@ -238,4 +246,34 @@ func (s *TemplatesSvcImpl) PublishWithContext(ctx context.Context, identifier st
 // https://resend.com/docs/api-reference/templates/publish-template
 func (s *TemplatesSvcImpl) Publish(identifier string) (*PublishTemplateResponse, error) {
 	return s.PublishWithContext(context.Background(), identifier)
+}
+
+// DuplicateWithContext duplicates a template by ID or alias
+// https://resend.com/docs/api-reference/templates/duplicate-template
+func (s *TemplatesSvcImpl) DuplicateWithContext(ctx context.Context, identifier string) (*DuplicateTemplateResponse, error) {
+	path := "templates/" + identifier + "/duplicate"
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplateDuplicateRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(DuplicateTemplateResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// Duplicate duplicates a template by ID or alias
+// https://resend.com/docs/api-reference/templates/duplicate-template
+func (s *TemplatesSvcImpl) Duplicate(identifier string) (*DuplicateTemplateResponse, error) {
+	return s.DuplicateWithContext(context.Background(), identifier)
 }

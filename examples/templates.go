@@ -185,4 +185,24 @@ func templatesExample() {
 	}
 	fmt.Printf("Template status after publish: %s\n", publishedCheck.Status)
 	fmt.Printf("PublishedAt: %s\n", publishedCheck.PublishedAt)
+
+	// Duplicate a template
+	// Note: This creates a new template as a copy of the original
+	duplicatedTemplate, err := client.Templates.DuplicateWithContext(ctx, fullTemplate.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nDuplicated template: %s\n", duplicatedTemplate.Id)
+
+	// Verify the duplicated template was created
+	// The duplicate will be a separate template with its own ID
+	duplicateCheck, err := client.Templates.Get(duplicatedTemplate.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Duplicated template details:\n")
+	fmt.Printf("  Id: %s\n", duplicateCheck.Id)
+	fmt.Printf("  Name: %s\n", duplicateCheck.Name)
+	fmt.Printf("  Status: %s\n", duplicateCheck.Status)
+	fmt.Printf("  CreatedAt: %s\n", duplicateCheck.CreatedAt)
 }
