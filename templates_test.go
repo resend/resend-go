@@ -522,3 +522,216 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 	assert.Equal(t, "support@example.com", replyTo[0].(string))
 	assert.Equal(t, "help@example.com", replyTo[1].(string))
 }
+
+func TestUpdateTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify it
+		var req UpdateTemplateRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "welcome-email-updated", req.Name)
+		assert.Equal(t, "<strong>Updated content</strong>", req.Html)
+
+		ret := `
+		{
+			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+		Name: "welcome-email-updated",
+		Html: "<strong>Updated content</strong>",
+	})
+	if err != nil {
+		t.Errorf("Templates.Update returned error: %v", err)
+	}
+	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestUpdateTemplateWithVariables(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "template-with-vars"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify variables
+		var req UpdateTemplateRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "updated-template", req.Name)
+		assert.Equal(t, "<p>Hello {{{NAME}}}, you have {{{COUNT}}} messages</p>", req.Html)
+		assert.Equal(t, 2, len(req.Variables))
+		assert.Equal(t, "NAME", req.Variables[0].Key)
+		assert.Equal(t, VariableTypeString, req.Variables[0].Type)
+		assert.Equal(t, "COUNT", req.Variables[1].Key)
+		assert.Equal(t, VariableTypeNumber, req.Variables[1].Type)
+
+		ret := `
+		{
+			"id": "template-with-vars",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+		Name: "updated-template",
+		Html: "<p>Hello {{{NAME}}}, you have {{{COUNT}}} messages</p>",
+		Variables: []*TemplateVariable{
+			{
+				Key:           "NAME",
+				Type:          VariableTypeString,
+				FallbackValue: "User",
+			},
+			{
+				Key:           "COUNT",
+				Type:          VariableTypeNumber,
+				FallbackValue: 0,
+			},
+		},
+	})
+	if err != nil {
+		t.Errorf("Templates.Update returned error: %v", err)
+	}
+	assert.Equal(t, "template-with-vars", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestUpdateTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateAlias := "my-template-alias"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateAlias), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "updated-by-alias-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Update(templateAlias, &UpdateTemplateRequest{
+		Name: "updated-name",
+		Html: "<p>Updated by alias</p>",
+	})
+	if err != nil {
+		t.Errorf("Templates.Update returned error: %v", err)
+	}
+	assert.Equal(t, "updated-by-alias-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestUpdateTemplateWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "context-update-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "context-update-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.UpdateWithContext(ctx, templateID, &UpdateTemplateRequest{
+		Name: "context-updated",
+		Html: "<p>Context update</p>",
+	})
+	if err != nil {
+		t.Errorf("Templates.UpdateWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "context-update-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestUpdateTemplateWithAllFields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "full-update-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify all fields
+		var req UpdateTemplateRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "full-update", req.Name)
+		assert.Equal(t, "updated-alias", req.Alias)
+		assert.Equal(t, "Updated <updated@example.com>", req.From)
+		assert.Equal(t, "Updated Subject", req.Subject)
+		assert.Equal(t, "<p>Updated HTML</p>", req.Html)
+		assert.Equal(t, "Updated Text", req.Text)
+
+		// ReplyTo can be string or []string
+		replyTo, ok := req.ReplyTo.([]interface{})
+		assert.True(t, ok)
+		assert.Equal(t, 1, len(replyTo))
+		assert.Equal(t, "updated@example.com", replyTo[0].(string))
+
+		ret := `
+		{
+			"id": "full-update-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+		Name:    "full-update",
+		Alias:   "updated-alias",
+		From:    "Updated <updated@example.com>",
+		Subject: "Updated Subject",
+		ReplyTo: []string{"updated@example.com"},
+		Html:    "<p>Updated HTML</p>",
+		Text:    "Updated Text",
+	})
+	if err != nil {
+		t.Errorf("Templates.Update returned error: %v", err)
+	}
+	assert.Equal(t, "full-update-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}

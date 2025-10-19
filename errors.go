@@ -72,4 +72,5 @@ var (
 var (
 	ErrFailedToCreateTemplateCreateRequest = errors.New("[ERROR]: Failed to create Templates.Create request")
 	ErrFailedToCreateTemplateGetRequest    = errors.New("[ERROR]: Failed to create Templates.Get request")
+	ErrFailedToCreateTemplateUpdateRequest = errors.New("[ERROR]: Failed to create Templates.Update request")
 )

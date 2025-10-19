@@ -49,6 +49,26 @@ type CreateTemplateResponse struct {
 	Object string `json:"object"`
 }
 
+// UpdateTemplateRequest is the request payload for updating a template
+// Important: All variables referenced in Html (e.g., {{{NAME}}}) must be
+// declared in the Variables array, or the API will return a validation error.
+type UpdateTemplateRequest struct {
+	Name      string              `json:"name"`
+	Alias     string              `json:"alias,omitempty"`
+	From      string              `json:"from,omitempty"`
+	Subject   string              `json:"subject,omitempty"`
+	ReplyTo   interface{}         `json:"reply_to,omitempty"` // string or []string
+	Html      string              `json:"html"`
+	Text      string              `json:"text,omitempty"`
+	Variables []*TemplateVariable `json:"variables,omitempty"`
+}
+
+// UpdateTemplateResponse is the response from updating a template
+type UpdateTemplateResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
+}
+
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
 	Id            string       `json:"id"`
@@ -83,6 +103,8 @@ type TemplatesSvc interface {
 	Create(params *CreateTemplateRequest) (*CreateTemplateResponse, error)
 	GetWithContext(ctx context.Context, identifier string) (*Template, error)
 	Get(identifier string) (*Template, error)
+	UpdateWithContext(ctx context.Context, identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
+	Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 }
 
 // TemplatesSvcImpl is the implementation of the TemplatesSvc interface
@@ -148,4 +170,34 @@ func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string
 // https://resend.com/docs/api-reference/templates/get-template
 func (s *TemplatesSvcImpl) Get(identifier string) (*Template, error) {
 	return s.GetWithContext(context.Background(), identifier)
+}
+
+// UpdateWithContext updates a template by ID or alias
+// https://resend.com/docs/api-reference/templates/update-template
+func (s *TemplatesSvcImpl) UpdateWithContext(ctx context.Context, identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
+	path := "templates/" + identifier
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplateUpdateRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(UpdateTemplateResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// Update updates a template by ID or alias
+// https://resend.com/docs/api-reference/templates/update-template
+func (s *TemplatesSvcImpl) Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
+	return s.UpdateWithContext(context.Background(), identifier, params)
 }

@@ -141,4 +141,32 @@ func templatesExample() {
 		}
 		fmt.Printf("\nRetrieved template: %s (Status: %s)\n", templateByAlias.Name, templateByAlias.Status)
 	}
+
+	// Update a template
+	updatedTemplate, err := client.Templates.UpdateWithContext(ctx, template.Id, &resend.UpdateTemplateRequest{
+		Name:    "welcome-email-updated",
+		Html:    "<strong>Welcome to our updated service, {{{NAME}}}!</strong>",
+		Subject: "Welcome {{{NAME}}}!",
+		Variables: []*resend.TemplateVariable{
+			{
+				Key:           "NAME",
+				Type:          resend.VariableTypeString,
+				FallbackValue: "Guest",
+			},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nUpdated template: %s\n", updatedTemplate.Id)
+
+	// Verify the update by getting the template again
+	verifyTemplate, err := client.Templates.Get(updatedTemplate.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Verified updated template:\n")
+	fmt.Printf("  Name: %s\n", verifyTemplate.Name)
+	fmt.Printf("  Subject: %s\n", verifyTemplate.Subject)
+	fmt.Printf("  Variables count: %d\n", len(verifyTemplate.Variables))
 }
