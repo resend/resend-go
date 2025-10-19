@@ -71,4 +71,5 @@ var (
 // TemplatesSvc errors
 var (
 	ErrFailedToCreateTemplateCreateRequest = errors.New("[ERROR]: Failed to create Templates.Create request")
+	ErrFailedToCreateTemplateGetRequest    = errors.New("[ERROR]: Failed to create Templates.Get request")
 )

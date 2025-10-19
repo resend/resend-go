@@ -49,10 +49,40 @@ type CreateTemplateResponse struct {
 	Object string `json:"object"`
 }
 
+// TemplateVariableResponse represents a variable in a template response (with additional fields)
+type TemplateVariableResponse struct {
+	Id            string       `json:"id"`
+	Key           string       `json:"key"`
+	Type          VariableType `json:"type"`
+	FallbackValue interface{}  `json:"fallback_value"`
+	CreatedAt     string       `json:"created_at"`
+	UpdatedAt     string       `json:"updated_at"`
+}
+
+// Template represents a full template object returned by the Get endpoint
+type Template struct {
+	Object      string                      `json:"object"`
+	Id          string                      `json:"id"`
+	Alias       string                      `json:"alias"`
+	Name        string                      `json:"name"`
+	CreatedAt   string                      `json:"created_at"`
+	UpdatedAt   string                      `json:"updated_at"`
+	Status      string                      `json:"status"`
+	PublishedAt string                      `json:"published_at"`
+	From        string                      `json:"from"`
+	Subject     string                      `json:"subject"`
+	ReplyTo     interface{}                 `json:"reply_to"` // string, []string, or null
+	Html        string                      `json:"html"`
+	Text        string                      `json:"text"`
+	Variables   []*TemplateVariableResponse `json:"variables"`
+}
+
 // TemplatesSvc handles operations for templates
 type TemplatesSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateTemplateRequest) (*CreateTemplateResponse, error)
 	Create(params *CreateTemplateRequest) (*CreateTemplateResponse, error)
+	GetWithContext(ctx context.Context, identifier string) (*Template, error)
+	Get(identifier string) (*Template, error)
 }
 
 // TemplatesSvcImpl is the implementation of the TemplatesSvc interface
@@ -88,4 +118,34 @@ func (s *TemplatesSvcImpl) CreateWithContext(ctx context.Context, params *Create
 // https://resend.com/docs/api-reference/templates/create-template
 func (s *TemplatesSvcImpl) Create(params *CreateTemplateRequest) (*CreateTemplateResponse, error) {
 	return s.CreateWithContext(context.Background(), params)
+}
+
+// GetWithContext retrieves a template by ID or alias
+// https://resend.com/docs/api-reference/templates/get-template
+func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string) (*Template, error) {
+	path := "templates/" + identifier
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplateGetRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(Template)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// Get retrieves a template by ID or alias
+// https://resend.com/docs/api-reference/templates/get-template
+func (s *TemplatesSvcImpl) Get(identifier string) (*Template, error) {
+	return s.GetWithContext(context.Background(), identifier)
 }

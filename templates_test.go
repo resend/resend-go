@@ -321,3 +321,204 @@ func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 	}
 	assert.Equal(t, "single-reply-to-id", resp.Id)
 }
+
+func TestGetTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
+			"alias": "reset-password",
+			"name": "reset-password",
+			"created_at": "2023-10-06T23:47:56.678Z",
+			"updated_at": "2023-10-06T23:47:56.678Z",
+			"status": "published",
+			"published_at": "2023-10-06T23:47:56.678Z",
+			"from": "John Doe <john.doe@example.com>",
+			"subject": "Hello, world!",
+			"reply_to": null,
+			"html": "<h1>Hello, world!</h1>",
+			"text": "Hello, world!",
+			"variables": [
+				{
+					"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"key": "user_name",
+					"type": "string",
+					"fallback_value": "John Doe",
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Get(templateID)
+	if err != nil {
+		t.Errorf("Templates.Get returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
+	assert.Equal(t, "reset-password", resp.Alias)
+	assert.Equal(t, "reset-password", resp.Name)
+	assert.Equal(t, "published", resp.Status)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.CreatedAt)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.UpdatedAt)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.PublishedAt)
+	assert.Equal(t, "John Doe <john.doe@example.com>", resp.From)
+	assert.Equal(t, "Hello, world!", resp.Subject)
+	assert.Nil(t, resp.ReplyTo)
+	assert.Equal(t, "<h1>Hello, world!</h1>", resp.Html)
+	assert.Equal(t, "Hello, world!", resp.Text)
+	assert.Equal(t, 1, len(resp.Variables))
+	assert.Equal(t, "e169aa45-1ecf-4183-9955-b1499d5701d3", resp.Variables[0].Id)
+	assert.Equal(t, "user_name", resp.Variables[0].Key)
+	assert.Equal(t, VariableTypeString, resp.Variables[0].Type)
+	assert.Equal(t, "John Doe", resp.Variables[0].FallbackValue)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.Variables[0].CreatedAt)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.Variables[0].UpdatedAt)
+}
+
+func TestGetTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateAlias := "welcome-email"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateAlias), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "template-id-123",
+			"alias": "welcome-email",
+			"name": "Welcome Email",
+			"created_at": "2023-10-06T23:47:56.678Z",
+			"updated_at": "2023-10-06T23:47:56.678Z",
+			"status": "draft",
+			"published_at": "",
+			"from": "support@example.com",
+			"subject": "Welcome!",
+			"reply_to": "noreply@example.com",
+			"html": "<p>Welcome!</p>",
+			"text": "Welcome!",
+			"variables": []
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Get(templateAlias)
+	if err != nil {
+		t.Errorf("Templates.Get returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "template-id-123", resp.Id)
+	assert.Equal(t, "welcome-email", resp.Alias)
+	assert.Equal(t, "Welcome Email", resp.Name)
+	assert.Equal(t, "draft", resp.Status)
+	assert.Equal(t, "", resp.PublishedAt)
+	assert.Equal(t, "support@example.com", resp.From)
+	assert.Equal(t, "Welcome!", resp.Subject)
+	assert.Equal(t, "noreply@example.com", resp.ReplyTo)
+	assert.Equal(t, 0, len(resp.Variables))
+}
+
+func TestGetTemplateWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "context-test-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "context-test-id",
+			"alias": "",
+			"name": "Context Test",
+			"created_at": "2023-10-06T23:47:56.678Z",
+			"updated_at": "2023-10-06T23:47:56.678Z",
+			"status": "published",
+			"published_at": "2023-10-06T23:47:56.678Z",
+			"from": "",
+			"subject": "",
+			"reply_to": null,
+			"html": "<p>Test</p>",
+			"text": "Test",
+			"variables": []
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.GetWithContext(ctx, templateID)
+	if err != nil {
+		t.Errorf("Templates.GetWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "template", resp.Object)
+	assert.Equal(t, "context-test-id", resp.Id)
+	assert.Equal(t, "Context Test", resp.Name)
+	assert.Equal(t, "published", resp.Status)
+}
+
+func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "multi-reply-to-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "template",
+			"id": "multi-reply-to-id",
+			"alias": "",
+			"name": "Multi Reply To",
+			"created_at": "2023-10-06T23:47:56.678Z",
+			"updated_at": "2023-10-06T23:47:56.678Z",
+			"status": "published",
+			"published_at": "2023-10-06T23:47:56.678Z",
+			"from": "",
+			"subject": "",
+			"reply_to": ["support@example.com", "help@example.com"],
+			"html": "<p>Test</p>",
+			"text": "Test",
+			"variables": []
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Get(templateID)
+	if err != nil {
+		t.Errorf("Templates.Get returned error: %v", err)
+	}
+	assert.Equal(t, "multi-reply-to-id", resp.Id)
+	assert.NotNil(t, resp.ReplyTo)
+
+	// ReplyTo is []interface{} when decoded from JSON
+	replyTo, ok := resp.ReplyTo.([]interface{})
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(replyTo))
+	assert.Equal(t, "support@example.com", replyTo[0].(string))
+	assert.Equal(t, "help@example.com", replyTo[1].(string))
+}
