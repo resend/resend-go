@@ -477,6 +477,256 @@ func TestGetTemplateWithContext(t *testing.T) {
 	assert.Equal(t, "published", resp.Status)
 }
 
+func TestListTemplates(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"name": "reset-password",
+					"status": "draft",
+					"published_at": null,
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z",
+					"alias": "reset-password"
+				},
+				{
+					"id": "b7f9c2e1-1234-4abc-9def-567890abcdef",
+					"name": "welcome-message",
+					"status": "published",
+					"published_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z",
+					"alias": "welcome-message"
+				}
+			],
+			"has_more": false
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	resp, err := client.Templates.List(&ListOptions{
+		Limit: &limit,
+	})
+	if err != nil {
+		t.Errorf("Templates.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 2, len(resp.Data))
+	assert.Equal(t, "e169aa45-1ecf-4183-9955-b1499d5701d3", resp.Data[0].Id)
+	assert.Equal(t, "reset-password", resp.Data[0].Name)
+	assert.Equal(t, "draft", resp.Data[0].Status)
+	assert.Nil(t, resp.Data[0].PublishedAt)
+	assert.Equal(t, "reset-password", resp.Data[0].Alias)
+	assert.Equal(t, "b7f9c2e1-1234-4abc-9def-567890abcdef", resp.Data[1].Id)
+	assert.Equal(t, "welcome-message", resp.Data[1].Name)
+	assert.Equal(t, "published", resp.Data[1].Status)
+	assert.NotNil(t, resp.Data[1].PublishedAt)
+	assert.Equal(t, "2023-10-06T23:47:56.678Z", *resp.Data[1].PublishedAt)
+}
+
+func TestListTemplatesWithAfter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+		assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", query.Get("after"))
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "next-template-id",
+					"name": "next-template",
+					"status": "published",
+					"published_at": "2023-10-07T23:47:56.678Z",
+					"created_at": "2023-10-07T23:47:56.678Z",
+					"updated_at": "2023-10-07T23:47:56.678Z",
+					"alias": "next-template"
+				}
+			],
+			"has_more": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	after := "34a080c9-b17d-4187-ad80-5af20266e535"
+	resp, err := client.Templates.List(&ListOptions{
+		Limit: &limit,
+		After: &after,
+	})
+	if err != nil {
+		t.Errorf("Templates.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.True(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "next-template-id", resp.Data[0].Id)
+}
+
+func TestListTemplatesWithBefore(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+		assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", query.Get("before"))
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "previous-template-id",
+					"name": "previous-template",
+					"status": "draft",
+					"published_at": null,
+					"created_at": "2023-10-05T23:47:56.678Z",
+					"updated_at": "2023-10-05T23:47:56.678Z",
+					"alias": "previous-template"
+				}
+			],
+			"has_more": false
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	before := "34a080c9-b17d-4187-ad80-5af20266e535"
+	resp, err := client.Templates.List(&ListOptions{
+		Limit:  &limit,
+		Before: &before,
+	})
+	if err != nil {
+		t.Errorf("Templates.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "previous-template-id", resp.Data[0].Id)
+}
+
+func TestListTemplatesWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "context-template-id",
+					"name": "context-template",
+					"status": "published",
+					"published_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z",
+					"alias": "context-template"
+				}
+			],
+			"has_more": false
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.ListWithContext(ctx, &ListOptions{})
+	if err != nil {
+		t.Errorf("Templates.ListWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "context-template-id", resp.Data[0].Id)
+}
+
+func TestListTemplatesWithoutOptions(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check that there are no query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "", query.Get("limit"))
+		assert.Equal(t, "", query.Get("after"))
+		assert.Equal(t, "", query.Get("before"))
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "template-1",
+					"name": "template-1",
+					"status": "published",
+					"published_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z",
+					"alias": "template-1"
+				},
+				{
+					"id": "template-2",
+					"name": "template-2",
+					"status": "draft",
+					"published_at": null,
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"updated_at": "2023-10-06T23:47:56.678Z",
+					"alias": "template-2"
+				}
+			],
+			"has_more": false
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.List(nil)
+	if err != nil {
+		t.Errorf("Templates.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 2, len(resp.Data))
+}
+
 func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 	setup()
 	defer teardown()

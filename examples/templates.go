@@ -142,6 +142,48 @@ func templatesExample() {
 		fmt.Printf("\nRetrieved template: %s (Status: %s)\n", templateByAlias.Name, templateByAlias.Status)
 	}
 
+	// List templates with pagination
+	// By default, the API will return the most recent 20 templates
+	// You can use limit, after, or before parameters to control pagination
+	limit := 2
+	listResponse, err := client.Templates.ListWithContext(ctx, &resend.ListOptions{
+		Limit: &limit,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nListed templates:\n")
+	fmt.Printf("  Object: %s\n", listResponse.Object)
+	fmt.Printf("  HasMore: %t\n", listResponse.HasMore)
+	fmt.Printf("  Templates count: %d\n", len(listResponse.Data))
+	for i, tmpl := range listResponse.Data {
+		fmt.Printf("\n  Template %d:\n", i+1)
+		fmt.Printf("    Id: %s\n", tmpl.Id)
+		fmt.Printf("    Name: %s\n", tmpl.Name)
+		fmt.Printf("    Alias: %s\n", tmpl.Alias)
+		fmt.Printf("    Status: %s\n", tmpl.Status)
+		fmt.Printf("    CreatedAt: %s\n", tmpl.CreatedAt)
+		fmt.Printf("    UpdatedAt: %s\n", tmpl.UpdatedAt)
+		if tmpl.PublishedAt != nil {
+			fmt.Printf("    PublishedAt: %s\n", *tmpl.PublishedAt)
+		} else {
+			fmt.Printf("    PublishedAt: null\n")
+		}
+	}
+
+	// List templates with pagination using after parameter
+	if listResponse.HasMore && len(listResponse.Data) > 0 {
+		lastId := listResponse.Data[len(listResponse.Data)-1].Id
+		nextPage, err := client.Templates.List(&resend.ListOptions{
+			Limit: &limit,
+			After: &lastId,
+		})
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("\nNext page templates count: %d\n", len(nextPage.Data))
+	}
+
 	// Update a template
 	updatedTemplate, err := client.Templates.UpdateWithContext(ctx, template.Id, &resend.UpdateTemplateRequest{
 		Name:    "welcome-email-updated",

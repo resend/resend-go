@@ -88,6 +88,24 @@ type RemoveTemplateResponse struct {
 	Deleted bool   `json:"deleted"`
 }
 
+// TemplateListItem represents a template in a list response
+type TemplateListItem struct {
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Status      string  `json:"status"`
+	PublishedAt *string `json:"published_at"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
+	Alias       string  `json:"alias"`
+}
+
+// ListTemplatesResponse is the response from listing templates
+type ListTemplatesResponse struct {
+	Object  string              `json:"object"`
+	Data    []*TemplateListItem `json:"data"`
+	HasMore bool                `json:"has_more"`
+}
+
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
 	Id            string       `json:"id"`
@@ -122,6 +140,8 @@ type TemplatesSvc interface {
 	Create(params *CreateTemplateRequest) (*CreateTemplateResponse, error)
 	GetWithContext(ctx context.Context, identifier string) (*Template, error)
 	Get(identifier string) (*Template, error)
+	ListWithContext(ctx context.Context, options *ListOptions) (*ListTemplatesResponse, error)
+	List(options *ListOptions) (*ListTemplatesResponse, error)
 	UpdateWithContext(ctx context.Context, identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 	Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 	PublishWithContext(ctx context.Context, identifier string) (*PublishTemplateResponse, error)
@@ -195,6 +215,36 @@ func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string
 // https://resend.com/docs/api-reference/templates/get-template
 func (s *TemplatesSvcImpl) Get(identifier string) (*Template, error) {
 	return s.GetWithContext(context.Background(), identifier)
+}
+
+// ListWithContext retrieves a list of templates with pagination options
+// https://resend.com/docs/api-reference/templates/list-templates
+func (s *TemplatesSvcImpl) ListWithContext(ctx context.Context, options *ListOptions) (*ListTemplatesResponse, error) {
+	path := "templates" + buildPaginationQuery(options)
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplateListRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(ListTemplatesResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// List retrieves a list of templates with pagination options
+// https://resend.com/docs/api-reference/templates/list-templates
+func (s *TemplatesSvcImpl) List(options *ListOptions) (*ListTemplatesResponse, error) {
+	return s.ListWithContext(context.Background(), options)
 }
 
 // UpdateWithContext updates a template by ID or alias
