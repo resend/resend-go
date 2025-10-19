@@ -69,6 +69,12 @@ type UpdateTemplateResponse struct {
 	Object string `json:"object"`
 }
 
+// PublishTemplateResponse is the response from publishing a template
+type PublishTemplateResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
+}
+
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
 	Id            string       `json:"id"`
@@ -105,6 +111,8 @@ type TemplatesSvc interface {
 	Get(identifier string) (*Template, error)
 	UpdateWithContext(ctx context.Context, identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 	Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
+	PublishWithContext(ctx context.Context, identifier string) (*PublishTemplateResponse, error)
+	Publish(identifier string) (*PublishTemplateResponse, error)
 }
 
 // TemplatesSvcImpl is the implementation of the TemplatesSvc interface
@@ -200,4 +208,34 @@ func (s *TemplatesSvcImpl) UpdateWithContext(ctx context.Context, identifier str
 // https://resend.com/docs/api-reference/templates/update-template
 func (s *TemplatesSvcImpl) Update(identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
 	return s.UpdateWithContext(context.Background(), identifier, params)
+}
+
+// PublishWithContext publishes a template by ID or alias
+// https://resend.com/docs/api-reference/templates/publish-template
+func (s *TemplatesSvcImpl) PublishWithContext(ctx context.Context, identifier string) (*PublishTemplateResponse, error) {
+	path := "templates/" + identifier + "/publish"
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateTemplatePublishRequest
+	}
+
+	// Build response recipient obj
+	templateResponse := new(PublishTemplateResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, templateResponse)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return templateResponse, nil
+}
+
+// Publish publishes a template by ID or alias
+// https://resend.com/docs/api-reference/templates/publish-template
+func (s *TemplatesSvcImpl) Publish(identifier string) (*PublishTemplateResponse, error) {
+	return s.PublishWithContext(context.Background(), identifier)
 }

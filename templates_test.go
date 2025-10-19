@@ -735,3 +735,85 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 	assert.Equal(t, "full-update-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
+
+func TestPublishTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Publish(templateID)
+	if err != nil {
+		t.Errorf("Templates.Publish returned error: %v", err)
+	}
+	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestPublishTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateAlias := "my-template"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateAlias), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "published-by-alias-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Templates.Publish(templateAlias)
+	if err != nil {
+		t.Errorf("Templates.Publish returned error: %v", err)
+	}
+	assert.Equal(t, "published-by-alias-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}
+
+func TestPublishTemplateWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateID := "context-publish-id"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "context-publish-id",
+			"object": "template"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Templates.PublishWithContext(ctx, templateID)
+	if err != nil {
+		t.Errorf("Templates.PublishWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "context-publish-id", resp.Id)
+	assert.Equal(t, "template", resp.Object)
+}

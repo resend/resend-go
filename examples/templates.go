@@ -169,4 +169,20 @@ func templatesExample() {
 	fmt.Printf("  Name: %s\n", verifyTemplate.Name)
 	fmt.Printf("  Subject: %s\n", verifyTemplate.Subject)
 	fmt.Printf("  Variables count: %d\n", len(verifyTemplate.Variables))
+
+	// Publish a template
+	// Note: Templates must be published before they can be used to send emails
+	publishedTemplate, err := client.Templates.PublishWithContext(ctx, template.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nPublished template: %s\n", publishedTemplate.Id)
+
+	// Verify the template is now published
+	publishedCheck, err := client.Templates.Get(publishedTemplate.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Template status after publish: %s\n", publishedCheck.Status)
+	fmt.Printf("PublishedAt: %s\n", publishedCheck.PublishedAt)
 }
