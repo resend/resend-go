@@ -246,3 +246,436 @@ func TestGetTopicWithContext(t *testing.T) {
 	assert.Equal(t, DefaultSubscriptionOptIn, resp.DefaultSubscription)
 	assert.Equal(t, "2023-04-08T00:11:13.110779+00:00", resp.CreatedAt)
 }
+
+func TestListTopics(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
+					"name": "Weekly Newsletter",
+					"description": "Weekly newsletter for our subscribers",
+					"default_subscription": "opt_in",
+					"created_at": "2023-04-08T00:11:13.110779+00:00"
+				},
+				{
+					"id": "topic-2-id",
+					"name": "Product Updates",
+					"description": "",
+					"default_subscription": "opt_out",
+					"created_at": "2023-04-09T00:11:13.110779+00:00"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	resp, err := client.Topics.List(&ListOptions{
+		Limit: &limit,
+	})
+	if err != nil {
+		t.Errorf("Topics.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 2, len(resp.Data))
+	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Data[0].Id)
+	assert.Equal(t, "Weekly Newsletter", resp.Data[0].Name)
+	assert.Equal(t, "Weekly newsletter for our subscribers", resp.Data[0].Description)
+	assert.Equal(t, DefaultSubscriptionOptIn, resp.Data[0].DefaultSubscription)
+	assert.Equal(t, "topic-2-id", resp.Data[1].Id)
+	assert.Equal(t, "Product Updates", resp.Data[1].Name)
+	assert.Equal(t, DefaultSubscriptionOptOut, resp.Data[1].DefaultSubscription)
+}
+
+func TestListTopicsWithAfter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+		assert.Equal(t, "topic-1-id", query.Get("after"))
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": true,
+			"data": [
+				{
+					"id": "topic-2-id",
+					"name": "Next Topic",
+					"description": "Next topic description",
+					"default_subscription": "opt_in",
+					"created_at": "2023-04-10T00:11:13.110779+00:00"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	after := "topic-1-id"
+	resp, err := client.Topics.List(&ListOptions{
+		Limit: &limit,
+		After: &after,
+	})
+	if err != nil {
+		t.Errorf("Topics.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.True(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "topic-2-id", resp.Data[0].Id)
+}
+
+func TestListTopicsWithBefore(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "2", query.Get("limit"))
+		assert.Equal(t, "topic-3-id", query.Get("before"))
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "topic-1-id",
+					"name": "Previous Topic",
+					"description": "Previous topic description",
+					"default_subscription": "opt_out",
+					"created_at": "2023-04-07T00:11:13.110779+00:00"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	limit := 2
+	before := "topic-3-id"
+	resp, err := client.Topics.List(&ListOptions{
+		Limit:  &limit,
+		Before: &before,
+	})
+	if err != nil {
+		t.Errorf("Topics.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "topic-1-id", resp.Data[0].Id)
+}
+
+func TestListTopicsWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "context-topic-id",
+					"name": "Context Topic",
+					"description": "Context topic description",
+					"default_subscription": "opt_in",
+					"created_at": "2023-04-08T00:11:13.110779+00:00"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Topics.ListWithContext(ctx, &ListOptions{})
+	if err != nil {
+		t.Errorf("Topics.ListWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "context-topic-id", resp.Data[0].Id)
+}
+
+func TestListTopicsWithoutOptions(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Check that there are no query parameters
+		query := r.URL.Query()
+		assert.Equal(t, "", query.Get("limit"))
+		assert.Equal(t, "", query.Get("after"))
+		assert.Equal(t, "", query.Get("before"))
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "topic-1-id",
+					"name": "Topic 1",
+					"description": "First topic",
+					"default_subscription": "opt_in",
+					"created_at": "2023-04-08T00:11:13.110779+00:00"
+				},
+				{
+					"id": "topic-2-id",
+					"name": "Topic 2",
+					"description": "Second topic",
+					"default_subscription": "opt_out",
+					"created_at": "2023-04-09T00:11:13.110779+00:00"
+				}
+			]
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Topics.List(nil)
+	if err != nil {
+		t.Errorf("Topics.List returned error: %v", err)
+	}
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 2, len(resp.Data))
+}
+
+func TestUpdateTopic(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify it
+		var req UpdateTopicRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "Weekly Newsletter - Updated", req.Name)
+		assert.Equal(t, "Updated description", req.Description)
+
+		ret := `
+		{
+			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+		Name:        "Weekly Newsletter - Updated",
+		Description: "Updated description",
+	})
+	if err != nil {
+		t.Errorf("Topics.Update returned error: %v", err)
+	}
+	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
+}
+
+func TestUpdateTopicNameOnly(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "topic-name-only-id"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify it
+		var req UpdateTopicRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "New Name", req.Name)
+		assert.Equal(t, "", req.Description)
+
+		ret := `
+		{
+			"id": "topic-name-only-id"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+		Name: "New Name",
+	})
+	if err != nil {
+		t.Errorf("Topics.Update returned error: %v", err)
+	}
+	assert.Equal(t, "topic-name-only-id", resp.Id)
+}
+
+func TestUpdateTopicDescriptionOnly(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "topic-description-only-id"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify it
+		var req UpdateTopicRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, "", req.Name)
+		assert.Equal(t, "New description only", req.Description)
+
+		ret := `
+		{
+			"id": "topic-description-only-id"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+		Description: "New description only",
+	})
+	if err != nil {
+		t.Errorf("Topics.Update returned error: %v", err)
+	}
+	assert.Equal(t, "topic-description-only-id", resp.Id)
+}
+
+func TestUpdateTopicWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "context-update-id"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "context-update-id"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Topics.UpdateWithContext(ctx, topicID, &UpdateTopicRequest{
+		Name:        "Context Update",
+		Description: "Updated with context",
+	})
+	if err != nil {
+		t.Errorf("Topics.UpdateWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "context-update-id", resp.Id)
+}
+
+func TestRemoveTopic(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "topic",
+			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
+			"deleted": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Topics.Remove(topicID)
+	if err != nil {
+		t.Errorf("Topics.Remove returned error: %v", err)
+	}
+	assert.Equal(t, "topic", resp.Object)
+	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
+	assert.True(t, resp.Deleted)
+}
+
+func TestRemoveTopicWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicID := "context-remove-id"
+
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "topic",
+			"id": "context-remove-id",
+			"deleted": true
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Topics.RemoveWithContext(ctx, topicID)
+	if err != nil {
+		t.Errorf("Topics.RemoveWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "topic", resp.Object)
+	assert.Equal(t, "context-remove-id", resp.Id)
+	assert.True(t, resp.Deleted)
+}

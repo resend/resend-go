@@ -57,11 +57,7 @@ type Client struct {
 	Audiences  AudiencesSvc
 	Contacts   ContactsSvc
 	Broadcasts BroadcastsSvc
-<<<<<<< Updated upstream
-=======
-	Templates  TemplatesSvc
 	Topics     TopicsSvc
->>>>>>> Stashed changes
 }
 
 // NewClient is the default client constructor
@@ -87,11 +83,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Audiences = &AudiencesSvcImpl{client: c}
 	c.Contacts = &ContactsSvcImpl{client: c}
 	c.Broadcasts = &BroadcastsSvcImpl{client: c}
-<<<<<<< Updated upstream
-=======
-	c.Templates = &TemplatesSvcImpl{client: c}
 	c.Topics = &TopicsSvcImpl{client: c}
->>>>>>> Stashed changes
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
