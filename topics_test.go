@@ -151,9 +151,9 @@ func TestGetTopic(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -169,7 +169,7 @@ func TestGetTopic(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Get(topicID)
+	resp, err := client.Topics.Get(topicId)
 	if err != nil {
 		t.Errorf("Topics.Get returned error: %v", err)
 	}
@@ -184,9 +184,9 @@ func TestGetTopicWithOptOut(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "opt-out-topic-id"
+	topicId := "opt-out-topic-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -202,7 +202,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Get(topicID)
+	resp, err := client.Topics.Get(topicId)
 	if err != nil {
 		t.Errorf("Topics.Get returned error: %v", err)
 	}
@@ -217,9 +217,9 @@ func TestGetTopicWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "context-topic-id"
+	topicId := "context-topic-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -236,7 +236,7 @@ func TestGetTopicWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Topics.GetWithContext(ctx, topicID)
+	resp, err := client.Topics.GetWithContext(ctx, topicId)
 	if err != nil {
 		t.Errorf("Topics.GetWithContext returned error: %v", err)
 	}
@@ -484,9 +484,9 @@ func TestUpdateTopic(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -508,7 +508,7 @@ func TestUpdateTopic(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
 		Name:        "Weekly Newsletter - Updated",
 		Description: "Updated description",
 	})
@@ -522,9 +522,9 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "topic-name-only-id"
+	topicId := "topic-name-only-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -546,7 +546,7 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
 		Name: "New Name",
 	})
 	if err != nil {
@@ -559,9 +559,9 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "topic-description-only-id"
+	topicId := "topic-description-only-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -583,7 +583,7 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Update(topicID, &UpdateTopicRequest{
+	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
 		Description: "New description only",
 	})
 	if err != nil {
@@ -596,9 +596,9 @@ func TestUpdateTopicWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "context-update-id"
+	topicId := "context-update-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -611,7 +611,7 @@ func TestUpdateTopicWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Topics.UpdateWithContext(ctx, topicID, &UpdateTopicRequest{
+	resp, err := client.Topics.UpdateWithContext(ctx, topicId, &UpdateTopicRequest{
 		Name:        "Context Update",
 		Description: "Updated with context",
 	})
@@ -625,9 +625,9 @@ func TestRemoveTopic(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -641,7 +641,7 @@ func TestRemoveTopic(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Topics.Remove(topicID)
+	resp, err := client.Topics.Remove(topicId)
 	if err != nil {
 		t.Errorf("Topics.Remove returned error: %v", err)
 	}
@@ -654,9 +654,9 @@ func TestRemoveTopicWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	topicID := "context-remove-id"
+	topicId := "context-remove-id"
 
-	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -671,7 +671,7 @@ func TestRemoveTopicWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Topics.RemoveWithContext(ctx, topicID)
+	resp, err := client.Topics.RemoveWithContext(ctx, topicId)
 	if err != nil {
 		t.Errorf("Topics.RemoveWithContext returned error: %v", err)
 	}
