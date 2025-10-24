@@ -67,3 +67,12 @@ var (
 	ErrFailedToCreateEmailsGetRequest   = errors.New("[ERROR]: Failed to create GetEmail request")
 	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
 )
+
+// TopicsSvc errors
+var (
+	ErrFailedToCreateTopicCreateRequest = errors.New("[ERROR]: Failed to create Topics.Create request")
+	ErrFailedToCreateTopicGetRequest    = errors.New("[ERROR]: Failed to create Topics.Get request")
+	ErrFailedToCreateTopicListRequest   = errors.New("[ERROR]: Failed to create Topics.List request")
+	ErrFailedToCreateTopicUpdateRequest = errors.New("[ERROR]: Failed to create Topics.Update request")
+	ErrFailedToCreateTopicRemoveRequest = errors.New("[ERROR]: Failed to create Topics.Remove request")
+)
