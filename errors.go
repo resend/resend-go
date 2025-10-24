@@ -68,6 +68,14 @@ var (
 	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
 )
 
+// ReceivingSvc errors
+var (
+	ErrFailedToCreateReceivingGetRequest             = errors.New("[ERROR]: Failed to create Receiving.Get request")
+	ErrFailedToCreateReceivingListRequest            = errors.New("[ERROR]: Failed to create Receiving.List request")
+	ErrFailedToCreateReceivingGetAttachmentRequest   = errors.New("[ERROR]: Failed to create Receiving.GetAttachment request")
+	ErrFailedToCreateReceivingListAttachmentsRequest = errors.New("[ERROR]: Failed to create Receiving.ListAttachments request")
+)
+
 // TopicsSvc errors
 var (
 	ErrFailedToCreateTopicCreateRequest = errors.New("[ERROR]: Failed to create Topics.Create request")

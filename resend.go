@@ -57,6 +57,7 @@ type Client struct {
 	Audiences  AudiencesSvc
 	Contacts   ContactsSvc
 	Broadcasts BroadcastsSvc
+	Receiving  ReceivingSvc
 	Topics     TopicsSvc
 }
 
@@ -83,6 +84,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Audiences = &AudiencesSvcImpl{client: c}
 	c.Contacts = &ContactsSvcImpl{client: c}
 	c.Broadcasts = &BroadcastsSvcImpl{client: c}
+	c.Receiving = &ReceivingSvcImpl{client: c}
 	c.Topics = &TopicsSvcImpl{client: c}
 
 	c.ApiKey = apiKey
