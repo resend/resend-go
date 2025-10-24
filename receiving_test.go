@@ -273,10 +273,10 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
-	attachmentID := "2a0c9ce0-3112-4728-976e-47ddcd16a318"
+	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
+	attachmentId := "2a0c9ce0-3112-4728-976e-47ddcd16a318"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailID, attachmentID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailId, attachmentId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -297,7 +297,7 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Receiving.GetAttachment(emailID, attachmentID)
+	resp, err := client.Receiving.GetAttachment(emailId, attachmentId)
 	if err != nil {
 		t.Errorf("Receiving.GetAttachment returned error: %v", err)
 	}
@@ -314,10 +314,10 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "test-email-id"
-	attachmentID := "test-attachment-id"
+	emailId := "test-email-id"
+	attachmentId := "test-attachment-id"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailID, attachmentID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailId, attachmentId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -339,7 +339,7 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Receiving.GetAttachmentWithContext(ctx, emailID, attachmentID)
+	resp, err := client.Receiving.GetAttachmentWithContext(ctx, emailId, attachmentId)
 	if err != nil {
 		t.Errorf("Receiving.GetAttachmentWithContext returned error: %v", err)
 	}
@@ -356,9 +356,9 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
+	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -393,7 +393,7 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.ListAttachments(emailID)
+	resp, err := client.Receiving.ListAttachments(emailId)
 	if err != nil {
 		t.Errorf("Receiving.ListAttachments returned error: %v", err)
 	}
@@ -415,9 +415,9 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "test-email-id"
+	emailId := "test-email-id"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 
 		// Verify query parameters
@@ -456,7 +456,7 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 		After: &after,
 	}
 
-	resp, err := client.Receiving.ListAttachmentsWithOptions(context.Background(), emailID, options)
+	resp, err := client.Receiving.ListAttachmentsWithOptions(context.Background(), emailId, options)
 	if err != nil {
 		t.Errorf("Receiving.ListAttachmentsWithOptions returned error: %v", err)
 	}
@@ -471,9 +471,9 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "email-no-attachments"
+	emailId := "email-no-attachments"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -489,7 +489,7 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.ListAttachments(emailID)
+	resp, err := client.Receiving.ListAttachments(emailId)
 	if err != nil {
 		t.Errorf("Receiving.ListAttachments returned error: %v", err)
 	}
@@ -503,9 +503,9 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	emailID := "context-test-id"
+	emailId := "context-test-id"
 
-	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -532,7 +532,7 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Receiving.ListAttachmentsWithContext(ctx, emailID)
+	resp, err := client.Receiving.ListAttachmentsWithContext(ctx, emailId)
 	if err != nil {
 		t.Errorf("Receiving.ListAttachmentsWithContext returned error: %v", err)
 	}
