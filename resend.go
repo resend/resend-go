@@ -84,11 +84,8 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Audiences = &AudiencesSvcImpl{client: c}
 	c.Contacts = &ContactsSvcImpl{client: c}
 	c.Broadcasts = &BroadcastsSvcImpl{client: c}
-<<<<<<< HEAD
 	c.Receiving = &ReceivingSvcImpl{client: c}
-=======
 	c.Topics = &TopicsSvcImpl{client: c}
->>>>>>> b9ca8ad66ee9661941ff3d46e85654da77ca4e86
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
