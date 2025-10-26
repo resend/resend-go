@@ -129,7 +129,6 @@ func (s *ReceivingSvcImpl) Get(emailID string) (*ReceivedEmail, error) {
 func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error) {
 	path := "emails/receiving" + buildPaginationQuery(options)
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return ListReceivedEmailsResponse{}, ErrFailedToCreateReceivingListRequest
