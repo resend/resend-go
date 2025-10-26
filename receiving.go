@@ -136,7 +136,6 @@ func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOpt
 		return ListReceivedEmailsResponse{}, ErrFailedToCreateReceivingListRequest
 	}
 
-	// Build response recipient obj
 	listEmailsResponse := new(ListReceivedEmailsResponse)
 
 	_, err = s.client.Perform(req, listEmailsResponse)
