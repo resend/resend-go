@@ -139,7 +139,6 @@ func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOpt
 	// Build response recipient obj
 	listEmailsResponse := new(ListReceivedEmailsResponse)
 
-	// Send Request
 	_, err = s.client.Perform(req, listEmailsResponse)
 
 	if err != nil {
