@@ -106,7 +106,6 @@ func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailID string) (
 		return nil, ErrFailedToCreateReceivingGetRequest
 	}
 
-	// Build response recipient obj
 	emailResponse := new(ReceivedEmail)
 
 	// Send Request
