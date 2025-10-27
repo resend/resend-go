@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// Email events
 	EventEmailSent            = "email.sent"
 	EventEmailDelivered       = "email.delivered"
 	EventEmailDeliveryDelayed = "email.delivery_delayed"
@@ -22,6 +23,18 @@ const (
 	EventEmailBounced         = "email.bounced"
 	EventEmailOpened          = "email.opened"
 	EventEmailClicked         = "email.clicked"
+	EventEmailReceived        = "email.received"
+	EventEmailFailed          = "email.failed"
+
+	// Contact events
+	EventContactCreated = "contact.created"
+	EventContactUpdated = "contact.updated"
+	EventContactDeleted = "contact.deleted"
+
+	// Domain events
+	EventDomainCreated = "domain.created"
+	EventDomainUpdated = "domain.updated"
+	EventDomainDeleted = "domain.deleted"
 )
 
 // Default tolerance for timestamp validation (5 minutes)
