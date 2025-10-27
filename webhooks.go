@@ -96,7 +96,6 @@ func (s *WebhooksSvcImpl) CreateWithContext(ctx context.Context, params *CreateW
 		return nil, err
 	}
 
-	// Build response object
 	webhookResp := new(CreateWebhookResponse)
 
 	_, err = s.client.Perform(req, webhookResp)
