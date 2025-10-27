@@ -90,16 +90,13 @@ type WebhooksSvcImpl struct {
 func (s *WebhooksSvcImpl) CreateWithContext(ctx context.Context, params *CreateWebhookRequest) (*CreateWebhookResponse, error) {
 	path := "webhooks"
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return nil, err
 	}
 
-	// Build response object
 	webhookResp := new(CreateWebhookResponse)
 
-	// Send Request
 	_, err = s.client.Perform(req, webhookResp)
 	if err != nil {
 		return nil, err
@@ -118,7 +115,6 @@ func (s *WebhooksSvcImpl) Create(params *CreateWebhookRequest) (*CreateWebhookRe
 func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) (*Webhook, error) {
 	path := "webhooks/" + webhookId
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
