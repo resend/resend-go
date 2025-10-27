@@ -118,7 +118,6 @@ func (s *WebhooksSvcImpl) Create(params *CreateWebhookRequest) (*CreateWebhookRe
 func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) (*Webhook, error) {
 	path := "webhooks/" + webhookId
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
