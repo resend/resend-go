@@ -90,7 +90,6 @@ type WebhooksSvcImpl struct {
 func (s *WebhooksSvcImpl) CreateWithContext(ctx context.Context, params *CreateWebhookRequest) (*CreateWebhookResponse, error) {
 	path := "webhooks"
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return nil, err
