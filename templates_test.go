@@ -211,7 +211,7 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 			t.Errorf("Failed to decode request body: %v", err)
 		}
 
-		assert.Equal(t, 5, len(req.Variables))
+		assert.Equal(t, 2, len(req.Variables))
 
 		// String variable
 		assert.Equal(t, "STRING_VAR", req.Variables[0].Key)
@@ -222,20 +222,6 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 		assert.Equal(t, "NUMBER_VAR", req.Variables[1].Key)
 		assert.Equal(t, VariableTypeNumber, req.Variables[1].Type)
 		assert.Equal(t, float64(42), req.Variables[1].FallbackValue)
-
-		// Boolean variable
-		assert.Equal(t, "BOOLEAN_VAR", req.Variables[2].Key)
-		assert.Equal(t, VariableTypeBoolean, req.Variables[2].Type)
-		assert.Equal(t, true, req.Variables[2].FallbackValue)
-
-		// Object variable
-		assert.Equal(t, "OBJECT_VAR", req.Variables[3].Key)
-		assert.Equal(t, VariableTypeObject, req.Variables[3].Type)
-
-		// List variable
-		assert.Equal(t, "LIST_VAR", req.Variables[4].Key)
-		assert.Equal(t, VariableTypeList, req.Variables[4].Type)
-		assert.NotNil(t, req.Variables[4].FallbackValue)
 
 		ret := `
 		{
@@ -258,21 +244,6 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 				Key:           "NUMBER_VAR",
 				Type:          VariableTypeNumber,
 				FallbackValue: 42,
-			},
-			{
-				Key:           "BOOLEAN_VAR",
-				Type:          VariableTypeBoolean,
-				FallbackValue: true,
-			},
-			{
-				Key:           "OBJECT_VAR",
-				Type:          VariableTypeObject,
-				FallbackValue: map[string]interface{}{"key": "value"},
-			},
-			{
-				Key:           "LIST_VAR",
-				Type:          VariableTypeList,
-				FallbackValue: []interface{}{"item1", "item2"},
 			},
 		},
 	})

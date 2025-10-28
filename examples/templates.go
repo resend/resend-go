@@ -82,35 +82,6 @@ func templatesExample() {
 	}
 	fmt.Printf("Created full template: %s (object: %s)\n", fullTemplate.Id, fullTemplate.Object)
 
-	// Create a template with boolean, list, and object variables
-	// IMPORTANT: 'object' and 'list' types REQUIRE a fallback_value
-	// - For 'list' type: Must contain at least one item (cannot be empty array)
-	// - For 'object' type: Must be a valid object
-	advancedTemplate, err := client.Templates.Create(&resend.CreateTemplateRequest{
-		Name: "advanced-template",
-		Html: "<div>{{{IS_PREMIUM}}} - {{{ITEMS}}} - {{{USER}}}</div>",
-		Variables: []*resend.TemplateVariable{
-			{
-				Key:           "IS_PREMIUM",
-				Type:          resend.VariableTypeBoolean,
-				FallbackValue: false,
-			},
-			{
-				Key:           "ITEMS",
-				Type:          resend.VariableTypeList,
-				FallbackValue: []interface{}{"default-item"}, // Must have at least one item
-			},
-			{
-				Key:           "USER",
-				Type:          resend.VariableTypeObject,
-				FallbackValue: map[string]interface{}{"name": "Guest", "id": 0}, // Object with default values
-			},
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Created advanced template: %s\n", advancedTemplate.Id)
 
 	// Get a template by ID
 	retrievedTemplate, err := client.Templates.GetWithContext(ctx, template.Id)
