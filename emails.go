@@ -84,6 +84,27 @@ type Tag struct {
 	Value string `json:"value"`
 }
 
+// EmailAttachment represents an attachment for both sent and received emails.
+// When returned from GET /emails/:id/attachments/:attachmentId, it includes the Object field.
+// When returned in a list (Data array), the Object field is omitted.
+type EmailAttachment struct {
+	Object             string `json:"object,omitempty"`
+	Id                 string `json:"id"`
+	Filename           string `json:"filename"`
+	ContentType        string `json:"content_type"`
+	ContentDisposition string `json:"content_disposition"`
+	ContentId          string `json:"content_id"`
+	DownloadUrl        string `json:"download_url"`
+	ExpiresAt          string `json:"expires_at"`
+}
+
+// ListEmailAttachmentsResponse is the response from the ListAttachments call.
+type ListEmailAttachmentsResponse struct {
+	Object  string            `json:"object"`
+	HasMore bool              `json:"has_more"`
+	Data    []EmailAttachment `json:"data"`
+}
+
 // Attachment is the public struct used for adding attachments to emails
 type Attachment struct {
 	// Content is the binary content of the attachment to use when a Path
@@ -153,10 +174,18 @@ type EmailsSvc interface {
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListEmailsResponse, error)
 	ListWithContext(ctx context.Context) (ListEmailsResponse, error)
 	List() (ListEmailsResponse, error)
+
+	// Attachment methods for sent emails
+	GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*EmailAttachment, error)
+	GetAttachment(emailID string, attachmentID string) (*EmailAttachment, error)
+	ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListEmailAttachmentsResponse, error)
+	ListAttachmentsWithContext(ctx context.Context, emailID string) (ListEmailAttachmentsResponse, error)
+	ListAttachments(emailID string) (ListEmailAttachmentsResponse, error)
 }
 
 type EmailsSvcImpl struct {
-	client *Client
+	client    *Client
+	Receiving ReceivingSvc
 }
 
 // Cancel cancels an email by ID
@@ -338,4 +367,69 @@ func (s *EmailsSvcImpl) ListWithContext(ctx context.Context) (ListEmailsResponse
 // https://resend.com/docs/api-reference/emails/list-emails
 func (s *EmailsSvcImpl) List() (ListEmailsResponse, error) {
 	return s.ListWithContext(context.Background())
+}
+
+// GetAttachmentWithContext retrieves a single attachment from a sent email with the given emailID and attachmentID
+// https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
+func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*EmailAttachment, error) {
+	path := "emails/" + emailID + "/attachments/" + attachmentID
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateEmailsGetAttachmentRequest
+	}
+
+	attachment := new(EmailAttachment)
+
+	// Send Request
+	_, err = s.client.Perform(req, attachment)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return attachment, nil
+}
+
+// GetAttachment retrieves a single attachment from a sent email with the given emailID and attachmentID
+// https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
+func (s *EmailsSvcImpl) GetAttachment(emailID string, attachmentID string) (*EmailAttachment, error) {
+	return s.GetAttachmentWithContext(context.Background(), emailID, attachmentID)
+}
+
+// ListAttachmentsWithOptions retrieves a list of attachments for a sent email with pagination options
+// https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
+func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListEmailAttachmentsResponse, error) {
+	path := "emails/" + emailID + "/attachments" + buildPaginationQuery(options)
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return ListEmailAttachmentsResponse{}, ErrFailedToCreateEmailsListAttachmentsRequest
+	}
+
+	// Build response recipient obj
+	listAttachmentsResponse := new(ListEmailAttachmentsResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, listAttachmentsResponse)
+
+	if err != nil {
+		return ListEmailAttachmentsResponse{}, err
+	}
+
+	return *listAttachmentsResponse, nil
+}
+
+// ListAttachmentsWithContext retrieves a list of attachments for a sent email
+// https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
+func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailID string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithOptions(ctx, emailID, nil)
+}
+
+// ListAttachments retrieves a list of attachments for a sent email
+// https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
+func (s *EmailsSvcImpl) ListAttachments(emailID string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithContext(context.Background(), emailID)
 }
