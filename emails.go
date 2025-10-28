@@ -14,6 +14,14 @@ func (o SendEmailOptions) GetIdempotencyKey() string {
 	return o.IdempotencyKey
 }
 
+// EmailTemplate represents a template configuration for sending emails.
+type EmailTemplate struct {
+	// Id is the template ID or alias to use for this email
+	Id string `json:"id"`
+	// Variables are the key-value pairs to populate the template placeholders
+	Variables map[string]interface{} `json:"variables,omitempty"`
+}
+
 // SendEmailRequest is the request object for the Send call.
 //
 // See also https://resend.com/docs/api-reference/emails/send-email
@@ -30,6 +38,7 @@ type SendEmailRequest struct {
 	Attachments []*Attachment     `json:"attachments,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
 	ScheduledAt string            `json:"scheduled_at,omitempty"`
+	Template    *EmailTemplate    `json:"template,omitempty"`
 }
 
 // CancelScheduledEmailResponse is the response from the Cancel call.
