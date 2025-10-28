@@ -78,3 +78,20 @@ var (
 	ErrFailedToCreateTemplateDuplicateRequest = errors.New("[ERROR]: Failed to create Templates.Duplicate request")
 	ErrFailedToCreateTemplateRemoveRequest    = errors.New("[ERROR]: Failed to create Templates.Remove request")
 )
+
+// ReceivingSvc errors
+var (
+	ErrFailedToCreateReceivingGetRequest             = errors.New("[ERROR]: Failed to create Receiving.Get request")
+	ErrFailedToCreateReceivingListRequest            = errors.New("[ERROR]: Failed to create Receiving.List request")
+	ErrFailedToCreateReceivingGetAttachmentRequest   = errors.New("[ERROR]: Failed to create Receiving.GetAttachment request")
+	ErrFailedToCreateReceivingListAttachmentsRequest = errors.New("[ERROR]: Failed to create Receiving.ListAttachments request")
+)
+
+// TopicsSvc errors
+var (
+	ErrFailedToCreateTopicCreateRequest = errors.New("[ERROR]: Failed to create Topics.Create request")
+	ErrFailedToCreateTopicGetRequest    = errors.New("[ERROR]: Failed to create Topics.Get request")
+	ErrFailedToCreateTopicListRequest   = errors.New("[ERROR]: Failed to create Topics.List request")
+	ErrFailedToCreateTopicUpdateRequest = errors.New("[ERROR]: Failed to create Topics.Update request")
+	ErrFailedToCreateTopicRemoveRequest = errors.New("[ERROR]: Failed to create Topics.Remove request")
+)
