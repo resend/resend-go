@@ -495,3 +495,300 @@ func TestListEmailsWithContext(t *testing.T) {
 	assert.Equal(t, false, resp.HasMore)
 	assert.Equal(t, 0, len(resp.Data))
 }
+
+func TestSendEmailWithTemplate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify template fields
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		// Verify template fields
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "welcome-template", req.Template.Id)
+		assert.Nil(t, req.Template.Variables)
+
+		ret := &SendEmailResponse{
+			Id: "template-email-123",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From: "sender@example.com",
+		To:   []string{"recipient@example.com"},
+		Subject: "Welcome!",
+		Template: &EmailTemplate{
+			Id: "welcome-template",
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "template-email-123", resp.Id)
+}
+
+func TestSendEmailWithTemplateAndVariables(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify template fields
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		// Verify template fields
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "user-welcome", req.Template.Id)
+		assert.NotNil(t, req.Template.Variables)
+		assert.Equal(t, "John Doe", req.Template.Variables["name"])
+		assert.Equal(t, float64(25), req.Template.Variables["age"])
+
+		ret := &SendEmailResponse{
+			Id: "template-email-456",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From: "noreply@example.com",
+		To:   []string{"john@example.com"},
+		Subject: "Welcome to our service",
+		Template: &EmailTemplate{
+			Id: "user-welcome",
+			Variables: map[string]interface{}{
+				"name": "John Doe",
+				"age":  25,
+			},
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "template-email-456", resp.Id)
+}
+
+func TestSendEmailWithTemplateByAlias(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify template alias
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		// Verify template uses alias
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "welcome-v2", req.Template.Id)
+
+		ret := &SendEmailResponse{
+			Id: "template-alias-789",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From: "team@example.com",
+		To:   []string{"user@example.com"},
+		Subject: "Hello!",
+		Template: &EmailTemplate{
+			Id: "welcome-v2",
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "template-alias-789", resp.Id)
+}
+
+func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify overrides
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		// Verify template and overrides
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "newsletter-template", req.Template.Id)
+		assert.Equal(t, "Custom Newsletter", req.Template.Variables["title"])
+
+		// Verify overridden fields
+		assert.Equal(t, "custom-sender@example.com", req.From)
+		assert.Equal(t, "Custom Subject Line", req.Subject)
+		assert.Equal(t, "reply@example.com", req.ReplyTo)
+		assert.Equal(t, []string{"bcc@example.com"}, req.Bcc)
+		assert.Equal(t, 1, len(req.Tags))
+		assert.Equal(t, "campaign", req.Tags[0].Name)
+		assert.Equal(t, "2024-q1", req.Tags[0].Value)
+
+		ret := &SendEmailResponse{
+			Id: "template-override-999",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From:    "custom-sender@example.com",
+		To:      []string{"subscriber@example.com"},
+		Subject: "Custom Subject Line",
+		Bcc:     []string{"bcc@example.com"},
+		ReplyTo: "reply@example.com",
+		Tags: []Tag{
+			{Name: "campaign", Value: "2024-q1"},
+		},
+		Template: &EmailTemplate{
+			Id: "newsletter-template",
+			Variables: map[string]interface{}{
+				"title": "Custom Newsletter",
+			},
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "template-override-999", resp.Id)
+}
+
+func TestSendEmailWithTemplateAndContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify template
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "context-template", req.Template.Id)
+
+		ret := &SendEmailResponse{
+			Id: "context-template-email-111",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	ctx := context.Background()
+	req := &SendEmailRequest{
+		From: "sender@example.com",
+		To:   []string{"recipient@example.com"},
+		Subject: "Context Test",
+		Template: &EmailTemplate{
+			Id: "context-template",
+			Variables: map[string]interface{}{
+				"contextVar": "test",
+			},
+		},
+	}
+	resp, err := client.Emails.SendWithContext(ctx, req)
+	if err != nil {
+		t.Errorf("Emails.SendWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "context-template-email-111", resp.Id)
+}
+
+func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Decode request body to verify complex variables
+		var req SendEmailRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.NotNil(t, req.Template)
+		assert.Equal(t, "complex-template", req.Template.Id)
+		assert.NotNil(t, req.Template.Variables)
+		assert.Equal(t, float64(42), req.Template.Variables["count"])
+
+		ret := &SendEmailResponse{
+			Id: "complex-vars-email-222",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From: "sender@example.com",
+		To:   []string{"recipient@example.com"},
+		Subject: "Complex Variables Test",
+		Template: &EmailTemplate{
+			Id: "complex-template",
+			Variables: map[string]interface{}{
+				"count": 42,
+			},
+		},
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "complex-vars-email-222", resp.Id)
+}
