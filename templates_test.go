@@ -326,9 +326,9 @@ func TestGetTemplate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -362,7 +362,7 @@ func TestGetTemplate(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Get(templateID)
+	resp, err := client.Templates.Get(templateId)
 	if err != nil {
 		t.Errorf("Templates.Get returned error: %v", err)
 	}
@@ -439,9 +439,9 @@ func TestGetTemplateWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "context-test-id"
+	templateId := "context-test-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -467,7 +467,7 @@ func TestGetTemplateWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Templates.GetWithContext(ctx, templateID)
+	resp, err := client.Templates.GetWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.GetWithContext returned error: %v", err)
 	}
@@ -731,9 +731,9 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "multi-reply-to-id"
+	templateId := "multi-reply-to-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -758,7 +758,7 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Get(templateID)
+	resp, err := client.Templates.Get(templateId)
 	if err != nil {
 		t.Errorf("Templates.Get returned error: %v", err)
 	}
@@ -777,9 +777,9 @@ func TestUpdateTemplate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -802,7 +802,7 @@ func TestUpdateTemplate(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
 		Name: "welcome-email-updated",
 		Html: "<strong>Updated content</strong>",
 	})
@@ -817,9 +817,9 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "template-with-vars"
+	templateId := "template-with-vars"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -847,7 +847,7 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
 		Name: "updated-template",
 		Html: "<p>Hello {{{NAME}}}, you have {{{COUNT}}} messages</p>",
 		Variables: []*TemplateVariable{
@@ -904,9 +904,9 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "context-update-id"
+	templateId := "context-update-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -920,7 +920,7 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Templates.UpdateWithContext(ctx, templateID, &UpdateTemplateRequest{
+	resp, err := client.Templates.UpdateWithContext(ctx, templateId, &UpdateTemplateRequest{
 		Name: "context-updated",
 		Html: "<p>Context update</p>",
 	})
@@ -935,9 +935,9 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "full-update-id"
+	templateId := "full-update-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -970,7 +970,7 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Update(templateID, &UpdateTemplateRequest{
+	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
 		Name:    "full-update",
 		Alias:   "updated-alias",
 		From:    "Updated <updated@example.com>",
@@ -990,9 +990,9 @@ func TestPublishTemplate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1005,7 +1005,7 @@ func TestPublishTemplate(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Publish(templateID)
+	resp, err := client.Templates.Publish(templateId)
 	if err != nil {
 		t.Errorf("Templates.Publish returned error: %v", err)
 	}
@@ -1044,9 +1044,9 @@ func TestPublishTemplateWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "context-publish-id"
+	templateId := "context-publish-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1060,7 +1060,7 @@ func TestPublishTemplateWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Templates.PublishWithContext(ctx, templateID)
+	resp, err := client.Templates.PublishWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.PublishWithContext returned error: %v", err)
 	}
@@ -1072,9 +1072,9 @@ func TestDuplicateTemplate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1087,7 +1087,7 @@ func TestDuplicateTemplate(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Duplicate(templateID)
+	resp, err := client.Templates.Duplicate(templateId)
 	if err != nil {
 		t.Errorf("Templates.Duplicate returned error: %v", err)
 	}
@@ -1126,9 +1126,9 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "context-duplicate-id"
+	templateId := "context-duplicate-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1142,7 +1142,7 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Templates.DuplicateWithContext(ctx, templateID)
+	resp, err := client.Templates.DuplicateWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.DuplicateWithContext returned error: %v", err)
 	}
@@ -1154,9 +1154,9 @@ func TestRemoveTemplate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1170,7 +1170,7 @@ func TestRemoveTemplate(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Templates.Remove(templateID)
+	resp, err := client.Templates.Remove(templateId)
 	if err != nil {
 		t.Errorf("Templates.Remove returned error: %v", err)
 	}
@@ -1212,9 +1212,9 @@ func TestRemoveTemplateWithContext(t *testing.T) {
 	setup()
 	defer teardown()
 
-	templateID := "context-remove-id"
+	templateId := "context-remove-id"
 
-	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateID), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -1229,7 +1229,7 @@ func TestRemoveTemplateWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Templates.RemoveWithContext(ctx, templateID)
+	resp, err := client.Templates.RemoveWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.RemoveWithContext returned error: %v", err)
 	}
