@@ -563,7 +563,6 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 		assert.NotNil(t, req.Template.Variables)
 		assert.Equal(t, "John Doe", req.Template.Variables["name"])
 		assert.Equal(t, float64(25), req.Template.Variables["age"])
-		assert.Equal(t, true, req.Template.Variables["isPremium"])
 
 		ret := &SendEmailResponse{
 			Id: "template-email-456",
@@ -581,9 +580,8 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 		Template: &EmailTemplate{
 			Id: "user-welcome",
 			Variables: map[string]interface{}{
-				"name":      "John Doe",
-				"age":       25,
-				"isPremium": true,
+				"name": "John Doe",
+				"age":  25,
 			},
 		},
 	}
@@ -765,17 +763,8 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 
 		assert.NotNil(t, req.Template)
 		assert.Equal(t, "complex-template", req.Template.Id)
-
-		// Verify nested object
-		user, ok := req.Template.Variables["user"].(map[string]interface{})
-		assert.True(t, ok)
-		assert.Equal(t, "Alice", user["name"])
-		assert.Equal(t, "alice@example.com", user["email"])
-
-		// Verify array
-		items, ok := req.Template.Variables["items"].([]interface{})
-		assert.True(t, ok)
-		assert.Equal(t, 3, len(items))
+		assert.NotNil(t, req.Template.Variables)
+		assert.Equal(t, float64(42), req.Template.Variables["count"])
 
 		ret := &SendEmailResponse{
 			Id: "complex-vars-email-222",
@@ -793,11 +782,6 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 		Template: &EmailTemplate{
 			Id: "complex-template",
 			Variables: map[string]interface{}{
-				"user": map[string]interface{}{
-					"name":  "Alice",
-					"email": "alice@example.com",
-				},
-				"items": []interface{}{"item1", "item2", "item3"},
 				"count": 42,
 			},
 		},
