@@ -9,20 +9,13 @@ import (
 type VariableType string
 
 const (
-	VariableTypeString  VariableType = "string"
-	VariableTypeNumber  VariableType = "number"
-	VariableTypeBoolean VariableType = "boolean"
-	VariableTypeObject  VariableType = "object"
-	VariableTypeList    VariableType = "list"
+	VariableTypeString VariableType = "string"
+	VariableTypeNumber VariableType = "number"
 )
 
 // TemplateVariable represents a variable in a template
 // Important:
 // - All variables used in the template HTML (e.g., {{{NAME}}}) must be declared in the Variables array
-// - Variables of type 'object' and 'list' REQUIRE a FallbackValue, or the API will return an error
-// - For 'list' type: FallbackValue must be a non-empty array (e.g., []interface{}{"item"})
-// - For 'object' type: FallbackValue must be a valid object (e.g., map[string]interface{}{"key": "value"})
-// - Variables of type 'string', 'number', and 'boolean' can have optional FallbackValue
 type TemplateVariable struct {
 	Key           string       `json:"key"`
 	Type          VariableType `json:"type"`
