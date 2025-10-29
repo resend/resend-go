@@ -23,6 +23,7 @@ type ContactsSvc interface {
 
 type ContactsSvcImpl struct {
 	client *Client
+	Topics ContactTopicsSvc
 }
 
 type CreateContactRequest struct {
@@ -288,7 +289,7 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-// UpdateWithContext updates an existing Contact based on the given params
+// Update updates an existing Contact based on the given params
 // https://resend.com/docs/api-reference/contacts/update-contact
 func (s *ContactsSvcImpl) Update(params *UpdateContactRequest) (UpdateContactResponse, error) {
 	return s.UpdateWithContext(context.Background(), params)
