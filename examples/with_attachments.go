@@ -53,7 +53,6 @@ func withAttachments() {
 	}
 	fmt.Println("Sent email ID:", sent.Id)
 
-	// List all attachments for the sent email
 	fmt.Println("\nListing all attachments:")
 	attachments, err := client.Emails.ListAttachments(sent.Id)
 	if err != nil {
@@ -65,7 +64,6 @@ func withAttachments() {
 			att.Id, att.Filename, att.ContentType)
 	}
 
-	// List attachments with context
 	fmt.Println("\nListing attachments with context:")
 	attachmentsWithCtx, err := client.Emails.ListAttachmentsWithContext(ctx, sent.Id)
 	if err != nil {
@@ -73,7 +71,6 @@ func withAttachments() {
 	}
 	fmt.Printf("Found %d attachments\n", len(attachmentsWithCtx.Data))
 
-	// List attachments with options (pagination)
 	fmt.Println("\nListing attachments with options:")
 	limit := 10
 	listOptions := &resend.ListOptions{
@@ -90,19 +87,12 @@ func withAttachments() {
 		firstAttachmentId := attachments.Data[0].Id
 		fmt.Printf("\nGetting attachment with ID: %s\n", firstAttachmentId)
 
-		// Get attachment without context
+		// Get attachment
 		attachment, err := client.Emails.GetAttachment(sent.Id, firstAttachmentId)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Printf("Retrieved attachment: %s (%s)\n", attachment.Filename, attachment.ContentType)
 
-		// Get attachment with context
-		attachmentWithCtx, err := client.Emails.GetAttachmentWithContext(ctx, sent.Id, firstAttachmentId)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Retrieved attachment (with context): %s (%s)\n",
-			attachmentWithCtx.Filename, attachmentWithCtx.ContentType)
 	}
 }
