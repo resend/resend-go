@@ -43,7 +43,7 @@ type ListReceivedEmailsResponse struct {
 	Data    []ListReceivedEmail `json:"data"`
 }
 
-// ReceivedAttachment represents an attachment in a received email
+// ReceivedAttachment represents an attachment in a received email (used in list responses without download URLs)
 type ReceivedAttachment struct {
 	Id                 string `json:"id"`
 	Filename           string `json:"filename"`
@@ -52,42 +52,18 @@ type ReceivedAttachment struct {
 	ContentId          string `json:"content_id"`
 }
 
-// ReceivedEmailAttachment represents the full attachment details including download URL
-type ReceivedEmailAttachment struct {
-	Id                 string `json:"id"`
-	Filename           string `json:"filename"`
-	ContentType        string `json:"content_type"`
-	ContentDisposition string `json:"content_disposition"`
-	ContentId          string `json:"content_id"`
-	DownloadUrl        string `json:"download_url"`
-	ExpiresAt          string `json:"expires_at"`
-}
-
-// receivedEmailAttachmentResponse wraps the API response for a single attachment
-type receivedEmailAttachmentResponse struct {
-	Object string                   `json:"object"`
-	Data   ReceivedEmailAttachment `json:"data"`
-}
-
-// ListReceivedEmailAttachmentsResponse is the response from the Receiving.ListAttachments call.
-type ListReceivedEmailAttachmentsResponse struct {
-	Object  string                    `json:"object"`
-	HasMore bool                      `json:"has_more"`
-	Data    []ReceivedEmailAttachment `json:"data"`
-}
-
 // ReceivingSvc handles operations for received/inbound emails
 type ReceivingSvc interface {
-	GetWithContext(ctx context.Context, emailID string) (*ReceivedEmail, error)
-	Get(emailID string) (*ReceivedEmail, error)
+	GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error)
+	Get(emailId string) (*ReceivedEmail, error)
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error)
 	ListWithContext(ctx context.Context) (ListReceivedEmailsResponse, error)
 	List() (ListReceivedEmailsResponse, error)
-	GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*ReceivedEmailAttachment, error)
-	GetAttachment(emailID string, attachmentID string) (*ReceivedEmailAttachment, error)
-	ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListReceivedEmailAttachmentsResponse, error)
-	ListAttachmentsWithContext(ctx context.Context, emailID string) (ListReceivedEmailAttachmentsResponse, error)
-	ListAttachments(emailID string) (ListReceivedEmailAttachmentsResponse, error)
+	GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error)
+	GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error)
+	ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error)
+	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)
+	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)
 }
 
 // ReceivingSvcImpl is the implementation of the ReceivingSvc interface
@@ -95,10 +71,10 @@ type ReceivingSvcImpl struct {
 	client *Client
 }
 
-// GetWithContext retrieves a received email with the given emailID
+// GetWithContext retrieves a received email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-received-email
-func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailID string) (*ReceivedEmail, error) {
-	path := "emails/receiving/" + emailID
+func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error) {
+	path := "emails/receiving/" + emailId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -118,14 +94,14 @@ func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailID string) (
 	return emailResponse, nil
 }
 
-// Get retrieves a received email with the given emailID
+// Get retrieves a received email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-received-email
-func (s *ReceivingSvcImpl) Get(emailID string) (*ReceivedEmail, error) {
-	return s.GetWithContext(context.Background(), emailID)
+func (s *ReceivingSvcImpl) Get(emailId string) (*ReceivedEmail, error) {
+	return s.GetWithContext(context.Background(), emailId)
 }
 
 // ListWithOptions retrieves a list of received emails with pagination options
-// https://resend.com/docs/api-reference/emails/retrieve-received-email
+// https://resend.com/docs/api-reference/emails/list-received-emails
 func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error) {
 	path := "emails/receiving" + buildPaginationQuery(options)
 
@@ -146,21 +122,21 @@ func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOpt
 }
 
 // ListWithContext retrieves a list of received emails
-// https://resend.com/docs/api-reference/emails/retrieve-received-email
+// https://resend.com/docs/api-reference/emails/list-received-emails
 func (s *ReceivingSvcImpl) ListWithContext(ctx context.Context) (ListReceivedEmailsResponse, error) {
 	return s.ListWithOptions(ctx, nil)
 }
 
 // List retrieves a list of received emails
-// https://resend.com/docs/api-reference/emails/retrieve-received-email
+// https://resend.com/docs/api-reference/emails/list-received-emails
 func (s *ReceivingSvcImpl) List() (ListReceivedEmailsResponse, error) {
 	return s.ListWithContext(context.Background())
 }
 
-// GetAttachmentWithContext retrieves a single attachment from a received email with the given emailID and attachmentID
+// GetAttachmentWithContext retrieves a single attachment from a received email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-received-email-attachment
-func (s *ReceivingSvcImpl) GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*ReceivedEmailAttachment, error) {
-	path := "emails/receiving/" + emailID + "/attachments/" + attachmentID
+func (s *ReceivingSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error) {
+	path := "emails/receiving/" + emailId + "/attachments/" + attachmentId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -168,44 +144,43 @@ func (s *ReceivingSvcImpl) GetAttachmentWithContext(ctx context.Context, emailID
 		return nil, ErrFailedToCreateReceivingGetAttachmentRequest
 	}
 
-	// Build response wrapper obj
-	attachmentResponse := new(receivedEmailAttachmentResponse)
+	attachment := new(EmailAttachment)
 
 	// Send Request
-	_, err = s.client.Perform(req, attachmentResponse)
+	_, err = s.client.Perform(req, attachment)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &attachmentResponse.Data, nil
+	return attachment, nil
 }
 
-// GetAttachment retrieves a single attachment from a received email with the given emailID and attachmentID
+// GetAttachment retrieves a single attachment from a received email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-received-email-attachment
-func (s *ReceivingSvcImpl) GetAttachment(emailID string, attachmentID string) (*ReceivedEmailAttachment, error) {
-	return s.GetAttachmentWithContext(context.Background(), emailID, attachmentID)
+func (s *ReceivingSvcImpl) GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error) {
+	return s.GetAttachmentWithContext(context.Background(), emailId, attachmentId)
 }
 
 // ListAttachmentsWithOptions retrieves a list of attachments for a received email with pagination options
 // https://resend.com/docs/api-reference/attachments/list-received-email-attachments
-func (s *ReceivingSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListReceivedEmailAttachmentsResponse, error) {
-	path := "emails/receiving/" + emailID + "/attachments" + buildPaginationQuery(options)
+func (s *ReceivingSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error) {
+	path := "emails/receiving/" + emailId + "/attachments" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListReceivedEmailAttachmentsResponse{}, ErrFailedToCreateReceivingListAttachmentsRequest
+		return ListEmailAttachmentsResponse{}, ErrFailedToCreateReceivingListAttachmentsRequest
 	}
 
 	// Build response recipient obj
-	listAttachmentsResponse := new(ListReceivedEmailAttachmentsResponse)
+	listAttachmentsResponse := new(ListEmailAttachmentsResponse)
 
 	// Send Request
 	_, err = s.client.Perform(req, listAttachmentsResponse)
 
 	if err != nil {
-		return ListReceivedEmailAttachmentsResponse{}, err
+		return ListEmailAttachmentsResponse{}, err
 	}
 
 	return *listAttachmentsResponse, nil
@@ -213,12 +188,12 @@ func (s *ReceivingSvcImpl) ListAttachmentsWithOptions(ctx context.Context, email
 
 // ListAttachmentsWithContext retrieves a list of attachments for a received email
 // https://resend.com/docs/api-reference/attachments/list-received-email-attachments
-func (s *ReceivingSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailID string) (ListReceivedEmailAttachmentsResponse, error) {
-	return s.ListAttachmentsWithOptions(ctx, emailID, nil)
+func (s *ReceivingSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithOptions(ctx, emailId, nil)
 }
 
 // ListAttachments retrieves a list of attachments for a received email
 // https://resend.com/docs/api-reference/attachments/list-received-email-attachments
-func (s *ReceivingSvcImpl) ListAttachments(emailID string) (ListReceivedEmailAttachmentsResponse, error) {
-	return s.ListAttachmentsWithContext(context.Background(), emailID)
+func (s *ReceivingSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithContext(context.Background(), emailId)
 }
