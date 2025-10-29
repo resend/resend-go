@@ -62,10 +62,12 @@ var (
 
 // EmailsSvc errors
 var (
-	ErrFailedToCreateUpdateEmailRequest = errors.New("[ERROR]: Failed to create UpdateEmail request")
-	ErrFailedToCreateEmailsSendRequest  = errors.New("[ERROR]: Failed to create SendEmail request")
-	ErrFailedToCreateEmailsGetRequest   = errors.New("[ERROR]: Failed to create GetEmail request")
-	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
+	ErrFailedToCreateUpdateEmailRequest           = errors.New("[ERROR]: Failed to create UpdateEmail request")
+	ErrFailedToCreateEmailsSendRequest            = errors.New("[ERROR]: Failed to create SendEmail request")
+	ErrFailedToCreateEmailsGetRequest             = errors.New("[ERROR]: Failed to create GetEmail request")
+	ErrFailedToCreateEmailsListRequest            = errors.New("[ERROR]: Failed to create ListEmails request")
+	ErrFailedToCreateEmailsGetAttachmentRequest   = errors.New("[ERROR]: Failed to create Emails.GetAttachment request")
+	ErrFailedToCreateEmailsListAttachmentsRequest = errors.New("[ERROR]: Failed to create Emails.ListAttachments request")
 )
 
 // TemplatesSvc errors

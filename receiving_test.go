@@ -48,9 +48,9 @@ func TestGetReceivedEmail(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Receiving.Get("8136d3fb-0439-4b09-b939-b8436a3524b6")
+	resp, err := client.Emails.Receiving.Get("8136d3fb-0439-4b09-b939-b8436a3524b6")
 	if err != nil {
-		t.Errorf("Receiving.Get returned error: %v", err)
+		t.Errorf("Emails.Receiving.Get returned error: %v", err)
 	}
 	assert.Equal(t, "8136d3fb-0439-4b09-b939-b8436a3524b6", resp.Id)
 	assert.Equal(t, "inbound", resp.Object)
@@ -102,9 +102,9 @@ func TestGetReceivedEmailWithNullFields(t *testing.T) {
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Receiving.Get("null-fields-id")
+	resp, err := client.Emails.Receiving.Get("null-fields-id")
 	if err != nil {
-		t.Errorf("Receiving.Get returned error: %v", err)
+		t.Errorf("Emails.Receiving.Get returned error: %v", err)
 	}
 	assert.Equal(t, "null-fields-id", resp.Id)
 	assert.Equal(t, "", resp.Html)
@@ -168,9 +168,9 @@ func TestListReceivedEmails(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.List()
+	resp, err := client.Emails.Receiving.List()
 	if err != nil {
-		t.Errorf("Receiving.List returned error: %v", err)
+		t.Errorf("Emails.Receiving.List returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -229,9 +229,9 @@ func TestListReceivedEmailsWithParameters(t *testing.T) {
 		After: &after,
 	}
 
-	resp, err := client.Receiving.ListWithOptions(context.Background(), options)
+	resp, err := client.Emails.Receiving.ListWithOptions(context.Background(), options)
 	if err != nil {
-		t.Errorf("Receiving.ListWithOptions returned error: %v", err)
+		t.Errorf("Emails.Receiving.ListWithOptions returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -259,9 +259,9 @@ func TestListReceivedEmailsEmpty(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.List()
+	resp, err := client.Emails.Receiving.List()
 	if err != nil {
-		t.Errorf("Receiving.List returned error: %v", err)
+		t.Errorf("Emails.Receiving.List returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -284,22 +284,20 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 		ret := `
 		{
 			"object": "attachment",
-			"data": {
-				"id": "2a0c9ce0-3112-4728-976e-47ddcd16a318",
-				"filename": "avatar.png",
-				"content_type": "image/png",
-				"content_disposition": "inline",
-				"content_id": "img001",
-				"download_url": "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
-				"expires_at": "2025-10-17T14:29:41.521Z"
-			}
+			"id": "2a0c9ce0-3112-4728-976e-47ddcd16a318",
+			"filename": "avatar.png",
+			"content_type": "image/png",
+			"content_disposition": "inline",
+			"content_id": "img001",
+			"download_url": "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
+			"expires_at": "2025-10-17T14:29:41.521Z"
 		}`
 		fmt.Fprintf(w, ret)
 	})
 
-	resp, err := client.Receiving.GetAttachment(emailId, attachmentId)
+	resp, err := client.Emails.Receiving.GetAttachment(emailId, attachmentId)
 	if err != nil {
-		t.Errorf("Receiving.GetAttachment returned error: %v", err)
+		t.Errorf("Emails.Receiving.GetAttachment returned error: %v", err)
 	}
 	assert.Equal(t, "2a0c9ce0-3112-4728-976e-47ddcd16a318", resp.Id)
 	assert.Equal(t, "avatar.png", resp.Filename)
@@ -325,23 +323,21 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 		ret := `
 		{
 			"object": "attachment",
-			"data": {
-				"id": "test-attachment-id",
-				"filename": "document.pdf",
-				"content_type": "application/pdf",
-				"content_disposition": "attachment",
-				"content_id": "doc001",
-				"download_url": "https://inbound-cdn.resend.com/test-email-id/attachments/test-attachment-id",
-				"expires_at": "2025-10-18T12:00:00.000Z"
-			}
+			"id": "test-attachment-id",
+			"filename": "document.pdf",
+			"content_type": "application/pdf",
+			"content_disposition": "attachment",
+			"content_id": "doc001",
+			"download_url": "https://inbound-cdn.resend.com/test-email-id/attachments/test-attachment-id",
+			"expires_at": "2025-10-18T12:00:00.000Z"
 		}`
 		fmt.Fprintf(w, ret)
 	})
 
 	ctx := context.Background()
-	resp, err := client.Receiving.GetAttachmentWithContext(ctx, emailId, attachmentId)
+	resp, err := client.Emails.Receiving.GetAttachmentWithContext(ctx, emailId, attachmentId)
 	if err != nil {
-		t.Errorf("Receiving.GetAttachmentWithContext returned error: %v", err)
+		t.Errorf("Emails.Receiving.GetAttachmentWithContext returned error: %v", err)
 	}
 	assert.Equal(t, "test-attachment-id", resp.Id)
 	assert.Equal(t, "document.pdf", resp.Filename)
@@ -363,10 +359,10 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &ListReceivedEmailAttachmentsResponse{
+		ret := &ListEmailAttachmentsResponse{
 			Object:  "list",
 			HasMore: false,
-			Data: []ReceivedEmailAttachment{
+			Data: []EmailAttachment{
 				{
 					Id:                 "2a0c9ce0-3112-4728-976e-47ddcd16a318",
 					Filename:           "avatar.png",
@@ -393,9 +389,9 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.ListAttachments(emailId)
+	resp, err := client.Emails.Receiving.ListAttachments(emailId)
 	if err != nil {
-		t.Errorf("Receiving.ListAttachments returned error: %v", err)
+		t.Errorf("Emails.Receiving.ListAttachments returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -428,10 +424,10 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &ListReceivedEmailAttachmentsResponse{
+		ret := &ListEmailAttachmentsResponse{
 			Object:  "list",
 			HasMore: true,
-			Data: []ReceivedEmailAttachment{
+			Data: []EmailAttachment{
 				{
 					Id:                 "attachment-1",
 					Filename:           "file1.jpg",
@@ -456,9 +452,9 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 		After: &after,
 	}
 
-	resp, err := client.Receiving.ListAttachmentsWithOptions(context.Background(), emailId, options)
+	resp, err := client.Emails.Receiving.ListAttachmentsWithOptions(context.Background(), emailId, options)
 	if err != nil {
-		t.Errorf("Receiving.ListAttachmentsWithOptions returned error: %v", err)
+		t.Errorf("Emails.Receiving.ListAttachmentsWithOptions returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -478,10 +474,10 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &ListReceivedEmailAttachmentsResponse{
+		ret := &ListEmailAttachmentsResponse{
 			Object:  "list",
 			HasMore: false,
-			Data:    []ReceivedEmailAttachment{},
+			Data:    []EmailAttachment{},
 		}
 
 		if err := json.NewEncoder(w).Encode(ret); err != nil {
@@ -489,9 +485,9 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 		}
 	})
 
-	resp, err := client.Receiving.ListAttachments(emailId)
+	resp, err := client.Emails.Receiving.ListAttachments(emailId)
 	if err != nil {
-		t.Errorf("Receiving.ListAttachments returned error: %v", err)
+		t.Errorf("Emails.Receiving.ListAttachments returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)
@@ -510,10 +506,10 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		ret := &ListReceivedEmailAttachmentsResponse{
+		ret := &ListEmailAttachmentsResponse{
 			Object:  "list",
 			HasMore: false,
-			Data: []ReceivedEmailAttachment{
+			Data: []EmailAttachment{
 				{
 					Id:                 "ctx-att-1",
 					Filename:           "context-test.txt",
@@ -532,9 +528,9 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	resp, err := client.Receiving.ListAttachmentsWithContext(ctx, emailId)
+	resp, err := client.Emails.Receiving.ListAttachmentsWithContext(ctx, emailId)
 	if err != nil {
-		t.Errorf("Receiving.ListAttachmentsWithContext returned error: %v", err)
+		t.Errorf("Emails.Receiving.ListAttachmentsWithContext returned error: %v", err)
 	}
 
 	assert.Equal(t, "list", resp.Object)

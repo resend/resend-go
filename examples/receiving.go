@@ -15,7 +15,7 @@ func receivingExample() {
 	client := resend.NewClient(apiKey)
 
 	// Get a single received email
-	email, err := client.Receiving.GetWithContext(ctx, "8136d3fb-0439-4b09-b939-b8436a3524b6")
+	email, err := client.Emails.Receiving.GetWithContext(ctx, "8136d3fb-0439-4b09-b939-b8436a3524b6")
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +25,7 @@ func receivingExample() {
 	fmt.Printf("Has %d attachments\n", len(email.Attachments))
 
 	// List received emails
-	emails, err := client.Receiving.ListWithContext(ctx)
+	emails, err := client.Emails.Receiving.ListWithContext(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -37,14 +37,14 @@ func receivingExample() {
 	listOptions := &resend.ListOptions{
 		Limit: &limit,
 	}
-	paginatedEmails, err := client.Receiving.ListWithOptions(ctx, listOptions)
+	paginatedEmails, err := client.Emails.Receiving.ListWithOptions(ctx, listOptions)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("\nPaginated list returned %d emails\n", len(paginatedEmails.Data))
 
 	// Get email with attachments
-	emailWithAttachments, err := client.Receiving.GetWithContext(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a")
+	emailWithAttachments, err := client.Emails.Receiving.GetWithContext(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a")
 	if err != nil {
 		panic(err)
 	}
@@ -52,7 +52,7 @@ func receivingExample() {
 
 	// Get each attachment's full details including download URLs
 	for _, att := range emailWithAttachments.Attachments {
-		attachment, err := client.Receiving.GetAttachmentWithContext(ctx, emailWithAttachments.Id, att.Id)
+		attachment, err := client.Emails.Receiving.GetAttachmentWithContext(ctx, emailWithAttachments.Id, att.Id)
 		if err != nil {
 			panic(err)
 		}
@@ -64,7 +64,7 @@ func receivingExample() {
 	}
 
 	// List all attachments for a received email
-	attachmentsList, err := client.Receiving.ListAttachmentsWithContext(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a")
+	attachmentsList, err := client.Emails.Receiving.ListAttachmentsWithContext(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a")
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +76,7 @@ func receivingExample() {
 	attachmentsOptions := &resend.ListOptions{
 		Limit: &attachmentsLimit,
 	}
-	paginatedAttachments, err := client.Receiving.ListAttachmentsWithOptions(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a", attachmentsOptions)
+	paginatedAttachments, err := client.Emails.Receiving.ListAttachmentsWithOptions(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a", attachmentsOptions)
 	if err != nil {
 		panic(err)
 	}

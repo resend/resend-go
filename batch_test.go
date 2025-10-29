@@ -77,7 +77,7 @@ func TestBatchSendEmailWithErrors(t *testing.T) {
 	req := []*SendEmailRequest{
 		{To: []string{"valid1@example.com"}},
 		{To: []string{"valid2@example.com"}},
-		{To: []string{}}, // Missing 'to' field
+		{To: []string{}},                // Missing 'to' field
 		{To: []string{"invalid-email"}}, // Invalid email
 	}
 
@@ -109,7 +109,7 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 		testMethod(t, r, http.MethodPost)
 		// Verify Idempotency-Key header is set
 		assert.Equal(t, "1234567890", r.Header.Get("Idempotency-Key"))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
@@ -157,7 +157,7 @@ func TestBatchSendWithValidationMode(t *testing.T) {
 		testMethod(t, r, http.MethodPost)
 		// Verify x-batch-validation header is set to permissive
 		assert.Equal(t, "permissive", r.Header.Get("x-batch-validation"))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
@@ -193,7 +193,7 @@ func TestBatchSendWithValidationMode(t *testing.T) {
 	// Verify successful response
 	assert.Equal(t, len(resp.Data), 1)
 	assert.Equal(t, resp.Data[0].Id, "success-1")
-	
+
 	// Verify error response
 	assert.NotNil(t, resp.Errors)
 	assert.Equal(t, len(resp.Errors), 1)
