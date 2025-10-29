@@ -68,6 +68,17 @@ var (
 	ErrFailedToCreateEmailsListRequest  = errors.New("[ERROR]: Failed to create ListEmails request")
 )
 
+// TemplatesSvc errors
+var (
+	ErrFailedToCreateTemplateCreateRequest    = errors.New("[ERROR]: Failed to create Templates.Create request")
+	ErrFailedToCreateTemplateGetRequest       = errors.New("[ERROR]: Failed to create Templates.Get request")
+	ErrFailedToCreateTemplateListRequest      = errors.New("[ERROR]: Failed to create Templates.List request")
+	ErrFailedToCreateTemplateUpdateRequest    = errors.New("[ERROR]: Failed to create Templates.Update request")
+	ErrFailedToCreateTemplatePublishRequest   = errors.New("[ERROR]: Failed to create Templates.Publish request")
+	ErrFailedToCreateTemplateDuplicateRequest = errors.New("[ERROR]: Failed to create Templates.Duplicate request")
+	ErrFailedToCreateTemplateRemoveRequest    = errors.New("[ERROR]: Failed to create Templates.Remove request")
+)
+
 // ReceivingSvc errors
 var (
 	ErrFailedToCreateReceivingGetRequest             = errors.New("[ERROR]: Failed to create Receiving.Get request")
