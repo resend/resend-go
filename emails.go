@@ -14,6 +14,14 @@ func (o SendEmailOptions) GetIdempotencyKey() string {
 	return o.IdempotencyKey
 }
 
+// EmailTemplate represents a template configuration for sending emails.
+type EmailTemplate struct {
+	// Id is the template ID or alias to use for this email
+	Id string `json:"id"`
+	// Variables are the key-value pairs to populate the template placeholders
+	Variables map[string]interface{} `json:"variables,omitempty"`
+}
+
 // SendEmailRequest is the request object for the Send call.
 //
 // See also https://resend.com/docs/api-reference/emails/send-email
@@ -30,6 +38,7 @@ type SendEmailRequest struct {
 	Attachments []*Attachment     `json:"attachments,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
 	ScheduledAt string            `json:"scheduled_at,omitempty"`
+	Template    *EmailTemplate    `json:"template,omitempty"`
 }
 
 // CancelScheduledEmailResponse is the response from the Cancel call.
@@ -158,15 +167,15 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 }
 
 type EmailsSvc interface {
-	CancelWithContext(ctx context.Context, emailID string) (*CancelScheduledEmailResponse, error)
-	Cancel(emailID string) (*CancelScheduledEmailResponse, error)
+	CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error)
+	Cancel(emailId string) (*CancelScheduledEmailResponse, error)
 	UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error)
 	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
-	GetWithContext(ctx context.Context, emailID string) (*Email, error)
-	Get(emailID string) (*Email, error)
+	GetWithContext(ctx context.Context, emailId string) (*Email, error)
+	Get(emailId string) (*Email, error)
 
 	// Both List and ListWithOptions do the same thing, but since these List methods
 	// were introduced after some time, we kept both for overall consistency with
@@ -176,11 +185,11 @@ type EmailsSvc interface {
 	List() (ListEmailsResponse, error)
 
 	// Attachment methods for sent emails
-	GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*EmailAttachment, error)
-	GetAttachment(emailID string, attachmentID string) (*EmailAttachment, error)
-	ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListEmailAttachmentsResponse, error)
-	ListAttachmentsWithContext(ctx context.Context, emailID string) (ListEmailAttachmentsResponse, error)
-	ListAttachments(emailID string) (ListEmailAttachmentsResponse, error)
+	GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error)
+	GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error)
+	ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error)
+	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)
+	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)
 }
 
 type EmailsSvcImpl struct {
@@ -190,14 +199,14 @@ type EmailsSvcImpl struct {
 
 // Cancel cancels an email by ID
 // https://resend.com/docs/api-reference/emails/cancel-email
-func (s *EmailsSvcImpl) Cancel(emailID string) (*CancelScheduledEmailResponse, error) {
-	return s.CancelWithContext(context.Background(), emailID)
+func (s *EmailsSvcImpl) Cancel(emailId string) (*CancelScheduledEmailResponse, error) {
+	return s.CancelWithContext(context.Background(), emailId)
 }
 
 // CancelWithContext cancels an email by ID
 // https://resend.com/docs/api-reference/emails/cancel-email
-func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailID string) (*CancelScheduledEmailResponse, error) {
-	path := "emails/" + emailID + "/cancel"
+func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error) {
+	path := "emails/" + emailId + "/cancel"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
@@ -303,10 +312,10 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, erro
 	return s.SendWithContext(context.Background(), params)
 }
 
-// GetWithContext retrieves an email with the given emailID
+// GetWithContext retrieves an email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailID string) (*Email, error) {
-	path := "emails/" + emailID
+func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Email, error) {
+	path := "emails/" + emailId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -327,10 +336,10 @@ func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailID string) (*Em
 	return emailResponse, nil
 }
 
-// Get retrieves an email with the given emailID
+// Get retrieves an email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(emailID string) (*Email, error) {
-	return s.GetWithContext(context.Background(), emailID)
+func (s *EmailsSvcImpl) Get(emailId string) (*Email, error) {
+	return s.GetWithContext(context.Background(), emailId)
 }
 
 // ListWithOptions retrieves a list of emails with pagination options
@@ -369,10 +378,10 @@ func (s *EmailsSvcImpl) List() (ListEmailsResponse, error) {
 	return s.ListWithContext(context.Background())
 }
 
-// GetAttachmentWithContext retrieves a single attachment from a sent email with the given emailID and attachmentID
+// GetAttachmentWithContext retrieves a single attachment from a sent email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
-func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailID string, attachmentID string) (*EmailAttachment, error) {
-	path := "emails/" + emailID + "/attachments/" + attachmentID
+func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error) {
+	path := "emails/" + emailId + "/attachments/" + attachmentId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -392,16 +401,16 @@ func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailID st
 	return attachment, nil
 }
 
-// GetAttachment retrieves a single attachment from a sent email with the given emailID and attachmentID
+// GetAttachment retrieves a single attachment from a sent email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
-func (s *EmailsSvcImpl) GetAttachment(emailID string, attachmentID string) (*EmailAttachment, error) {
-	return s.GetAttachmentWithContext(context.Background(), emailID, attachmentID)
+func (s *EmailsSvcImpl) GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error) {
+	return s.GetAttachmentWithContext(context.Background(), emailId, attachmentId)
 }
 
 // ListAttachmentsWithOptions retrieves a list of attachments for a sent email with pagination options
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailID string, options *ListOptions) (ListEmailAttachmentsResponse, error) {
-	path := "emails/" + emailID + "/attachments" + buildPaginationQuery(options)
+func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error) {
+	path := "emails/" + emailId + "/attachments" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -424,12 +433,12 @@ func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailID 
 
 // ListAttachmentsWithContext retrieves a list of attachments for a sent email
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailID string) (ListEmailAttachmentsResponse, error) {
-	return s.ListAttachmentsWithOptions(ctx, emailID, nil)
+func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithOptions(ctx, emailId, nil)
 }
 
 // ListAttachments retrieves a list of attachments for a sent email
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachments(emailID string) (ListEmailAttachmentsResponse, error) {
-	return s.ListAttachmentsWithContext(context.Background(), emailID)
+func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsResponse, error) {
+	return s.ListAttachmentsWithContext(context.Background(), emailId)
 }
