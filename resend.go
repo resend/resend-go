@@ -54,7 +54,7 @@ type Client struct {
 	Batch             BatchSvc
 	ApiKeys           ApiKeysSvc
 	Domains           DomainsSvc
-	Audiences         AudiencesSvc
+	Segments          SegmentsSvc
 	Contacts          *ContactsSvcImpl
 	ContactProperties ContactPropertiesSvc
 	Broadcasts        BroadcastsSvc
@@ -90,7 +90,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
 	c.Domains = &DomainsSvcImpl{client: c}
-	c.Audiences = &AudiencesSvcImpl{client: c}
+	c.Segments = &SegmentsSvcImpl{client: c}
 	c.ContactProperties = &ContactPropertiesSvcImpl{client: c}
 	c.Broadcasts = &BroadcastsSvcImpl{client: c}
 	c.Templates = &TemplatesSvcImpl{client: c}

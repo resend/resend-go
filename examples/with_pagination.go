@@ -50,36 +50,36 @@ func withPaginationExample() {
 		}
 	}
 
-	// List audiences using before cursor
-	fmt.Println("\n=== List audiences with before cursor ===")
+	// List segments using before cursor
+	fmt.Println("\n=== List segments with before cursor ===")
 
 	before := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 	limit3 := 3
-	audiencesResp, err := client.Audiences.ListWithOptions(ctx, &resend.ListOptions{
+	segmentsResp, err := client.Segments.ListWithOptions(ctx, &resend.ListOptions{
 		Limit:  &limit3,
 		Before: &before,
 	})
 	if err != nil {
-		log.Printf("Error listing audiences: %v", err)
+		log.Printf("Error listing segments: %v", err)
 	} else {
-		fmt.Printf("Found %d audiences before cursor (HasMore: %t)\n", len(audiencesResp.Data), audiencesResp.HasMore)
-		for _, audience := range audiencesResp.Data {
-			fmt.Printf("  - %s (ID: %s)\n", audience.Name, audience.Id)
+		fmt.Printf("Found %d segments before cursor (HasMore: %t)\n", len(segmentsResp.Data), segmentsResp.HasMore)
+		for _, segment := range segmentsResp.Data {
+			fmt.Printf("  - %s (ID: %s)\n", segment.Name, segment.Id)
 		}
 	}
 
-	// List contacts in an audience with pagination
+	// List contacts in a segment with pagination
 	fmt.Println("\n=== List contacts with pagination ===")
 
-	audienceId := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+	segmentId := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 	limit20 := 20
-	contactsResp, err := client.Contacts.ListWithOptions(ctx, audienceId, &resend.ListOptions{
+	contactsResp, err := client.Contacts.ListWithOptions(ctx, segmentId, &resend.ListOptions{
 		Limit: &limit20,
 	})
 	if err != nil {
 		log.Printf("Error listing contacts: %v", err)
 	} else {
-		fmt.Printf("Found %d contacts in audience %s (HasMore: %t)\n", len(contactsResp.Data), audienceId, contactsResp.HasMore)
+		fmt.Printf("Found %d contacts in segment %s (HasMore: %t)\n", len(contactsResp.Data), segmentId, contactsResp.HasMore)
 		for _, contact := range contactsResp.Data {
 			fmt.Printf("  - %s (ID: %s)\n", contact.Email, contact.Id)
 		}
