@@ -68,18 +68,18 @@ func withPaginationExample() {
 		}
 	}
 
-	// List contacts in a segment with pagination
+	// List contacts in an audience with pagination
 	fmt.Println("\n=== List contacts with pagination ===")
 
-	segmentId := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+	audienceId := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 	limit20 := 20
-	contactsResp, err := client.Contacts.ListWithOptions(ctx, segmentId, &resend.ListOptions{
+	contactsResp, err := client.Contacts.ListWithOptions(ctx, audienceId, &resend.ListOptions{
 		Limit: &limit20,
 	})
 	if err != nil {
 		log.Printf("Error listing contacts: %v", err)
 	} else {
-		fmt.Printf("Found %d contacts in segment %s (HasMore: %t)\n", len(contactsResp.Data), segmentId, contactsResp.HasMore)
+		fmt.Printf("Found %d contacts in audience %s (HasMore: %t)\n", len(contactsResp.Data), audienceId, contactsResp.HasMore)
 		for _, contact := range contactsResp.Data {
 			fmt.Printf("  - %s (ID: %s)\n", contact.Email, contact.Id)
 		}
