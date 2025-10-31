@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resend/resend-go/v2"
+	"github.com/resend/resend-go/v3"
 )
 
 func broadcastExamples() {
@@ -16,11 +16,11 @@ func broadcastExamples() {
 
 	// Create Broadcast
 	params := &resend.CreateBroadcastRequest{
-		AudienceId: "ca4e37c5-a82a-4199-a3b8-bf912a6472aa",
-		From:       "onboarding@resend.dev",
-		Html:       "<html><body><h1>Hello, world!</h1></body></html>",
-		Name:       "Test Broadcast",
-		Subject:    "Hello, world!",
+		SegmentId: "ca4e37c5-a82a-4199-a3b8-bf912a6472aa",
+		From:      "onboarding@resend.dev",
+		Html:      "<html><body><h1>Hello, world!</h1></body></html>",
+		Name:      "Test Broadcast",
+		Subject:   "Hello, world!",
 	}
 
 	broadcast, err := client.Broadcasts.CreateWithContext(ctx, params)
@@ -37,7 +37,7 @@ func broadcastExamples() {
 
 	fmt.Println("ID: " + retrievedBroadcast.Id)
 	fmt.Println("Name: " + retrievedBroadcast.Name)
-	fmt.Println("Audience ID: " + retrievedBroadcast.AudienceId)
+	fmt.Println("Segment ID: " + retrievedBroadcast.SegmentId)
 	fmt.Println("From: " + retrievedBroadcast.From)
 	fmt.Println("Subject: " + retrievedBroadcast.Subject)
 	fmt.Println("Preview Text: " + retrievedBroadcast.PreviewText)
@@ -79,7 +79,7 @@ func broadcastExamples() {
 	for _, b := range listResponse.Data {
 		fmt.Println("ID: " + b.Id)
 		fmt.Println("Name: " + b.Name)
-		fmt.Println("Audience ID: " + b.AudienceId)
+		fmt.Println("Segment ID: " + b.SegmentId)
 		fmt.Println("From: " + b.From)
 		fmt.Println("Subject: " + b.Subject)
 		fmt.Println("Preview Text: " + b.PreviewText)

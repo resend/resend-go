@@ -15,7 +15,8 @@ type SendBroadcastRequest struct {
 }
 
 type CreateBroadcastRequest struct {
-	AudienceId string   `json:"audience_id,omitempty"`
+	SegmentId  string   `json:"segment_id,omitempty"`
+	AudienceId string   `json:"audience_id,omitempty"` // Deprecated: Use SegmentId instead
 	From       string   `json:"from,omitempty"`
 	Subject    string   `json:"subject,omitempty"`
 	ReplyTo    []string `json:"reply_to,omitempty"`
@@ -26,7 +27,8 @@ type CreateBroadcastRequest struct {
 
 type UpdateBroadcastRequest struct {
 	BroadcastId string   `json:"broadcast_id,omitempty"`
-	AudienceId  string   `json:"audience_id,omitempty"`
+	SegmentId   string   `json:"segment_id,omitempty"`
+	AudienceId  string   `json:"audience_id,omitempty"` // Deprecated: Use SegmentId instead
 	From        string   `json:"from,omitempty"`
 	Subject     string   `json:"subject,omitempty"`
 	ReplyTo     []string `json:"reply_to,omitempty"`
@@ -63,7 +65,8 @@ type Broadcast struct {
 	Object      string   `json:"object"`
 	Id          string   `json:"id"`
 	Name        string   `json:"name"`
-	AudienceId  string   `json:"audience_id"`
+	SegmentId   string   `json:"segment_id"`
+	AudienceId  string   `json:"audience_id"` // Deprecated: Use SegmentId instead
 	From        string   `json:"from"`
 	Subject     string   `json:"subject"`
 	ReplyTo     []string `json:"reply_to"`
@@ -106,8 +109,8 @@ type BroadcastsSvcImpl struct {
 func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *CreateBroadcastRequest) (CreateBroadcastResponse, error) {
 	path := "/broadcasts"
 
-	if params.AudienceId == "" {
-		return CreateBroadcastResponse{}, errors.New("[ERROR]: AudienceId cannot be empty")
+	if params.SegmentId == "" && params.AudienceId == "" {
+		return CreateBroadcastResponse{}, errors.New("[ERROR]: Either SegmentId or AudienceId must be provided")
 	}
 
 	if params.From == "" {
