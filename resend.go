@@ -88,6 +88,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	contactsSvc := &ContactsSvcImpl{client: c}
 	contactsSvc.Topics = &ContactTopicsSvcImpl{client: c}
 	contactsSvc.Segments = &ContactSegmentsSvcImpl{client: c}
+	contactsSvc.Properties = &ContactPropertiesSvcImpl{client: c}
 	c.Contacts = contactsSvc
 
 	c.Batch = &BatchSvcImpl{client: c}

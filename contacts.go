@@ -21,9 +21,10 @@ type ContactsSvc interface {
 }
 
 type ContactsSvcImpl struct {
-	client   *Client
-	Topics   ContactTopicsSvc
-	Segments ContactSegmentsSvc
+	client     *Client
+	Topics     ContactTopicsSvc
+	Segments   ContactSegmentsSvc
+	Properties ContactPropertiesSvc
 }
 
 // GetContactOptions contains parameters for retrieving a contact

@@ -12,6 +12,32 @@ func globalContactsExample() {
 
 	client := resend.NewClient(apiKey)
 
+	// First, define custom properties (required before using them on contacts)
+	propertiesToCreate := []struct {
+		key string
+		typ string
+	}{
+		{"tier", "string"},
+		{"role", "string"},
+		{"signup_source", "string"},
+		{"active", "string"},
+		{"age", "string"},
+		{"source", "string"},
+	}
+
+	for _, prop := range propertiesToCreate {
+		_, err := client.Contacts.Properties.Create(&resend.CreateContactPropertyRequest{
+			Key:  prop.key,
+			Type: prop.typ,
+		})
+		if err != nil {
+			// Property might already exist, that's okay
+			fmt.Printf("Note: Could not create property '%s': %v\n", prop.key, err)
+		} else {
+			fmt.Printf("Created property: %s\n", prop.key)
+		}
+	}
+
 	// Example 1: Create a global contact with custom properties
 	// Global contacts don't require an audience_id and support custom properties
 	createParams := &resend.CreateContactRequest{
@@ -89,7 +115,16 @@ func globalContactsExample() {
 	fmt.Printf("Removed contact: %s (deleted: %v)\n", removed.Id, removed.Deleted)
 
 	// Example 6: Create a global contact and add to segments
-	// First create a global contact
+	// First create a segment
+	segment, err := client.Segments.Create(&resend.CreateSegmentRequest{
+		Name: "Example Segment",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Created segment: %s (ID: %s)\n", segment.Name, segment.Id)
+
+	// Create a global contact
 	globalContact := &resend.CreateContactRequest{
 		Email:     "segmented@example.com",
 		FirstName: "Segmented",
@@ -105,28 +140,36 @@ func globalContactsExample() {
 	}
 	fmt.Printf("Created global contact: %s\n", contactResp.Id)
 
-	// Then add to a segment using the Contacts.Segments API
+	// Add the contact to the segment using the Contacts.Segments API
 	addToSegment := &resend.AddContactSegmentRequest{
 		ContactId: contactResp.Id,
-		SegmentId: "segment_id_here",
+		SegmentId: segment.Id,
 	}
 
 	_, err = client.Contacts.Segments.Add(addToSegment)
 	if err != nil {
-		fmt.Printf("Note: Could not add to segment (may not exist): %v\n", err)
-	} else {
-		fmt.Println("Added contact to segment")
+		panic(err)
 	}
+	fmt.Println("Added contact to segment")
 
 	// List all segments for this global contact
 	listSegments := &resend.ListContactSegmentsRequest{
 		ContactId: contactResp.Id,
 	}
 
-	segments, err := client.Contacts.Segments.List(listSegments)
+	segmentsList, err := client.Contacts.Segments.List(listSegments)
 	if err != nil {
-		fmt.Printf("Note: Could not list segments: %v\n", err)
-	} else {
-		fmt.Printf("Contact is in %d segments\n", len(segments.Data))
+		panic(err)
 	}
+	fmt.Printf("Contact is in %d segment(s):\n", len(segmentsList.Data))
+	for _, seg := range segmentsList.Data {
+		fmt.Printf("  - %s (ID: %s)\n", seg.Name, seg.Id)
+	}
+
+	// Clean up: Remove the segment
+	removedSegment, err := client.Segments.Remove(segment.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Segment deleted: %v\n", removedSegment.Deleted)
 }

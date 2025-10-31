@@ -4,6 +4,8 @@
 
 This is a major release with breaking changes to the Contacts API and the addition of several new APIs (Topics, Templates, Webhooks, Inbound, Segments, Contact Properties, Contact Topics). The Contacts API has been redesigned to use struct-based arguments for better ergonomics and to support global contacts.
 
+**Note:** The breaking changes are isolated to the Contacts API and Audiences removal. If you only use the SDK for sending emails, you can upgrade to v3.0.0 without any code changes. The Emails API remains unchanged and fully backward compatible.
+
 - ⚠️ Change `Contacts.Get` to accept `*GetContactOptions` instead of positional `audienceId` and `id` parameters
 - ⚠️ Change `Contacts.GetWithContext` to accept `*GetContactOptions` instead of positional `audienceId` and `id` parameters
 - ⚠️ Change `Contacts.List` to accept `*ListContactsOptions` instead of positional `audienceId` parameter
@@ -11,7 +13,6 @@ This is a major release with breaking changes to the Contacts API and the additi
 - ⚠️ Change `Contacts.Remove` to accept `*RemoveContactOptions` instead of positional `audienceId` and `id` parameters
 - ⚠️ Change `Contacts.RemoveWithContext` to accept `*RemoveContactOptions` instead of positional `audienceId` and `id` parameters
 - ⚠️ Remove `Audiences` service in favor of `Segments` service
-- ⚠️ Update attachment API to conform to updated specification with `Content`, `ContentId`, and `InlineContentId` fields on `Attachment` [#87](https://github.com/resend/resend-go/pull/87)
 - Add support for new `Topics` service for managing email topics and subscription preferences [#85](https://github.com/resend/resend-go/pull/85)
 - Add support for new `Templates` service for managing email templates [#84](https://github.com/resend/resend-go/pull/84)
 - Add support for `TemplateId` and `TemplateAlias` on `SendEmailRequest` for sending emails with templates [#84](https://github.com/resend/resend-go/pull/84)
