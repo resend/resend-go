@@ -63,21 +63,29 @@ func contactsExample() {
 	}
 
 	// Get by ID
-	retrievedContact, err := client.Contacts.GetWithContext(ctx, audienceId, contact.Id)
+	retrievedContact, err := client.Contacts.GetWithContext(ctx, &resend.GetContactOptions{
+		AudienceId: audienceId,
+		Id:         contact.Id,
+	})
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("\nRetrieved contact by ID: %v\n", retrievedContact)
 
 	// Get by email
-	retrievedByEmail, err := client.Contacts.GetWithContext(ctx, audienceId, contactEmail)
+	retrievedByEmail, err := client.Contacts.GetWithContext(ctx, &resend.GetContactOptions{
+		AudienceId: audienceId,
+		Id:         contactEmail,
+	})
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("\nRetrieved contact by email: %v\n", retrievedByEmail)
 
 	// List
-	contacts, err := client.Contacts.ListWithContext(ctx, audienceId)
+	contacts, err := client.Contacts.ListWithContext(ctx, &resend.ListContactsOptions{
+		AudienceId: audienceId,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -152,10 +160,16 @@ func contactsExample() {
 	// ====================================
 
 	// Remove by id
-	removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, contact.Id)
+	removed, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
+		AudienceId: audienceId,
+		Id:         contact.Id,
+	})
 
 	// Remove by email
-	// removed, err := client.Contacts.RemoveWithContext(ctx, audienceId, "hi@example.com")
+	// removed, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
+	//   AudienceId: audienceId,
+	//   Id:         "hi@example.com",
+	// })
 	if err != nil {
 		panic(err)
 	}

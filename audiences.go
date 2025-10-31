@@ -2,10 +2,10 @@ package resend
 
 import (
 	"context"
-	"errors"
-	"net/http"
 )
 
+// Deprecated: Use SegmentsSvc instead. Audiences have been renamed to Segments.
+// The audiences API is maintained for backward compatibility and calls the segments API internally.
 type AudiencesSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateAudienceRequest) (CreateAudienceResponse, error)
 	Create(params *CreateAudienceRequest) (CreateAudienceResponse, error)
@@ -18,158 +18,87 @@ type AudiencesSvc interface {
 	Remove(audienceId string) (RemoveAudienceResponse, error)
 }
 
+// AudiencesSvcImpl wraps SegmentsSvcImpl to provide backward compatibility
+// Deprecated: Use SegmentsSvcImpl instead
 type AudiencesSvcImpl struct {
-	client *Client
+	segments *SegmentsSvcImpl
 }
 
-type CreateAudienceRequest struct {
-	Name string `json:"name"`
-}
+// Type aliases for backward compatibility
+// Deprecated: Use CreateSegmentRequest instead
+type CreateAudienceRequest = CreateSegmentRequest
 
-type CreateAudienceResponse struct {
-	Id     string `json:"id"`
-	Name   string `json:"name"`
-	Object string `json:"object"`
-}
+// Deprecated: Use CreateSegmentResponse instead
+type CreateAudienceResponse = CreateSegmentResponse
 
-type RemoveAudienceResponse struct {
-	Id      string `json:"id"`
-	Object  string `json:"object"`
-	Deleted bool   `json:"deleted"`
-}
+// Deprecated: Use RemoveSegmentResponse instead
+type RemoveAudienceResponse = RemoveSegmentResponse
 
-type ListAudiencesResponse struct {
-	Object  string     `json:"object"`
-	Data    []Audience `json:"data"`
-	HasMore bool       `json:"has_more"`
-}
+// Deprecated: Use ListSegmentsResponse instead
+type ListAudiencesResponse = ListSegmentsResponse
 
-type Audience struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	Object    string `json:"object"`
-	CreatedAt string `json:"created_at"`
-}
+// Deprecated: Use Segment instead
+type Audience = Segment
 
 // CreateWithContext creates a new Audience entry based on the given params
-// https://resend.com/docs/api-reference/audiences/create-audience
+// Deprecated: Use Segments.CreateWithContext instead
+// https://resend.com/docs/api-reference/segments/create-segment
 func (s *AudiencesSvcImpl) CreateWithContext(ctx context.Context, params *CreateAudienceRequest) (CreateAudienceResponse, error) {
-	path := "audiences"
-
-	// Prepare request
-	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
-	if err != nil {
-		return CreateAudienceResponse{}, errors.New("[ERROR]: Failed to create Audiences.Create request")
-	}
-
-	// Build response recipient obj
-	audiencesResp := new(CreateAudienceResponse)
-
-	// Send Request
-	_, err = s.client.Perform(req, audiencesResp)
-
-	if err != nil {
-		return CreateAudienceResponse{}, err
-	}
-
-	return *audiencesResp, nil
+	return s.segments.CreateWithContext(ctx, params)
 }
 
 // Create creates a new Audience entry based on the given params
-// https://resend.com/docs/api-reference/audiences/create-audience
+// Deprecated: Use Segments.Create instead
+// https://resend.com/docs/api-reference/segments/create-segment
 func (s *AudiencesSvcImpl) Create(params *CreateAudienceRequest) (CreateAudienceResponse, error) {
-	return s.CreateWithContext(context.Background(), params)
+	return s.segments.Create(params)
 }
 
 // ListWithOptions returns the list of all audiences with pagination options
-// https://resend.com/docs/api-reference/audiences/list-audiences
+// Deprecated: Use Segments.ListWithOptions instead
+// https://resend.com/docs/api-reference/segments/list-segments
 func (s *AudiencesSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListAudiencesResponse, error) {
-	path := "audiences" + buildPaginationQuery(options)
-
-	// Prepare request
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
-	if err != nil {
-		return ListAudiencesResponse{}, errors.New("[ERROR]: Failed to create Audiences.List request")
-	}
-
-	audiences := new(ListAudiencesResponse)
-
-	// Send Request
-	_, err = s.client.Perform(req, audiences)
-
-	if err != nil {
-		return ListAudiencesResponse{}, err
-	}
-
-	return *audiences, nil
+	return s.segments.ListWithOptions(ctx, options)
 }
 
 // ListWithContext returns the list of all audiences
-// https://resend.com/docs/api-reference/audiences/list-audiences
+// Deprecated: Use Segments.ListWithContext instead
+// https://resend.com/docs/api-reference/segments/list-segments
 func (s *AudiencesSvcImpl) ListWithContext(ctx context.Context) (ListAudiencesResponse, error) {
-	return s.ListWithOptions(ctx, nil)
+	return s.segments.ListWithContext(ctx)
 }
 
 // List returns the list of all audiences
-// https://resend.com/docs/api-reference/audiences/list-audiences
+// Deprecated: Use Segments.List instead
+// https://resend.com/docs/api-reference/segments/list-segments
 func (s *AudiencesSvcImpl) List() (ListAudiencesResponse, error) {
-	return s.ListWithContext(context.Background())
+	return s.segments.List()
 }
 
 // RemoveWithContext removes a given audience by id
-// https://resend.com/docs/api-reference/audiences/delete-audience
+// Deprecated: Use Segments.RemoveWithContext instead
+// https://resend.com/docs/api-reference/segments/delete-segment
 func (s *AudiencesSvcImpl) RemoveWithContext(ctx context.Context, audienceId string) (RemoveAudienceResponse, error) {
-	path := "audiences/" + audienceId
-
-	// Prepare request
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
-	if err != nil {
-		return RemoveAudienceResponse{}, errors.New("[ERROR]: Failed to create Audience.Remove request")
-	}
-
-	resp := new(RemoveAudienceResponse)
-
-	// Send Request
-	_, err = s.client.Perform(req, resp)
-
-	if err != nil {
-		return RemoveAudienceResponse{}, err
-	}
-
-	return *resp, nil
+	return s.segments.RemoveWithContext(ctx, audienceId)
 }
 
 // Remove removes a given audience entry by id
-// https://resend.com/docs/api-reference/audiences/delete-audience
+// Deprecated: Use Segments.Remove instead
+// https://resend.com/docs/api-reference/segments/delete-segment
 func (s *AudiencesSvcImpl) Remove(audienceId string) (RemoveAudienceResponse, error) {
-	return s.RemoveWithContext(context.Background(), audienceId)
+	return s.segments.Remove(audienceId)
 }
 
 // GetWithContext Retrieve a single audience.
-// https://resend.com/docs/api-reference/audiences/get-audience
+// Deprecated: Use Segments.GetWithContext instead
+// https://resend.com/docs/api-reference/segments/get-segment
 func (s *AudiencesSvcImpl) GetWithContext(ctx context.Context, audienceId string) (Audience, error) {
-	path := "audiences/" + audienceId
-
-	// Prepare request
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
-	if err != nil {
-		return Audience{}, errors.New("[ERROR]: Failed to create Audience.Get request")
-	}
-
-	audience := new(Audience)
-
-	// Send Request
-	_, err = s.client.Perform(req, audience)
-
-	if err != nil {
-		return Audience{}, err
-	}
-
-	return *audience, nil
+	return s.segments.GetWithContext(ctx, audienceId)
 }
 
 // Get Retrieve a single audience.
-// https://resend.com/docs/api-reference/audiences/get-audience
+// Deprecated: Use Segments.Get instead
+// https://resend.com/docs/api-reference/segments/get-segment
 func (s *AudiencesSvcImpl) Get(audienceId string) (Audience, error) {
-	return s.GetWithContext(context.Background(), audienceId)
+	return s.segments.Get(audienceId)
 }

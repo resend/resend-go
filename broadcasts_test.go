@@ -89,7 +89,7 @@ func TestCreateBroadcastValidations(t *testing.T) {
 	_, err = client.Broadcasts.Create(req2)
 	assert.NotNil(t, err)
 	if err != nil {
-		assert.Equal(t, err.Error(), "[ERROR]: AudienceId cannot be empty")
+		assert.Equal(t, err.Error(), "[ERROR]: Either SegmentId or AudienceId must be provided")
 	}
 
 	req3 := &CreateBroadcastRequest{

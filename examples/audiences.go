@@ -8,6 +8,8 @@ import (
 	"github.com/resend/resend-go/v2"
 )
 
+// audiencesExample demonstrates the deprecated Audiences API
+// Note: This is maintained for backward compatibility. New code should use Segments instead.
 func audiencesExample() {
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
@@ -15,6 +17,7 @@ func audiencesExample() {
 	client := resend.NewClient(apiKey)
 
 	// Create Audience params
+	// Note: Audiences API internally calls the Segments API
 	params := &resend.CreateAudienceRequest{
 		Name: "New Audience",
 	}
