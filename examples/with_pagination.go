@@ -73,8 +73,9 @@ func withPaginationExample() {
 
 	audienceId := "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 	limit20 := 20
-	contactsResp, err := client.Contacts.ListWithOptions(ctx, audienceId, &resend.ListOptions{
-		Limit: &limit20,
+	contactsResp, err := client.Contacts.ListWithContext(ctx, &resend.ListContactsOptions{
+		AudienceId: audienceId,
+		Limit:      &limit20,
 	})
 	if err != nil {
 		log.Printf("Error listing contacts: %v", err)

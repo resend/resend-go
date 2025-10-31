@@ -8,41 +8,70 @@ import (
 )
 
 type ContactsSvc interface {
-	CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error)
 	Create(params *CreateContactRequest) (CreateContactResponse, error)
-	ListWithOptions(ctx context.Context, audienceId string, options *ListOptions) (ListContactsResponse, error)
-	ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error)
-	List(audienceId string) (ListContactsResponse, error)
-	GetWithContext(ctx context.Context, audienceId, id string) (Contact, error)
-	Get(audienceId, id string) (Contact, error)
-	RemoveWithContext(ctx context.Context, audienceId, id string) (RemoveContactResponse, error)
-	Remove(audienceId, id string) (RemoveContactResponse, error)
-	UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error)
+	CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error)
+	Get(options *GetContactOptions) (Contact, error)
+	GetWithContext(ctx context.Context, options *GetContactOptions) (Contact, error)
+	List(options *ListContactsOptions) (ListContactsResponse, error)
+	ListWithContext(ctx context.Context, options *ListContactsOptions) (ListContactsResponse, error)
 	Update(params *UpdateContactRequest) (UpdateContactResponse, error)
+	UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error)
+	Remove(options *RemoveContactOptions) (RemoveContactResponse, error)
+	RemoveWithContext(ctx context.Context, options *RemoveContactOptions) (RemoveContactResponse, error)
 }
 
 type ContactsSvcImpl struct {
-	client *Client
-	Topics ContactTopicsSvc
+	client   *Client
+	Topics   ContactTopicsSvc
+	Segments ContactSegmentsSvc
+}
+
+// GetContactOptions contains parameters for retrieving a contact
+type GetContactOptions struct {
+	AudienceId string // Optional - omit for global contacts
+	Id         string // Required - can be contact ID or email address
+}
+
+// ListContactsOptions contains parameters for listing contacts
+type ListContactsOptions struct {
+	AudienceId string  // Optional - omit for global contacts
+	Limit      *int    // Optional - number of results to return
+	After      *string // Optional - cursor for pagination
+	Before     *string // Optional - cursor for pagination
+}
+
+// RemoveContactOptions contains parameters for removing a contact
+type RemoveContactOptions struct {
+	AudienceId string // Optional - omit for global contacts
+	Id         string // Required - can be contact ID or email address
 }
 
 type CreateContactRequest struct {
-	Email        string `json:"email"`
-	AudienceId   string `json:"audience_id"`
-	Unsubscribed bool   `json:"unsubscribed,omitempty"`
+	Email      string `json:"email"`
+	AudienceId string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
+	Unsubscribed bool `json:"unsubscribed,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
+	// Properties are custom key-value pairs for global contacts (when audience_id is omitted).
+	// NOTE: Currently, the Resend API only accepts string values for properties.
+	// Non-string values (numbers, booleans, etc.) will be rejected by the API with a validation error.
+	// Example: Properties: map[string]interface{}{"tier": "premium", "age": "30", "active": "true"}
+	Properties map[string]interface{} `json:"properties,omitempty"`
 }
 
 type UpdateContactRequest struct {
 	Id           string `json:"id"`
 	Email        string `json:"email,omitempty"`
-	AudienceId   string `json:"audience_id"`
+	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	Unsubscribed bool   `json:"unsubscribed,omitempty"`
-
-	unsubscribedSet bool `json:"-"`
+	// Properties are custom key-value pairs for global contacts (when audience_id is omitted).
+	// NOTE: Currently, the Resend API only accepts string values for properties.
+	// Non-string values (numbers, booleans, etc.) will be rejected by the API with a validation error.
+	// Example: Properties: map[string]interface{}{"tier": "premium", "age": "30", "active": "true"}
+	Properties      map[string]interface{} `json:"properties,omitempty"`
+	unsubscribedSet bool                   `json:"-"`
 }
 
 // Temporary setter for the `unsubscribed` field. This is here
@@ -78,23 +107,37 @@ type ListContactsResponse struct {
 }
 
 type Contact struct {
-	Id           string `json:"id"`
-	Email        string `json:"email"`
-	Object       string `json:"object"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	CreatedAt    string `json:"created_at"`
-	Unsubscribed bool   `json:"unsubscribed"`
+	Id           string                 `json:"id"`
+	Email        string                 `json:"email"`
+	Object       string                 `json:"object"`
+	FirstName    string                 `json:"first_name"`
+	LastName     string                 `json:"last_name"`
+	CreatedAt    string                 `json:"created_at"`
+	Unsubscribed bool                   `json:"unsubscribed"`
+	Properties   map[string]interface{} `json:"properties,omitempty"` // Custom properties for global contacts (currently API only returns string values)
 }
 
-// CreateWithContext creates a new Contact based on the given params
+// Create creates a new Contact based on the given params
+// Supports both global contacts (without audience_id) and audience-specific contacts.
+// Global contacts support custom properties while audience-specific contacts do not.
+// https://resend.com/docs/api-reference/contacts/create-contact
+func (s *ContactsSvcImpl) Create(params *CreateContactRequest) (CreateContactResponse, error) {
+	return s.CreateWithContext(context.Background(), params)
+}
+
+// CreateWithContext creates a new Contact based on the given params with context
+// Supports both global contacts (without audience_id) and audience-specific contacts.
+// Global contacts support custom properties while audience-specific contacts do not.
 // https://resend.com/docs/api-reference/contacts/create-contact
 func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error) {
-	if params.AudienceId == "" {
-		return CreateContactResponse{}, errors.New("[ERROR]: AudienceId is missing")
+	var path string
+	if params.AudienceId != "" {
+		// Audience-specific contact (legacy path, no properties support)
+		path = "audiences/" + params.AudienceId + "/contacts"
+	} else {
+		// Global contact (supports properties)
+		path = "contacts"
 	}
-
-	path := "audiences/" + params.AudienceId + "/contacts"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
@@ -115,16 +158,37 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateC
 	return *contactsResp, nil
 }
 
-// Create creates a new Contact entry based on the given params
-// https://resend.com/docs/api-reference/contacts/create-contact
-func (s *ContactsSvcImpl) Create(params *CreateContactRequest) (CreateContactResponse, error) {
-	return s.CreateWithContext(context.Background(), params)
+// List returns the list of all contacts
+// If options.AudienceId is empty, lists global contacts. Otherwise lists audience-specific contacts.
+// https://resend.com/docs/api-reference/contacts/list-contacts
+func (s *ContactsSvcImpl) List(options *ListContactsOptions) (ListContactsResponse, error) {
+	return s.ListWithContext(context.Background(), options)
 }
 
-// ListWithOptions returns the list of all contacts in an audience with pagination options
+// ListWithContext returns the list of all contacts with context
+// If options.AudienceId is empty, lists global contacts. Otherwise lists audience-specific contacts.
 // https://resend.com/docs/api-reference/contacts/list-contacts
-func (s *ContactsSvcImpl) ListWithOptions(ctx context.Context, audienceId string, options *ListOptions) (ListContactsResponse, error) {
-	path := "audiences/" + audienceId + "/contacts" + buildPaginationQuery(options)
+func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListContactsOptions) (ListContactsResponse, error) {
+	if options == nil {
+		options = &ListContactsOptions{}
+	}
+
+	var path string
+	if options.AudienceId != "" {
+		// Audience-specific contacts (legacy)
+		path = "audiences/" + options.AudienceId + "/contacts"
+	} else {
+		// Global contacts
+		path = "contacts"
+	}
+
+	// Build pagination query
+	listOpts := &ListOptions{
+		Limit:  options.Limit,
+		After:  options.After,
+		Before: options.Before,
+	}
+	path += buildPaginationQuery(listOpts)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -144,22 +208,31 @@ func (s *ContactsSvcImpl) ListWithOptions(ctx context.Context, audienceId string
 	return *contacts, nil
 }
 
-// ListWithContext returns the list of all contacts in an audience
-// https://resend.com/docs/api-reference/contacts/list-contacts
-func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, audienceId string) (ListContactsResponse, error) {
-	return s.ListWithOptions(ctx, audienceId, nil)
-}
-
-// List returns the list of all contacts in an audience
-// https://resend.com/docs/api-reference/contacts/list-contacts
-func (s *ContactsSvcImpl) List(audienceId string) (ListContactsResponse, error) {
-	return s.ListWithContext(context.Background(), audienceId)
-}
-
-// RemoveWithContext same as Remove but with context
+// Remove removes a contact
+// If options.AudienceId is empty, removes a global contact. Otherwise removes an audience-specific contact.
+// The options.Id field can be either a contact ID or email address.
 // https://resend.com/docs/api-reference/contacts/delete-contact
-func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, id string) (RemoveContactResponse, error) {
-	path := "audiences/" + audienceId + "/contacts/" + id
+func (s *ContactsSvcImpl) Remove(options *RemoveContactOptions) (RemoveContactResponse, error) {
+	return s.RemoveWithContext(context.Background(), options)
+}
+
+// RemoveWithContext removes a contact with context
+// If options.AudienceId is empty, removes a global contact. Otherwise removes an audience-specific contact.
+// The options.Id field can be either a contact ID or email address.
+// https://resend.com/docs/api-reference/contacts/delete-contact
+func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, options *RemoveContactOptions) (RemoveContactResponse, error) {
+	if options == nil || options.Id == "" {
+		return RemoveContactResponse{}, errors.New("[ERROR]: Id is required")
+	}
+
+	var path string
+	if options.AudienceId != "" {
+		// Audience-specific contact (legacy)
+		path = "audiences/" + options.AudienceId + "/contacts/" + options.Id
+	} else {
+		// Global contact
+		path = "contacts/" + options.Id
+	}
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
@@ -179,23 +252,31 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, audienceId, id 
 	return *resp, nil
 }
 
-// Remove removes a given contact entry by id or email
-//
-// @param [id] - can be either a contact id or email
-//
-// https://resend.com/docs/api-reference/contacts/delete-contact
-func (s *ContactsSvcImpl) Remove(audienceId, id string) (RemoveContactResponse, error) {
-	return s.RemoveWithContext(context.Background(), audienceId, id)
+// Get retrieves a single contact.
+// This method can be used to retrieve a contact by either its ID or email address.
+// If options.AudienceId is empty, retrieves a global contact. Otherwise retrieves an audience-specific contact.
+// https://resend.com/docs/api-reference/contacts/get-contact
+func (s *ContactsSvcImpl) Get(options *GetContactOptions) (Contact, error) {
+	return s.GetWithContext(context.Background(), options)
 }
 
-// GetWithContext Retrieve a single contact.
+// GetWithContext retrieves a single contact with context.
 // This method can be used to retrieve a contact by either its ID or email address.
-//
-// @param [id] - can be either a contact id or email
-//
+// If options.AudienceId is empty, retrieves a global contact. Otherwise retrieves an audience-specific contact.
 // https://resend.com/docs/api-reference/contacts/get-contact
-func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, id string) (Contact, error) {
-	path := "audiences/" + audienceId + "/contacts/" + id
+func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, options *GetContactOptions) (Contact, error) {
+	if options == nil || options.Id == "" {
+		return Contact{}, errors.New("[ERROR]: Id is required")
+	}
+
+	var path string
+	if options.AudienceId != "" {
+		// Audience-specific contact (legacy)
+		path = "audiences/" + options.AudienceId + "/contacts/" + options.Id
+	} else {
+		// Global contact
+		path = "contacts/" + options.Id
+	}
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -215,22 +296,17 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, audienceId, id str
 	return *contact, nil
 }
 
-// Get Retrieve a single contact.
-// This method can be used to retrieve a contact by either its ID or email address.
-//
-// @param [id] - can be either a contact id or email
-// https://resend.com/docs/api-reference/contacts/get-contact
-func (s *ContactsSvcImpl) Get(audienceId, id string) (Contact, error) {
-	return s.GetWithContext(context.Background(), audienceId, id)
+// Update updates an existing Contact based on the given params
+// Supports both global contacts (without audience_id) and audience-specific contacts.
+// https://resend.com/docs/api-reference/contacts/update-contact
+func (s *ContactsSvcImpl) Update(params *UpdateContactRequest) (UpdateContactResponse, error) {
+	return s.UpdateWithContext(context.Background(), params)
 }
 
-// UpdateWithContext updates an existing Contact based on the given params
+// UpdateWithContext updates an existing Contact based on the given params with context
+// Supports both global contacts (without audience_id) and audience-specific contacts.
 // https://resend.com/docs/api-reference/contacts/update-contact
 func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateContactRequest) (UpdateContactResponse, error) {
-	if params.AudienceId == "" {
-		return UpdateContactResponse{}, errors.New("[ERROR]: AudienceId is missing")
-	}
-
 	if params.Id == "" && params.Email == "" {
 		return UpdateContactResponse{}, &MissingRequiredFieldsError{message: "[ERROR]: Missing `id` or `email` field."}
 	}
@@ -242,7 +318,14 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 		val = params.Email
 	}
 
-	path := "audiences/" + params.AudienceId + "/contacts/" + val
+	var path string
+	if params.AudienceId != "" {
+		// Audience-specific contact (legacy path)
+		path = "audiences/" + params.AudienceId + "/contacts/" + val
+	} else {
+		// Global contact
+		path = "contacts/" + val
+	}
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
@@ -275,7 +358,10 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	if r.Email != "" {
 		aux["email"] = r.Email
 	}
-	aux["audience_id"] = r.AudienceId
+	// Only include audience_id if provided (supports global contacts)
+	if r.AudienceId != "" {
+		aux["audience_id"] = r.AudienceId
+	}
 	if r.FirstName != "" {
 		aux["first_name"] = r.FirstName
 	}
@@ -285,12 +371,11 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	if r.unsubscribedSet {
 		aux["unsubscribed"] = r.Unsubscribed
 	}
+	// Include properties if provided (for global contacts)
+	if r.Properties != nil && len(r.Properties) > 0 {
+		aux["properties"] = r.Properties
+	}
 
 	return json.Marshal(aux)
 }
 
-// Update updates an existing Contact based on the given params
-// https://resend.com/docs/api-reference/contacts/update-contact
-func (s *ContactsSvcImpl) Update(params *UpdateContactRequest) (UpdateContactResponse, error) {
-	return s.UpdateWithContext(context.Background(), params)
-}
