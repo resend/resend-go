@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.0 - 2025-01-30
+## 3.0.0 - 2025-10-31
 
 This is a major release with breaking changes to the Contacts API and the addition of several new APIs (Topics, Templates, Webhooks, Inbound, Segments, Contact Properties, Contact Topics). The Contacts API has been redesigned to use struct-based arguments for better ergonomics and to support global contacts.
 

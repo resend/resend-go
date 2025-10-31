@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/resend/resend-go/v2"
+	"github.com/resend/resend-go/v3"
 )
 
 func sendEmailCustomClientExample() {
