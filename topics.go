@@ -22,12 +22,12 @@ type CreateTopicRequest struct {
 
 // CreateTopicResponse is the response from creating a topic
 type CreateTopicResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 // Topic represents a full topic object
 type Topic struct {
-	Id                  string              `json:"id"`
+	Id                  string              `json:"id"` //nolint:revive
 	Name                string              `json:"name"`
 	Description         string              `json:"description"`
 	DefaultSubscription DefaultSubscription `json:"default_subscription"`
@@ -43,13 +43,13 @@ type UpdateTopicRequest struct {
 
 // UpdateTopicResponse is the response from updating a topic
 type UpdateTopicResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 // RemoveTopicResponse is the response from removing a topic
 type RemoveTopicResponse struct {
 	Object  string `json:"object"`
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Deleted bool   `json:"deleted"`
 }
 
@@ -64,14 +64,14 @@ type ListTopicsResponse struct {
 type TopicsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateTopicRequest) (*CreateTopicResponse, error)
 	Create(params *CreateTopicRequest) (*CreateTopicResponse, error)
-	GetWithContext(ctx context.Context, topicId string) (*Topic, error)
-	Get(topicId string) (*Topic, error)
+	GetWithContext(ctx context.Context, topicId string) (*Topic, error) //nolint:revive
+	Get(topicId string) (*Topic, error)                                 //nolint:revive
 	ListWithContext(ctx context.Context, options *ListOptions) (*ListTopicsResponse, error)
 	List(options *ListOptions) (*ListTopicsResponse, error)
-	UpdateWithContext(ctx context.Context, topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error)
-	Update(topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error)
-	RemoveWithContext(ctx context.Context, topicId string) (*RemoveTopicResponse, error)
-	Remove(topicId string) (*RemoveTopicResponse, error)
+	UpdateWithContext(ctx context.Context, topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error) //nolint:revive
+	Update(topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error)                                 //nolint:revive
+	RemoveWithContext(ctx context.Context, topicId string) (*RemoveTopicResponse, error)                             //nolint:revive
+	Remove(topicId string) (*RemoveTopicResponse, error)                                                             //nolint:revive
 }
 
 // TopicsSvcImpl is the implementation of the TopicsSvc interface
@@ -94,7 +94,7 @@ func (s *TopicsSvcImpl) CreateWithContext(ctx context.Context, params *CreateTop
 	topicResponse := new(CreateTopicResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, topicResponse)
+	_, err = s.client.Perform(req, topicResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (s *TopicsSvcImpl) Create(params *CreateTopicRequest) (*CreateTopicResponse
 
 // GetWithContext retrieves a topic by ID
 // https://resend.com/docs/api-reference/topics/get-topic
-func (s *TopicsSvcImpl) GetWithContext(ctx context.Context, topicId string) (*Topic, error) {
+func (s *TopicsSvcImpl) GetWithContext(ctx context.Context, topicId string) (*Topic, error) { //nolint:revive
 	path := "topics/" + topicId
 
 	// Prepare request
@@ -123,7 +123,7 @@ func (s *TopicsSvcImpl) GetWithContext(ctx context.Context, topicId string) (*To
 	topicResponse := new(Topic)
 
 	// Send Request
-	_, err = s.client.Perform(req, topicResponse)
+	_, err = s.client.Perform(req, topicResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (s *TopicsSvcImpl) GetWithContext(ctx context.Context, topicId string) (*To
 
 // Get retrieves a topic by ID
 // https://resend.com/docs/api-reference/topics/get-topic
-func (s *TopicsSvcImpl) Get(topicId string) (*Topic, error) {
+func (s *TopicsSvcImpl) Get(topicId string) (*Topic, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), topicId)
 }
 
@@ -152,7 +152,7 @@ func (s *TopicsSvcImpl) ListWithContext(ctx context.Context, options *ListOption
 	topicResponse := new(ListTopicsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, topicResponse)
+	_, err = s.client.Perform(req, topicResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (s *TopicsSvcImpl) List(options *ListOptions) (*ListTopicsResponse, error) 
 
 // UpdateWithContext updates a topic by ID
 // https://resend.com/docs/api-reference/topics/update-topic
-func (s *TopicsSvcImpl) UpdateWithContext(ctx context.Context, topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error) {
+func (s *TopicsSvcImpl) UpdateWithContext(ctx context.Context, topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error) { //nolint:revive
 	path := "topics/" + topicId
 
 	// Prepare request
@@ -181,7 +181,7 @@ func (s *TopicsSvcImpl) UpdateWithContext(ctx context.Context, topicId string, p
 	topicResponse := new(UpdateTopicResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, topicResponse)
+	_, err = s.client.Perform(req, topicResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -191,13 +191,13 @@ func (s *TopicsSvcImpl) UpdateWithContext(ctx context.Context, topicId string, p
 
 // Update updates a topic by ID
 // https://resend.com/docs/api-reference/topics/update-topic
-func (s *TopicsSvcImpl) Update(topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error) {
+func (s *TopicsSvcImpl) Update(topicId string, params *UpdateTopicRequest) (*UpdateTopicResponse, error) { //nolint:revive
 	return s.UpdateWithContext(context.Background(), topicId, params)
 }
 
 // RemoveWithContext removes a topic by ID
 // https://resend.com/docs/api-reference/topics/delete-topic
-func (s *TopicsSvcImpl) RemoveWithContext(ctx context.Context, topicId string) (*RemoveTopicResponse, error) {
+func (s *TopicsSvcImpl) RemoveWithContext(ctx context.Context, topicId string) (*RemoveTopicResponse, error) { //nolint:revive
 	path := "topics/" + topicId
 
 	// Prepare request
@@ -210,7 +210,7 @@ func (s *TopicsSvcImpl) RemoveWithContext(ctx context.Context, topicId string) (
 	topicResponse := new(RemoveTopicResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, topicResponse)
+	_, err = s.client.Perform(req, topicResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -220,6 +220,6 @@ func (s *TopicsSvcImpl) RemoveWithContext(ctx context.Context, topicId string) (
 
 // Remove removes a topic by ID
 // https://resend.com/docs/api-reference/topics/delete-topic
-func (s *TopicsSvcImpl) Remove(topicId string) (*RemoveTopicResponse, error) {
+func (s *TopicsSvcImpl) Remove(topicId string) (*RemoveTopicResponse, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), topicId)
 }

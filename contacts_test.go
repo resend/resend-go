@@ -14,16 +14,14 @@ func TestCreateContact(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"object": "contact",
 			"id": "479e3145-dd38-476b-932c-529ceb705947"
@@ -43,7 +41,7 @@ func TestCreateContact(t *testing.T) {
 	}
 
 	assert.Equal(t, resp.Object, "contact")
-	assert.Equal(t, resp.Id, "479e3145-dd38-476b-932c-529ceb705947")
+	assert.Equal(t, resp.Id, "479e3145-dd38-476b-932c-529ceb705947") //nolint:revive
 }
 
 func TestListContacts(t *testing.T) {
@@ -51,7 +49,7 @@ func TestListContacts(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -83,7 +81,7 @@ func TestListContacts(t *testing.T) {
 	}
 
 	assert.Equal(t, len(contacts.Data), 1)
-	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
+	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3") //nolint:revive
 	assert.Equal(t, contacts.Data[0].FirstName, "Steve")
 	assert.Equal(t, contacts.Data[0].LastName, "Wozniak")
 	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06T23:47:56.678Z")
@@ -95,16 +93,14 @@ func TestRemoveContact(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
-	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
+	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"  //nolint:revive
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.WriteHeader(http.StatusOK)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"object": "contact",
 			"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
@@ -127,8 +123,8 @@ func TestGetContact(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
-	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
+	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"  //nolint:revive
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -154,7 +150,7 @@ func TestGetContact(t *testing.T) {
 		t.Errorf("Contacts.Get returned error: %v", err)
 	}
 
-	assert.Equal(t, contact.Id, contactId)
+	assert.Equal(t, contact.Id, contactId) //nolint:revive
 	assert.Equal(t, contact.Object, "contact")
 	assert.Equal(t, contact.FirstName, "Steve")
 	assert.Equal(t, contact.LastName, "Wozniak")
@@ -167,7 +163,7 @@ func TestGetContactByEmail(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	contactEmail := "steve.wozniak@gmail.com"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+contactEmail, func(w http.ResponseWriter, r *http.Request) {
@@ -208,7 +204,7 @@ func TestUpdateContactById(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	id := "109d077c-2bb1-4be6-84ed-ff8f32612dc2"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+id, func(w http.ResponseWriter, r *http.Request) {
@@ -216,9 +212,7 @@ func TestUpdateContactById(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"data": {
 				"id": "479e3145-dd38-476b-932c-529ceb705947"
@@ -241,7 +235,7 @@ func TestUpdateContactById(t *testing.T) {
 	}
 
 	assert.NotNil(t, resp.Data)
-	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
+	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947") //nolint:revive
 	assert.Equal(t, resp.Error, struct{}{})
 }
 
@@ -250,7 +244,7 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	id := "109d077c-2bb1-4be6-84ed-ff8f32612dc2"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+id, func(w http.ResponseWriter, r *http.Request) {
@@ -258,9 +252,7 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"data": {
 				"id": "479e3145-dd38-476b-932c-529ceb705947"
@@ -293,7 +285,7 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	id := "109d077c-2bb1-4be6-84ed-ff8f32612dc2"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+id, func(w http.ResponseWriter, r *http.Request) {
@@ -301,9 +293,7 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"data": {
 				"id": "479e3145-dd38-476b-932c-529ceb705947"
@@ -335,7 +325,7 @@ func TestUpdateContactByEmail(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	email := "hi@resend.com"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+email, func(w http.ResponseWriter, r *http.Request) {
@@ -343,9 +333,7 @@ func TestUpdateContactByEmail(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"data": {
 				"id": "479e3145-dd38-476b-932c-529ceb705947"
@@ -368,7 +356,7 @@ func TestUpdateContactByEmail(t *testing.T) {
 	}
 
 	assert.NotNil(t, resp.Data)
-	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
+	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947") //nolint:revive
 	assert.Equal(t, resp.Error, struct{}{})
 }
 
@@ -377,7 +365,7 @@ func TestUpdateContactIdMissing(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 	id := ""
 
 	params := &UpdateContactRequest{
@@ -399,7 +387,7 @@ func TestUpdateContactEmailMissing(t *testing.T) {
 
 	defer teardown()
 
-	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6" //nolint:revive
 
 	params := &UpdateContactRequest{
 		AudienceId: audienceId,
@@ -453,7 +441,7 @@ func TestUpdateContactAudienceIdMissing(t *testing.T) {
 	resp, err := client.Contacts.Update(params)
 
 	assert.Nil(t, err)
-	assert.Equal(t, "123123123", resp.Data.Id)
+	assert.Equal(t, "123123123", resp.Data.Id) //nolint:revive
 	assert.Equal(t, "Updated First Name", resp.Data.FirstName)
 }
 
@@ -492,7 +480,7 @@ func TestCreateGlobalContact(t *testing.T) {
 	}
 
 	assert.Equal(t, "contact", resp.Object)
-	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id) //nolint:revive
 }
 
 func TestListGlobalContacts(t *testing.T) {
@@ -533,7 +521,7 @@ func TestListGlobalContacts(t *testing.T) {
 
 	assert.Equal(t, 1, len(contacts.Data))
 	assert.Equal(t, "list", contacts.Object)
-	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", contacts.Data[0].Id)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", contacts.Data[0].Id) //nolint:revive
 	assert.Equal(t, "global@example.com", contacts.Data[0].Email)
 	assert.NotNil(t, contacts.Data[0].Properties)
 	assert.Equal(t, "premium", contacts.Data[0].Properties["tier"])
@@ -544,7 +532,7 @@ func TestGetGlobalContact(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -573,7 +561,7 @@ func TestGetGlobalContact(t *testing.T) {
 	}
 
 	assert.Equal(t, "contact", contact.Object)
-	assert.Equal(t, contactId, contact.Id)
+	assert.Equal(t, contactId, contact.Id) //nolint:revive
 	assert.Equal(t, "global@example.com", contact.Email)
 	assert.NotNil(t, contact.Properties)
 	assert.Equal(t, "premium", contact.Properties["tier"])
@@ -584,7 +572,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -626,7 +614,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 	}
 
 	assert.Equal(t, "contact", resp.Data.Object)
-	assert.Equal(t, contactId, resp.Data.Id)
+	assert.Equal(t, contactId, resp.Data.Id) //nolint:revive
 	assert.Equal(t, "updated@example.com", resp.Data.Email)
 	assert.NotNil(t, resp.Data.Properties)
 	assert.Equal(t, "enterprise", resp.Data.Properties["tier"])
@@ -637,15 +625,13 @@ func TestRemoveGlobalContact(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
 		w.WriteHeader(http.StatusOK)
 
-		var ret interface{}
-
-		ret = `{
+		var ret interface{} = `{
 			"object": "contact",
 			"id": "479e3145-dd38-476b-932c-529ceb705947",
 			"deleted": true
@@ -660,6 +646,6 @@ func TestRemoveGlobalContact(t *testing.T) {
 	}
 
 	assert.True(t, deleted.Deleted)
-	assert.Equal(t, contactId, deleted.Id)
+	assert.Equal(t, contactId, deleted.Id) //nolint:revive
 	assert.Equal(t, "contact", deleted.Object)
 }

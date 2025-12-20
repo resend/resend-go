@@ -316,7 +316,7 @@ func TestGetTemplate(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -433,7 +433,7 @@ func TestGetTemplateWithContext(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "context-test-id"
+	templateId := "context-test-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -742,7 +742,7 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "multi-reply-to-id"
+	templateId := "multi-reply-to-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -790,7 +790,7 @@ func TestUpdateTemplate(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -833,7 +833,7 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "template-with-vars"
+	templateId := "template-with-vars" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -925,7 +925,7 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "context-update-id"
+	templateId := "context-update-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -959,7 +959,7 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "full-update-id"
+	templateId := "full-update-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -1017,7 +1017,7 @@ func TestPublishTemplate(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -1075,7 +1075,7 @@ func TestPublishTemplateWithContext(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "context-publish-id"
+	templateId := "context-publish-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s/publish", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -1106,7 +1106,7 @@ func TestDuplicateTemplate(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -1164,7 +1164,7 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "context-duplicate-id"
+	templateId := "context-duplicate-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s/duplicate", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -1195,7 +1195,7 @@ func TestRemoveTemplate(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
@@ -1257,7 +1257,7 @@ func TestRemoveTemplateWithContext(t *testing.T) {
 
 	defer teardown()
 
-	templateId := "context-remove-id"
+	templateId := "context-remove-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)

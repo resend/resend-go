@@ -18,9 +18,7 @@ func TestCreateSegment(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"object": "segment",
 			"id": "78261eea-8f8b-4381-83c6-79fa7120f1c",
@@ -89,9 +87,7 @@ func TestRemoveSegment(t *testing.T) {
 		testMethod(t, r, http.MethodDelete)
 		w.WriteHeader(http.StatusOK)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"object": "segment",
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",

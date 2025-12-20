@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -25,7 +24,7 @@ type ContactPropertiesSvcImpl struct {
 }
 
 type ContactProperty struct {
-	Id            string      `json:"id"`
+	Id            string      `json:"id"` //nolint:revive
 	Key           string      `json:"key"`
 	Object        string      `json:"object"`
 	CreatedAt     string      `json:"created_at"`
@@ -40,22 +39,22 @@ type CreateContactPropertyRequest struct {
 }
 
 type CreateContactPropertyResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 type UpdateContactPropertyRequest struct {
-	Id            string      `json:"-"`
+	Id            string      `json:"-"` //nolint:revive
 	FallbackValue interface{} `json:"fallback_value"`
 }
 
 type UpdateContactPropertyResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 type RemoveContactPropertyResponse struct {
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Object  string `json:"object"`
 	Deleted bool   `json:"deleted"`
 }
@@ -70,11 +69,11 @@ type ListContactPropertiesResponse struct {
 // https://resend.com/docs/api-reference/contact-properties/create-contact-property
 func (s *ContactPropertiesSvcImpl) CreateWithContext(ctx context.Context, params *CreateContactPropertyRequest) (CreateContactPropertyResponse, error) {
 	if params.Key == "" {
-		return CreateContactPropertyResponse{}, errors.New("[ERROR]: Key is missing")
+		return CreateContactPropertyResponse{}, ErrContactPropertyKeyMissing
 	}
 
 	if params.Type == "" {
-		return CreateContactPropertyResponse{}, errors.New("[ERROR]: Type is missing")
+		return CreateContactPropertyResponse{}, ErrContactPropertyTypeMissing
 	}
 
 	path := "contact-properties"
@@ -82,14 +81,14 @@ func (s *ContactPropertiesSvcImpl) CreateWithContext(ctx context.Context, params
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return CreateContactPropertyResponse{}, errors.New("[ERROR]: Failed to create ContactProperties.Create request")
+		return CreateContactPropertyResponse{}, ErrFailedToCreateContactPropertiesCreateRequest
 	}
 
 	// Build response object
 	propertyResp := new(CreateContactPropertyResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, propertyResp)
+	_, err = s.client.Perform(req, propertyResp) //nolint:bodyclose
 	if err != nil {
 		return CreateContactPropertyResponse{}, err
 	}
@@ -111,13 +110,13 @@ func (s *ContactPropertiesSvcImpl) ListWithOptions(ctx context.Context, options 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListContactPropertiesResponse{}, errors.New("[ERROR]: Failed to create ContactProperties.List request")
+		return ListContactPropertiesResponse{}, ErrFailedToCreateContactPropertiesListRequest
 	}
 
 	properties := new(ListContactPropertiesResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, properties)
+	_, err = s.client.Perform(req, properties) //nolint:bodyclose
 	if err != nil {
 		return ListContactPropertiesResponse{}, err
 	}
@@ -141,7 +140,7 @@ func (s *ContactPropertiesSvcImpl) List() (ListContactPropertiesResponse, error)
 // https://resend.com/docs/api-reference/contact-properties/get-contact-property
 func (s *ContactPropertiesSvcImpl) GetWithContext(ctx context.Context, id string) (ContactProperty, error) {
 	if id == "" {
-		return ContactProperty{}, errors.New("[ERROR]: ID is missing")
+		return ContactProperty{}, ErrContactPropertyIDMissing
 	}
 
 	path := "contact-properties/" + id
@@ -149,13 +148,13 @@ func (s *ContactPropertiesSvcImpl) GetWithContext(ctx context.Context, id string
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ContactProperty{}, errors.New("[ERROR]: Failed to create ContactProperties.Get request")
+		return ContactProperty{}, ErrFailedToCreateContactPropertiesGetRequest
 	}
 
 	property := new(ContactProperty)
 
 	// Send Request
-	_, err = s.client.Perform(req, property)
+	_, err = s.client.Perform(req, property) //nolint:bodyclose
 	if err != nil {
 		return ContactProperty{}, err
 	}
@@ -173,7 +172,7 @@ func (s *ContactPropertiesSvcImpl) Get(id string) (ContactProperty, error) {
 // https://resend.com/docs/api-reference/contact-properties/update-contact-property
 func (s *ContactPropertiesSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateContactPropertyRequest) (UpdateContactPropertyResponse, error) {
 	if params.Id == "" {
-		return UpdateContactPropertyResponse{}, errors.New("[ERROR]: ID is missing")
+		return UpdateContactPropertyResponse{}, ErrContactPropertyIDMissing
 	}
 
 	path := "contact-properties/" + params.Id
@@ -181,14 +180,14 @@ func (s *ContactPropertiesSvcImpl) UpdateWithContext(ctx context.Context, params
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
-		return UpdateContactPropertyResponse{}, errors.New("[ERROR]: Failed to create ContactProperties.Update request")
+		return UpdateContactPropertyResponse{}, ErrFailedToCreateContactPropertiesUpdateRequest
 	}
 
 	// Build response object
 	propertyResp := new(UpdateContactPropertyResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, propertyResp)
+	_, err = s.client.Perform(req, propertyResp) //nolint:bodyclose
 	if err != nil {
 		return UpdateContactPropertyResponse{}, err
 	}
@@ -206,7 +205,7 @@ func (s *ContactPropertiesSvcImpl) Update(params *UpdateContactPropertyRequest) 
 // https://resend.com/docs/api-reference/contact-properties/delete-contact-property
 func (s *ContactPropertiesSvcImpl) RemoveWithContext(ctx context.Context, id string) (RemoveContactPropertyResponse, error) {
 	if id == "" {
-		return RemoveContactPropertyResponse{}, errors.New("[ERROR]: ID is missing")
+		return RemoveContactPropertyResponse{}, ErrContactPropertyIDMissing
 	}
 
 	path := "contact-properties/" + id
@@ -214,13 +213,13 @@ func (s *ContactPropertiesSvcImpl) RemoveWithContext(ctx context.Context, id str
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return RemoveContactPropertyResponse{}, errors.New("[ERROR]: Failed to create ContactProperties.Remove request")
+		return RemoveContactPropertyResponse{}, ErrFailedToCreateContactPropertiesRemoveRequest
 	}
 
 	resp := new(RemoveContactPropertyResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return RemoveContactPropertyResponse{}, err
 	}

@@ -2,12 +2,11 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
 type SendBroadcastRequest struct {
-	BroadcastId string `json:"broadcast_id"`
+	BroadcastId string `json:"broadcast_id"` //nolint:revive
 
 	// Schedule email to be sent later. The date should be in language natural (e.g.: in 1 min)
 	// or ISO 8601 format (e.g: 2024-08-05T11:52:01.858Z).
@@ -15,43 +14,43 @@ type SendBroadcastRequest struct {
 }
 
 type CreateBroadcastRequest struct {
-	SegmentId  string   `json:"segment_id,omitempty"`
-	AudienceId string   `json:"audience_id,omitempty"` // Deprecated: Use SegmentId instead
+	SegmentId  string   `json:"segment_id,omitempty"`  //nolint:revive
+	AudienceId string   `json:"audience_id,omitempty"` //nolint:revive // Deprecated: Use SegmentId instead
 	From       string   `json:"from,omitempty"`
 	Subject    string   `json:"subject,omitempty"`
 	ReplyTo    []string `json:"reply_to,omitempty"`
-	Html       string   `json:"html,omitempty"`
+	Html       string   `json:"html,omitempty"` //nolint:revive
 	Text       string   `json:"text,omitempty"`
 	Name       string   `json:"name,omitempty"`
 }
 
 type UpdateBroadcastRequest struct {
-	BroadcastId string   `json:"broadcast_id,omitempty"`
-	SegmentId   string   `json:"segment_id,omitempty"`
-	AudienceId  string   `json:"audience_id,omitempty"` // Deprecated: Use SegmentId instead
+	BroadcastId string   `json:"broadcast_id,omitempty"` //nolint:revive
+	SegmentId   string   `json:"segment_id,omitempty"`   //nolint:revive
+	AudienceId  string   `json:"audience_id,omitempty"`  //nolint:revive // Deprecated: Use SegmentId instead
 	From        string   `json:"from,omitempty"`
 	Subject     string   `json:"subject,omitempty"`
 	ReplyTo     []string `json:"reply_to,omitempty"`
-	Html        string   `json:"html,omitempty"`
+	Html        string   `json:"html,omitempty"` //nolint:revive
 	Text        string   `json:"text,omitempty"`
 	Name        string   `json:"name,omitempty"`
 }
 
 type CreateBroadcastResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 type UpdateBroadcastResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 type SendBroadcastResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 type RemoveBroadcastResponse struct {
 	Object  string `json:"object"`
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Deleted bool   `json:"deleted"`
 }
 
@@ -63,10 +62,10 @@ type ListBroadcastsResponse struct {
 
 type Broadcast struct {
 	Object      string   `json:"object"`
-	Id          string   `json:"id"`
+	Id          string   `json:"id"` //nolint:revive
 	Name        string   `json:"name"`
-	SegmentId   string   `json:"segment_id"`
-	AudienceId  string   `json:"audience_id"` // Deprecated: Use SegmentId instead
+	SegmentId   string   `json:"segment_id"`  //nolint:revive
+	AudienceId  string   `json:"audience_id"` //nolint:revive // Deprecated: Use SegmentId instead
 	From        string   `json:"from"`
 	Subject     string   `json:"subject"`
 	ReplyTo     []string `json:"reply_to"`
@@ -75,7 +74,7 @@ type Broadcast struct {
 	CreatedAt   string   `json:"created_at"`
 	ScheduledAt string   `json:"scheduled_at"`
 	SentAt      string   `json:"sent_at"`
-	Html        string   `json:"html"`
+	Html        string   `json:"html"` //nolint:revive
 	Text        string   `json:"text"`
 }
 
@@ -90,14 +89,14 @@ type BroadcastsSvc interface {
 	ListWithContext(ctx context.Context) (ListBroadcastsResponse, error)
 	List() (ListBroadcastsResponse, error)
 
-	GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error)
-	Get(broadcastId string) (Broadcast, error)
+	GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) //nolint:revive
+	Get(broadcastId string) (Broadcast, error)                                 //nolint:revive
 
 	SendWithContext(ctx context.Context, params *SendBroadcastRequest) (SendBroadcastResponse, error)
 	Send(params *SendBroadcastRequest) (SendBroadcastResponse, error)
 
-	RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error)
-	Remove(broadcastId string) (RemoveBroadcastResponse, error)
+	RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error) //nolint:revive
+	Remove(broadcastId string) (RemoveBroadcastResponse, error)                                 //nolint:revive
 }
 
 type BroadcastsSvcImpl struct {
@@ -110,15 +109,15 @@ func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *Creat
 	path := "/broadcasts"
 
 	if params.SegmentId == "" && params.AudienceId == "" {
-		return CreateBroadcastResponse{}, errors.New("[ERROR]: Either SegmentId or AudienceId must be provided")
+		return CreateBroadcastResponse{}, ErrBroadcastSegmentOrAudienceRequired
 	}
 
 	if params.From == "" {
-		return CreateBroadcastResponse{}, errors.New("[ERROR]: From cannot be empty")
+		return CreateBroadcastResponse{}, ErrBroadcastFromRequired
 	}
 
 	if params.Subject == "" {
-		return CreateBroadcastResponse{}, errors.New("[ERROR]: Subject cannot be empty")
+		return CreateBroadcastResponse{}, ErrBroadcastSubjectRequired
 	}
 
 	// Prepare request
@@ -131,7 +130,7 @@ func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *Creat
 	broadcastResp := new(CreateBroadcastResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, broadcastResp)
+	_, err = s.client.Perform(req, broadcastResp) //nolint:bodyclose
 	if err != nil {
 		return CreateBroadcastResponse{}, err
 	}
@@ -148,7 +147,7 @@ func (s *BroadcastsSvcImpl) Create(params *CreateBroadcastRequest) (CreateBroadc
 // https://resend.com/docs/api-reference/broadcasts/update-broadcast
 func (s *BroadcastsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateBroadcastRequest) (UpdateBroadcastResponse, error) {
 	if params.BroadcastId == "" {
-		return UpdateBroadcastResponse{}, errors.New("[ERROR]: BroadcastId cannot be empty")
+		return UpdateBroadcastResponse{}, ErrBroadcastIDRequired
 	}
 
 	path := "/broadcasts/" + params.BroadcastId
@@ -163,7 +162,7 @@ func (s *BroadcastsSvcImpl) UpdateWithContext(ctx context.Context, params *Updat
 	broadcastResp := new(UpdateBroadcastResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, broadcastResp)
+	_, err = s.client.Perform(req, broadcastResp) //nolint:bodyclose
 	if err != nil {
 		return UpdateBroadcastResponse{}, err
 	}
@@ -177,9 +176,9 @@ func (s *BroadcastsSvcImpl) Update(params *UpdateBroadcastRequest) (UpdateBroadc
 
 // GetWithContext Retrieve a single broadcast.
 // https://resend.com/docs/api-reference/broadcasts/get-broadcast
-func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) {
+func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) { //nolint:revive
 	if broadcastId == "" {
-		return Broadcast{}, errors.New("[ERROR]: broadcastId cannot be empty")
+		return Broadcast{}, ErrBroadcastIDRequiredLowercase
 	}
 
 	path := "broadcasts/" + broadcastId
@@ -187,13 +186,13 @@ func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId stri
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return Broadcast{}, errors.New("[ERROR]: Failed to create Broadcast.Get request")
+		return Broadcast{}, ErrFailedToCreateBroadcastGetRequest
 	}
 
 	broadcast := new(Broadcast)
 
 	// Send Request
-	_, err = s.client.Perform(req, broadcast)
+	_, err = s.client.Perform(req, broadcast) //nolint:bodyclose
 	if err != nil {
 		return Broadcast{}, err
 	}
@@ -202,7 +201,7 @@ func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId stri
 }
 
 // Get retrieves a single broadcast.
-func (s *BroadcastsSvcImpl) Get(broadcastId string) (Broadcast, error) {
+func (s *BroadcastsSvcImpl) Get(broadcastId string) (Broadcast, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), broadcastId)
 }
 
@@ -210,7 +209,7 @@ func (s *BroadcastsSvcImpl) Get(broadcastId string) (Broadcast, error) {
 // https://resend.com/docs/api-reference/broadcasts/send-broadcast
 func (s *BroadcastsSvcImpl) SendWithContext(ctx context.Context, params *SendBroadcastRequest) (SendBroadcastResponse, error) {
 	if params.BroadcastId == "" {
-		return SendBroadcastResponse{}, errors.New("[ERROR]: BroadcastId cannot be empty")
+		return SendBroadcastResponse{}, ErrBroadcastIDRequired
 	}
 
 	path := "/broadcasts/" + params.BroadcastId + "/send"
@@ -225,7 +224,7 @@ func (s *BroadcastsSvcImpl) SendWithContext(ctx context.Context, params *SendBro
 	broadcastResp := new(SendBroadcastResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, broadcastResp)
+	_, err = s.client.Perform(req, broadcastResp) //nolint:bodyclose
 	if err != nil {
 		return SendBroadcastResponse{}, err
 	}
@@ -240,19 +239,19 @@ func (s *BroadcastsSvcImpl) Send(params *SendBroadcastRequest) (SendBroadcastRes
 
 // RemoveWithContext removes a given broadcast by id
 // https://resend.com/docs/api-reference/broadcasts/delete-broadcast
-func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error) {
+func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error) { //nolint:revive
 	path := "broadcasts/" + broadcastId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return RemoveBroadcastResponse{}, errors.New("[ERROR]: Failed to create Broadcast.Remove request")
+		return RemoveBroadcastResponse{}, ErrFailedToCreateBroadcastRemoveRequest
 	}
 
 	resp := new(RemoveBroadcastResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return RemoveBroadcastResponse{}, err
 	}
@@ -261,7 +260,7 @@ func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId s
 }
 
 // Remove removes a given broadcast entry by id
-func (s *BroadcastsSvcImpl) Remove(broadcastId string) (RemoveBroadcastResponse, error) {
+func (s *BroadcastsSvcImpl) Remove(broadcastId string) (RemoveBroadcastResponse, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), broadcastId)
 }
 
@@ -273,13 +272,13 @@ func (s *BroadcastsSvcImpl) ListWithOptions(ctx context.Context, options *ListOp
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListBroadcastsResponse{}, errors.New("[ERROR]: Failed to create Broadcasts.List request")
+		return ListBroadcastsResponse{}, ErrFailedToCreateBroadcastsListRequest
 	}
 
 	broadcasts := new(ListBroadcastsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, broadcasts)
+	_, err = s.client.Perform(req, broadcasts) //nolint:bodyclose
 	if err != nil {
 		return ListBroadcastsResponse{}, err
 	}

@@ -14,8 +14,8 @@ func TestContactSegmentsAddWithContactId(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
-	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
+	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/segments/"+segmentId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -47,7 +47,7 @@ func TestContactSegmentsAddWithEmail(t *testing.T) {
 	defer teardown()
 
 	email := "user@example.com"
-	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+email+"/segments/"+segmentId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
@@ -93,8 +93,8 @@ func TestContactSegmentsRemoveWithContactId(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
-	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
+	segmentId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/segments/"+segmentId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
@@ -126,7 +126,7 @@ func TestContactSegmentsListWithContactId(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/segments", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -197,7 +197,7 @@ func TestContactSegmentsListWithPagination(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "479e3145-dd38-476b-932c-529ceb705947"
+	contactId := "479e3145-dd38-476b-932c-529ceb705947" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/segments", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)

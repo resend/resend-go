@@ -31,14 +31,14 @@ type CreateTemplateRequest struct {
 	From      string              `json:"from,omitempty"`
 	Subject   string              `json:"subject,omitempty"`
 	ReplyTo   interface{}         `json:"reply_to,omitempty"` // string or []string
-	Html      string              `json:"html"`
+	Html      string              `json:"html"`               //nolint:revive
 	Text      string              `json:"text,omitempty"`
 	Variables []*TemplateVariable `json:"variables,omitempty"`
 }
 
 // CreateTemplateResponse is the response from creating a template
 type CreateTemplateResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
@@ -51,39 +51,39 @@ type UpdateTemplateRequest struct {
 	From      string              `json:"from,omitempty"`
 	Subject   string              `json:"subject,omitempty"`
 	ReplyTo   interface{}         `json:"reply_to,omitempty"` // string or []string
-	Html      string              `json:"html"`
+	Html      string              `json:"html"`               //nolint:revive
 	Text      string              `json:"text,omitempty"`
 	Variables []*TemplateVariable `json:"variables,omitempty"`
 }
 
 // UpdateTemplateResponse is the response from updating a template
 type UpdateTemplateResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 // PublishTemplateResponse is the response from publishing a template
 type PublishTemplateResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 // DuplicateTemplateResponse is the response from duplicating a template
 type DuplicateTemplateResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 // RemoveTemplateResponse is the response from removing a template
 type RemoveTemplateResponse struct {
 	Object  string `json:"object"`
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Deleted bool   `json:"deleted"`
 }
 
 // TemplateListItem represents a template in a list response
 type TemplateListItem struct {
-	Id          string  `json:"id"`
+	Id          string  `json:"id"` //nolint:revive
 	Name        string  `json:"name"`
 	Status      string  `json:"status"`
 	PublishedAt *string `json:"published_at"`
@@ -101,7 +101,7 @@ type ListTemplatesResponse struct {
 
 // TemplateVariableResponse represents a variable in a template response (with additional fields)
 type TemplateVariableResponse struct {
-	Id            string       `json:"id"`
+	Id            string       `json:"id"` //nolint:revive
 	Key           string       `json:"key"`
 	Type          VariableType `json:"type"`
 	FallbackValue interface{}  `json:"fallback_value"`
@@ -112,7 +112,7 @@ type TemplateVariableResponse struct {
 // Template represents a full template object returned by the Get endpoint
 type Template struct {
 	Object      string                      `json:"object"`
-	Id          string                      `json:"id"`
+	Id          string                      `json:"id"` //nolint:revive
 	Alias       string                      `json:"alias"`
 	Name        string                      `json:"name"`
 	CreatedAt   string                      `json:"created_at"`
@@ -122,7 +122,7 @@ type Template struct {
 	From        string                      `json:"from"`
 	Subject     string                      `json:"subject"`
 	ReplyTo     interface{}                 `json:"reply_to"` // string, []string, or null
-	Html        string                      `json:"html"`
+	Html        string                      `json:"html"`     //nolint:revive
 	Text        string                      `json:"text"`
 	Variables   []*TemplateVariableResponse `json:"variables"`
 }
@@ -165,7 +165,7 @@ func (s *TemplatesSvcImpl) CreateWithContext(ctx context.Context, params *Create
 	templateResponse := new(CreateTemplateResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string
 	templateResponse := new(Template)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (s *TemplatesSvcImpl) ListWithContext(ctx context.Context, options *ListOpt
 	templateResponse := new(ListTemplatesResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (s *TemplatesSvcImpl) UpdateWithContext(ctx context.Context, identifier str
 	templateResponse := new(UpdateTemplateResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +281,7 @@ func (s *TemplatesSvcImpl) PublishWithContext(ctx context.Context, identifier st
 	templateResponse := new(PublishTemplateResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -310,7 +310,7 @@ func (s *TemplatesSvcImpl) DuplicateWithContext(ctx context.Context, identifier 
 	templateResponse := new(DuplicateTemplateResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +339,7 @@ func (s *TemplatesSvcImpl) RemoveWithContext(ctx context.Context, identifier str
 	templateResponse := new(RemoveTemplateResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, templateResponse)
+	_, err = s.client.Perform(req, templateResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}

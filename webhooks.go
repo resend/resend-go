@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -40,6 +39,10 @@ const (
 // Default tolerance for timestamp validation (5 minutes)
 const DefaultWebhookToleranceSeconds = 300
 
+const (
+	signatureSplitParts = 2
+)
+
 // CreateWebhookRequest represents the parameters for creating a webhook
 type CreateWebhookRequest struct {
 	Endpoint string   `json:"endpoint"`
@@ -49,14 +52,14 @@ type CreateWebhookRequest struct {
 // CreateWebhookResponse represents the response from creating a webhook
 type CreateWebhookResponse struct {
 	Object        string `json:"object"`
-	Id            string `json:"id"`
+	Id            string `json:"id"` //nolint:revive
 	SigningSecret string `json:"signing_secret"`
 }
 
 // Webhook represents a webhook object
 type Webhook struct {
 	Object        string   `json:"object"`
-	Id            string   `json:"id"`
+	Id            string   `json:"id"` //nolint:revive
 	CreatedAt     string   `json:"created_at,omitempty"`
 	Status        string   `json:"status,omitempty"`
 	Endpoint      string   `json:"endpoint,omitempty"`
@@ -74,7 +77,7 @@ type UpdateWebhookRequest struct {
 // UpdateWebhookResponse represents the response from updating a webhook
 type UpdateWebhookResponse struct {
 	Object string `json:"object"`
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 }
 
 // ListWebhooksResponse represents the response from listing webhooks
@@ -86,7 +89,7 @@ type ListWebhooksResponse struct {
 
 // WebhookInList represents a webhook in the list response
 type WebhookInList struct {
-	Id        string   `json:"id"`
+	Id        string   `json:"id"` //nolint:revive
 	CreatedAt string   `json:"created_at"`
 	Status    string   `json:"status"`
 	Endpoint  string   `json:"endpoint"`
@@ -96,13 +99,13 @@ type WebhookInList struct {
 // DeleteWebhookResponse represents the response from deleting a webhook
 type DeleteWebhookResponse struct {
 	Object  string `json:"object"`
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Deleted bool   `json:"deleted"`
 }
 
 // WebhookHeaders represents the webhook verification headers
 type WebhookHeaders struct {
-	Id        string // svix-id header
+	Id        string //nolint:revive // svix-id header
 	Timestamp string // svix-timestamp header
 	Signature string // svix-signature header
 }
@@ -118,15 +121,15 @@ type VerifyWebhookOptions struct {
 type WebhooksSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateWebhookRequest) (*CreateWebhookResponse, error)
 	Create(params *CreateWebhookRequest) (*CreateWebhookResponse, error)
-	GetWithContext(ctx context.Context, webhookId string) (*Webhook, error)
-	Get(webhookId string) (*Webhook, error)
-	UpdateWithContext(ctx context.Context, webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error)
-	Update(webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error)
+	GetWithContext(ctx context.Context, webhookId string) (*Webhook, error)                                                //nolint:revive
+	Get(webhookId string) (*Webhook, error)                                                                                //nolint:revive
+	UpdateWithContext(ctx context.Context, webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) //nolint:revive
+	Update(webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error)                                 //nolint:revive
 	ListWithOptions(ctx context.Context, options *ListOptions) (*ListWebhooksResponse, error)
 	ListWithContext(ctx context.Context) (*ListWebhooksResponse, error)
 	List() (*ListWebhooksResponse, error)
-	RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error)
-	Remove(webhookId string) (*DeleteWebhookResponse, error)
+	RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error) //nolint:revive
+	Remove(webhookId string) (*DeleteWebhookResponse, error)                                 //nolint:revive
 	Verify(options *VerifyWebhookOptions) error
 }
 
@@ -147,7 +150,7 @@ func (s *WebhooksSvcImpl) CreateWithContext(ctx context.Context, params *CreateW
 
 	webhookResp := new(CreateWebhookResponse)
 
-	_, err = s.client.Perform(req, webhookResp)
+	_, err = s.client.Perform(req, webhookResp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +165,7 @@ func (s *WebhooksSvcImpl) Create(params *CreateWebhookRequest) (*CreateWebhookRe
 
 // GetWithContext retrieves a webhook by ID with the given context
 // https://resend.com/docs/api-reference/webhooks/get-webhook
-func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) (*Webhook, error) {
+func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) (*Webhook, error) { //nolint:revive
 	path := "webhooks/" + webhookId
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -174,7 +177,7 @@ func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) 
 	webhookResp := new(Webhook)
 
 	// Send Request
-	_, err = s.client.Perform(req, webhookResp)
+	_, err = s.client.Perform(req, webhookResp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -183,13 +186,13 @@ func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) 
 }
 
 // Get retrieves a webhook by ID
-func (s *WebhooksSvcImpl) Get(webhookId string) (*Webhook, error) {
+func (s *WebhooksSvcImpl) Get(webhookId string) (*Webhook, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), webhookId)
 }
 
 // UpdateWithContext updates a webhook with the given context
 // https://resend.com/docs/api-reference/webhooks/update-webhook
-func (s *WebhooksSvcImpl) UpdateWithContext(ctx context.Context, webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) {
+func (s *WebhooksSvcImpl) UpdateWithContext(ctx context.Context, webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) { //nolint:revive
 	path := "webhooks/" + webhookId
 
 	// Prepare request
@@ -202,7 +205,7 @@ func (s *WebhooksSvcImpl) UpdateWithContext(ctx context.Context, webhookId strin
 	webhookResp := new(UpdateWebhookResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, webhookResp)
+	_, err = s.client.Perform(req, webhookResp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +214,7 @@ func (s *WebhooksSvcImpl) UpdateWithContext(ctx context.Context, webhookId strin
 }
 
 // Update updates a webhook
-func (s *WebhooksSvcImpl) Update(webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) {
+func (s *WebhooksSvcImpl) Update(webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) { //nolint:revive
 	return s.UpdateWithContext(context.Background(), webhookId, params)
 }
 
@@ -230,7 +233,7 @@ func (s *WebhooksSvcImpl) ListWithOptions(ctx context.Context, options *ListOpti
 	webhooksResp := new(ListWebhooksResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, webhooksResp)
+	_, err = s.client.Perform(req, webhooksResp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +253,7 @@ func (s *WebhooksSvcImpl) List() (*ListWebhooksResponse, error) {
 
 // RemoveWithContext deletes a webhook by ID with the given context
 // https://resend.com/docs/api-reference/webhooks/delete-webhook
-func (s *WebhooksSvcImpl) RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error) {
+func (s *WebhooksSvcImpl) RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error) { //nolint:revive
 	path := "webhooks/" + webhookId
 
 	// Prepare request
@@ -263,7 +266,7 @@ func (s *WebhooksSvcImpl) RemoveWithContext(ctx context.Context, webhookId strin
 	webhookResp := new(DeleteWebhookResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, webhookResp)
+	_, err = s.client.Perform(req, webhookResp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +275,7 @@ func (s *WebhooksSvcImpl) RemoveWithContext(ctx context.Context, webhookId strin
 }
 
 // Remove deletes a webhook by ID
-func (s *WebhooksSvcImpl) Remove(webhookId string) (*DeleteWebhookResponse, error) {
+func (s *WebhooksSvcImpl) Remove(webhookId string) (*DeleteWebhookResponse, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), webhookId)
 }
 
@@ -281,27 +284,27 @@ func (s *WebhooksSvcImpl) Remove(webhookId string) (*DeleteWebhookResponse, erro
 // https://docs.svix.com/receiving/verifying-payloads/how-manual
 func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 	if options == nil {
-		return errors.New("options cannot be nil")
+		return ErrWebhookOptionsNil
 	}
 
 	if options.Payload == "" {
-		return errors.New("payload cannot be empty")
+		return ErrWebhookPayloadEmpty
 	}
 
 	if options.WebhookSecret == "" {
-		return errors.New("webhook secret cannot be empty")
+		return ErrWebhookSecretEmpty
 	}
 
 	if options.Headers.Id == "" {
-		return errors.New("svix-id header is required")
+		return ErrWebhookHeaderIDRequired
 	}
 
 	if options.Headers.Timestamp == "" {
-		return errors.New("svix-timestamp header is required")
+		return ErrWebhookHeaderTimestampRequired
 	}
 
 	if options.Headers.Signature == "" {
-		return errors.New("svix-signature header is required")
+		return ErrWebhookHeaderSignatureRequired
 	}
 
 	// Step 1: Validate timestamp to prevent replay attacks
@@ -314,7 +317,7 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 
 	diff := now - timestamp
 	if diff > DefaultWebhookToleranceSeconds || diff < -DefaultWebhookToleranceSeconds {
-		return fmt.Errorf("timestamp outside tolerance window: difference of %d seconds", diff)
+		return fmt.Errorf("%w: difference of %d seconds", ErrWebhookTimestampOutsideTolerance, diff)
 	}
 
 	// Step 2: Construct signed content: {id}.{timestamp}.{payload}
@@ -336,8 +339,8 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 	signatures := strings.Split(options.Headers.Signature, " ")
 	for _, sig := range signatures {
 		// Strip version prefix (e.g., "v1,")
-		parts := strings.SplitN(sig, ",", 2)
-		if len(parts) != 2 {
+		parts := strings.SplitN(sig, ",", signatureSplitParts)
+		if len(parts) != signatureSplitParts {
 			continue
 		}
 
@@ -347,7 +350,7 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 		}
 	}
 
-	return errors.New("no matching signature found")
+	return ErrWebhookSignatureNotFound
 }
 
 // generateSignature creates an HMAC-SHA256 signature and returns it as base64

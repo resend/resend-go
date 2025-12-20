@@ -164,7 +164,7 @@ func TestGetTopic(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -199,7 +199,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "opt-out-topic-id"
+	topicId := "opt-out-topic-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -234,7 +234,7 @@ func TestGetTopicWithContext(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "context-topic-id"
+	topicId := "context-topic-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -518,7 +518,7 @@ func TestUpdateTopic(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -559,7 +559,7 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "topic-name-only-id"
+	topicId := "topic-name-only-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -599,7 +599,7 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "topic-description-only-id"
+	topicId := "topic-description-only-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -639,7 +639,7 @@ func TestUpdateTopicWithContext(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "context-update-id"
+	topicId := "context-update-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -671,7 +671,7 @@ func TestRemoveTopic(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
@@ -702,7 +702,7 @@ func TestRemoveTopicWithContext(t *testing.T) {
 
 	defer teardown()
 
-	topicId := "context-remove-id"
+	topicId := "context-remove-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/topics/%s", topicId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)

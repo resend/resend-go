@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -38,7 +37,7 @@ type Client struct {
 	client *http.Client
 
 	// Api Key
-	ApiKey string
+	ApiKey string //nolint:revive
 
 	// Base URL
 	BaseURL *url.URL
@@ -52,7 +51,7 @@ type Client struct {
 	// Services
 	Emails   *EmailsSvcImpl
 	Batch    BatchSvc
-	ApiKeys  ApiKeysSvc
+	ApiKeys  ApiKeysSvc //nolint:revive
 	Domains  DomainsSvc
 	Segments SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
@@ -194,12 +193,10 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			if resp.Body != nil {
-				err = json.NewDecoder(resp.Body).Decode(ret)
-				if err != nil {
-					return nil, err
-				}
+		} else if resp.Body != nil {
+			err = json.NewDecoder(resp.Body).Decode(ret)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -243,7 +240,7 @@ func handleError(resp *http.Response) error {
 		}
 
 		// TODO: replace this with a new ResendError type
-		return errors.New("[ERROR]: " + r.Message)
+		return &ResendError{Message: r.Message}
 	default:
 		// Tries to parse `message` attr from error
 		r := &DefaultError{}
@@ -259,10 +256,10 @@ func handleError(resp *http.Response) error {
 
 		if r.Message != "" {
 			// TODO: replace this with a new ResendError type
-			return errors.New("[ERROR]: " + r.Message)
+			return &ResendError{Message: r.Message}
 		}
 
-		return errors.New("[ERROR]: Unknown Error")
+		return ErrResendUnknown
 	}
 }
 

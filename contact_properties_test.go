@@ -139,7 +139,7 @@ func TestGetContactProperty(t *testing.T) {
 
 	defer teardown()
 
-	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890" //nolint:revive
 
 	mux.HandleFunc("/contact-properties/"+propertyId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -189,7 +189,7 @@ func TestUpdateContactProperty(t *testing.T) {
 
 	defer teardown()
 
-	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890" //nolint:revive
 
 	mux.HandleFunc("/contact-properties/"+propertyId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -239,7 +239,7 @@ func TestRemoveContactProperty(t *testing.T) {
 
 	defer teardown()
 
-	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890" //nolint:revive
 
 	mux.HandleFunc("/contact-properties/"+propertyId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)

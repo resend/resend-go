@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -83,14 +82,14 @@ func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailR
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return nil, errors.New("[ERROR]: Failed to create BatchEmail request")
+		return nil, ErrFailedToCreateBatchEmailRequest
 	}
 
 	// Build response recipient obj
 	batchSendEmailResponse := new(BatchEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, batchSendEmailResponse)
+	_, err = s.client.Perform(req, batchSendEmailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +102,7 @@ func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailR
 	// Validate BatchValidation field if provided
 	if options != nil && options.BatchValidation != "" {
 		if !options.BatchValidation.IsValid() {
-			return nil, errors.New("[ERROR]: BatchValidation must be either BatchValidationStrict or BatchValidationPermissive")
+			return nil, ErrInvalidBatchValidation
 		}
 	}
 
@@ -112,14 +111,14 @@ func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailR
 	// Prepare request
 	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, path, params, options)
 	if err != nil {
-		return nil, errors.New("[ERROR]: Failed to create BatchEmail request")
+		return nil, ErrFailedToCreateBatchEmailRequest
 	}
 
 	// Build response recipient obj
 	batchSendEmailResponse := new(BatchEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, batchSendEmailResponse)
+	_, err = s.client.Perform(req, batchSendEmailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}

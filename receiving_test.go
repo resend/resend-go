@@ -282,8 +282,8 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
-	attachmentId := "2a0c9ce0-3112-4728-976e-47ddcd16a318"
+	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"      //nolint:revive
+	attachmentId := "2a0c9ce0-3112-4728-976e-47ddcd16a318" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailId, attachmentId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -323,8 +323,8 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "test-email-id"
-	attachmentId := "test-attachment-id"
+	emailId := "test-email-id"           //nolint:revive
+	attachmentId := "test-attachment-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments/%s", emailId, attachmentId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -366,7 +366,7 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
+	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -426,7 +426,7 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "test-email-id"
+	emailId := "test-email-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -483,7 +483,7 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "email-no-attachments"
+	emailId := "email-no-attachments" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -516,7 +516,7 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 
 	defer teardown()
 
-	emailId := "context-test-id"
+	emailId := "context-test-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/emails/receiving/%s/attachments", emailId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)

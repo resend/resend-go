@@ -83,7 +83,7 @@ func TestGetWebhook(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "4dd369bc-aa82-4ff3-97de-514ae3000ee0"
+	webhookId := "4dd369bc-aa82-4ff3-97de-514ae3000ee0" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -124,7 +124,7 @@ func TestGetWebhookWithContext(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "test-webhook-id"
+	webhookId := "test-webhook-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -166,7 +166,7 @@ func TestUpdateWebhook(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "430eed87-632a-4ea6-90db-0aace67ec228"
+	webhookId := "430eed87-632a-4ea6-90db-0aace67ec228" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -203,7 +203,7 @@ func TestUpdateWebhookWithContext(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "test-update-id"
+	webhookId := "test-update-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
@@ -338,7 +338,7 @@ func TestRemoveWebhook(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "4dd369bc-aa82-4ff3-97de-514ae3000ee0"
+	webhookId := "4dd369bc-aa82-4ff3-97de-514ae3000ee0" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)
@@ -369,7 +369,7 @@ func TestRemoveWebhookWithContext(t *testing.T) {
 
 	defer teardown()
 
-	webhookId := "test-delete-id"
+	webhookId := "test-delete-id" //nolint:revive
 
 	mux.HandleFunc(fmt.Sprintf("/webhooks/%s", webhookId), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodDelete)

@@ -18,9 +18,7 @@ func TestCreateBroadcast(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"
 		}`
@@ -40,7 +38,7 @@ func TestCreateBroadcast(t *testing.T) {
 		t.Errorf("Broadcasts.Create returned error: %v", err)
 	}
 
-	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794") //nolint:revive
 }
 
 func TestUpdateBroadcast(t *testing.T) {
@@ -71,7 +69,7 @@ func TestUpdateBroadcast(t *testing.T) {
 		t.Errorf("Broadcasts.Update returned error: %v", err)
 	}
 
-	assert.Equal(t, resp.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
+	assert.Equal(t, resp.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b") //nolint:revive
 }
 
 func TestCreateBroadcastValidations(t *testing.T) {
@@ -152,7 +150,7 @@ func TestGetBroadcast(t *testing.T) {
 		t.Errorf("Broadcast.Get returned error: %v", err)
 	}
 
-	assert.Equal(t, b.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
+	assert.Equal(t, b.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b") //nolint:revive
 	assert.Equal(t, b.Object, "broadcast")
 	assert.Equal(t, b.Name, "Announcements")
 	assert.Equal(t, b.AudienceId, "78261eea-8f8b-4381-83c6-79fa7120f1cf")
@@ -203,7 +201,7 @@ func TestSendBroadcast(t *testing.T) {
 		t.Errorf("Broadcast.Send returned error: %v", err)
 	}
 
-	assert.Equal(t, b.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	assert.Equal(t, b.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794") //nolint:revive
 }
 
 func TestSendBroadcastValidations(t *testing.T) {
@@ -232,9 +230,7 @@ func TestRemoveBroadcast(t *testing.T) {
 		testMethod(t, r, http.MethodDelete)
 		w.WriteHeader(http.StatusOK)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"object": "broadcast",
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
@@ -250,7 +246,7 @@ func TestRemoveBroadcast(t *testing.T) {
 	}
 
 	assert.True(t, deleted.Deleted)
-	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
+	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e") //nolint:revive
 	assert.Equal(t, deleted.Object, "broadcast")
 }
 

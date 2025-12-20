@@ -5,40 +5,40 @@ import (
 	"net/http"
 )
 
-type CreateApiKeyRequest struct {
+type CreateApiKeyRequest struct { //nolint:revive
 	Name       string `json:"name"`
 	Permission string `json:"permission,omitempty"` // TODO: update permission to type
-	DomainId   string `json:"domain_id,omitempty"`
+	DomainId   string `json:"domain_id,omitempty"`  //nolint:revive
 }
 
-type CreateApiKeyResponse struct {
-	Id    string `json:"id"`
+type CreateApiKeyResponse struct { //nolint:revive
+	Id    string `json:"id"` //nolint:revive
 	Token string `json:"token"`
 }
 
-type ListApiKeysResponse struct {
+type ListApiKeysResponse struct { //nolint:revive
 	Object  string   `json:"object"`
 	Data    []ApiKey `json:"data"`
 	HasMore bool     `json:"has_more"`
 }
 
-type ApiKey struct {
-	Id        string `json:"id"`
+type ApiKey struct { //nolint:revive
+	Id        string `json:"id"` //nolint:revive
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
 }
 
-type ApiKeysSvc interface {
+type ApiKeysSvc interface { //nolint:revive
 	CreateWithContext(ctx context.Context, params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
 	Create(params *CreateApiKeyRequest) (CreateApiKeyResponse, error)
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListApiKeysResponse, error)
 	ListWithContext(ctx context.Context) (ListApiKeysResponse, error)
 	List() (ListApiKeysResponse, error)
-	RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error)
-	Remove(apiKeyId string) (bool, error)
+	RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error) //nolint:revive
+	Remove(apiKeyId string) (bool, error)                                 //nolint:revive
 }
 
-type ApiKeysSvcImpl struct {
+type ApiKeysSvcImpl struct { //nolint:revive
 	client *Client
 }
 
@@ -57,7 +57,7 @@ func (s *ApiKeysSvcImpl) CreateWithContext(ctx context.Context, params *CreateAp
 	apiKeysResp := new(CreateApiKeyResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, apiKeysResp)
+	_, err = s.client.Perform(req, apiKeysResp) //nolint:bodyclose
 	if err != nil {
 		return CreateApiKeyResponse{}, err
 	}
@@ -85,7 +85,7 @@ func (s *ApiKeysSvcImpl) ListWithOptions(ctx context.Context, options *ListOptio
 	apiKeysResp := new(ListApiKeysResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, apiKeysResp)
+	_, err = s.client.Perform(req, apiKeysResp) //nolint:bodyclose
 	if err != nil {
 		return ListApiKeysResponse{}, err
 	}
@@ -106,7 +106,7 @@ func (s *ApiKeysSvcImpl) List() (ListApiKeysResponse, error) {
 
 // RemoveWithContext deletes a given api key by id
 // https://resend.com/docs/api-reference/api-keys/delete-api-key
-func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error) {
+func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error) { //nolint:revive
 	path := "api-keys/" + apiKeyId
 
 	// Prepare request
@@ -116,7 +116,7 @@ func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string)
 	}
 
 	// Send Request
-	_, err = s.client.Perform(req, nil)
+	_, err = s.client.Perform(req, nil) //nolint:bodyclose
 	if err != nil {
 		return false, err
 	}
@@ -125,6 +125,6 @@ func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string)
 }
 
 // Remove deletes a given api key by id
-func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
+func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), apiKeyId)
 }

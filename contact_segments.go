@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -21,30 +20,30 @@ type ContactSegmentsSvcImpl struct {
 }
 
 type AddContactSegmentRequest struct {
-	SegmentId string `json:"segment_id"`
-	ContactId string `json:"contact_id,omitempty"`
+	SegmentId string `json:"segment_id"`           //nolint:revive
+	ContactId string `json:"contact_id,omitempty"` //nolint:revive
 	Email     string `json:"email,omitempty"`
 }
 
 type AddContactSegmentResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 type RemoveContactSegmentRequest struct {
-	SegmentId string `json:"segment_id"`
-	ContactId string `json:"contact_id,omitempty"`
+	SegmentId string `json:"segment_id"`           //nolint:revive
+	ContactId string `json:"contact_id,omitempty"` //nolint:revive
 	Email     string `json:"email,omitempty"`
 }
 
 type RemoveContactSegmentResponse struct {
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Object  string `json:"object"`
 	Deleted bool   `json:"deleted"`
 }
 
 type ListContactSegmentsRequest struct {
-	ContactId string `json:"contact_id,omitempty"`
+	ContactId string `json:"contact_id,omitempty"` //nolint:revive
 	Email     string `json:"email,omitempty"`
 }
 
@@ -58,11 +57,11 @@ type ListContactSegmentsResponse struct {
 // https://resend.com/docs/api-reference/contacts/add-contact-to-segment
 func (s *ContactSegmentsSvcImpl) AddWithContext(ctx context.Context, params *AddContactSegmentRequest) (AddContactSegmentResponse, error) {
 	if params.SegmentId == "" {
-		return AddContactSegmentResponse{}, errors.New("[ERROR]: SegmentId is required")
+		return AddContactSegmentResponse{}, ErrContactSegmentIDRequired
 	}
 
 	if params.ContactId == "" && params.Email == "" {
-		return AddContactSegmentResponse{}, errors.New("[ERROR]: Either ContactId or Email must be provided")
+		return AddContactSegmentResponse{}, ErrContactSegmentContactIDOrEmailRequired
 	}
 
 	// Determine the identifier to use in the URL
@@ -76,14 +75,14 @@ func (s *ContactSegmentsSvcImpl) AddWithContext(ctx context.Context, params *Add
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
-		return AddContactSegmentResponse{}, errors.New("[ERROR]: Failed to create ContactSegments.Add request")
+		return AddContactSegmentResponse{}, ErrFailedToCreateContactSegmentsAddRequest
 	}
 
 	// Build response recipient obj
 	resp := new(AddContactSegmentResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return AddContactSegmentResponse{}, err
 	}
@@ -101,11 +100,11 @@ func (s *ContactSegmentsSvcImpl) Add(params *AddContactSegmentRequest) (AddConta
 // https://resend.com/docs/api-reference/contacts/remove-contact-from-segment
 func (s *ContactSegmentsSvcImpl) RemoveWithContext(ctx context.Context, params *RemoveContactSegmentRequest) (RemoveContactSegmentResponse, error) {
 	if params.SegmentId == "" {
-		return RemoveContactSegmentResponse{}, errors.New("[ERROR]: SegmentId is required")
+		return RemoveContactSegmentResponse{}, ErrContactSegmentIDRequired
 	}
 
 	if params.ContactId == "" && params.Email == "" {
-		return RemoveContactSegmentResponse{}, errors.New("[ERROR]: Either ContactId or Email must be provided")
+		return RemoveContactSegmentResponse{}, ErrContactSegmentContactIDOrEmailRequired
 	}
 
 	// Determine the identifier to use in the URL
@@ -119,13 +118,13 @@ func (s *ContactSegmentsSvcImpl) RemoveWithContext(ctx context.Context, params *
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return RemoveContactSegmentResponse{}, errors.New("[ERROR]: Failed to create ContactSegments.Remove request")
+		return RemoveContactSegmentResponse{}, ErrFailedToCreateContactSegmentsRemoveRequest
 	}
 
 	resp := new(RemoveContactSegmentResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return RemoveContactSegmentResponse{}, err
 	}
@@ -143,7 +142,7 @@ func (s *ContactSegmentsSvcImpl) Remove(params *RemoveContactSegmentRequest) (Re
 // https://resend.com/docs/api-reference/contacts/list-contact-segments
 func (s *ContactSegmentsSvcImpl) ListWithOptions(ctx context.Context, params *ListContactSegmentsRequest, options *ListOptions) (ListContactSegmentsResponse, error) {
 	if params.ContactId == "" && params.Email == "" {
-		return ListContactSegmentsResponse{}, errors.New("[ERROR]: Either ContactId or Email must be provided")
+		return ListContactSegmentsResponse{}, ErrContactSegmentContactIDOrEmailRequired
 	}
 
 	// Determine the identifier to use in the URL
@@ -157,13 +156,13 @@ func (s *ContactSegmentsSvcImpl) ListWithOptions(ctx context.Context, params *Li
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListContactSegmentsResponse{}, errors.New("[ERROR]: Failed to create ContactSegments.List request")
+		return ListContactSegmentsResponse{}, ErrFailedToCreateContactSegmentsListRequest
 	}
 
 	segments := new(ListContactSegmentsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, segments)
+	_, err = s.client.Perform(req, segments) //nolint:bodyclose
 	if err != nil {
 		return ListContactSegmentsResponse{}, err
 	}

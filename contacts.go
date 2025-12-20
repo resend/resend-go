@@ -3,7 +3,6 @@ package resend
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 )
 
@@ -29,13 +28,13 @@ type ContactsSvcImpl struct {
 
 // GetContactOptions contains parameters for retrieving a contact
 type GetContactOptions struct {
-	AudienceId string // Optional - omit for global contacts
+	AudienceId string //nolint:revive // Optional - omit for global contacts
 	Id         string // Required - can be contact ID or email address
 }
 
 // ListContactsOptions contains parameters for listing contacts
 type ListContactsOptions struct {
-	AudienceId string  // Optional - omit for global contacts
+	AudienceId string  //nolint:revive // Optional - omit for global contacts
 	Limit      *int    // Optional - number of results to return
 	After      *string // Optional - cursor for pagination
 	Before     *string // Optional - cursor for pagination
@@ -43,13 +42,13 @@ type ListContactsOptions struct {
 
 // RemoveContactOptions contains parameters for removing a contact
 type RemoveContactOptions struct {
-	AudienceId string // Optional - omit for global contacts
+	AudienceId string //nolint:revive // Optional - omit for global contacts
 	Id         string // Required - can be contact ID or email address
 }
 
 type CreateContactRequest struct {
 	Email        string `json:"email"`
-	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
+	AudienceId   string `json:"audience_id,omitempty"` //nolint:revive // Deprecated: Optional, use Segments API for contact organization
 	Unsubscribed bool   `json:"unsubscribed,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
@@ -61,9 +60,9 @@ type CreateContactRequest struct {
 }
 
 type UpdateContactRequest struct {
-	Id           string `json:"id"`
+	Id           string `json:"id"` //nolint:revive
 	Email        string `json:"email,omitempty"`
-	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
+	AudienceId   string `json:"audience_id,omitempty"` //nolint:revive // Deprecated: Optional, use Segments API for contact organization
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	Unsubscribed bool   `json:"unsubscribed,omitempty"`
@@ -92,11 +91,11 @@ type UpdateContactResponse struct {
 
 type CreateContactResponse struct {
 	Object string `json:"object"`
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 }
 
 type RemoveContactResponse struct {
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Object  string `json:"object"`
 	Deleted bool   `json:"deleted"`
 }
@@ -108,7 +107,7 @@ type ListContactsResponse struct {
 }
 
 type Contact struct {
-	Id           string                 `json:"id"`
+	Id           string                 `json:"id"` //nolint:revive
 	Email        string                 `json:"email"`
 	Object       string                 `json:"object"`
 	FirstName    string                 `json:"first_name"`
@@ -143,14 +142,14 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateC
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return CreateContactResponse{}, errors.New("[ERROR]: Failed to create Contacts.Create request")
+		return CreateContactResponse{}, ErrFailedToCreateContactsCreateRequest
 	}
 
 	// Build response recipient obj
 	contactsResp := new(CreateContactResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, contactsResp)
+	_, err = s.client.Perform(req, contactsResp) //nolint:bodyclose
 	if err != nil {
 		return CreateContactResponse{}, err
 	}
@@ -193,13 +192,13 @@ func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListCont
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListContactsResponse{}, errors.New("[ERROR]: Failed to create Contacts.List request")
+		return ListContactsResponse{}, ErrFailedToCreateContactsListRequest
 	}
 
 	contacts := new(ListContactsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, contacts)
+	_, err = s.client.Perform(req, contacts) //nolint:bodyclose
 	if err != nil {
 		return ListContactsResponse{}, err
 	}
@@ -221,7 +220,7 @@ func (s *ContactsSvcImpl) Remove(options *RemoveContactOptions) (RemoveContactRe
 // https://resend.com/docs/api-reference/contacts/delete-contact
 func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, options *RemoveContactOptions) (RemoveContactResponse, error) {
 	if options == nil || options.Id == "" {
-		return RemoveContactResponse{}, errors.New("[ERROR]: Id is required")
+		return RemoveContactResponse{}, ErrContactIDRequired
 	}
 
 	var path string
@@ -236,13 +235,13 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, options *Remove
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return RemoveContactResponse{}, errors.New("[ERROR]: Failed to create Contact.Remove request")
+		return RemoveContactResponse{}, ErrFailedToCreateContactRemoveRequest
 	}
 
 	resp := new(RemoveContactResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return RemoveContactResponse{}, err
 	}
@@ -264,7 +263,7 @@ func (s *ContactsSvcImpl) Get(options *GetContactOptions) (Contact, error) {
 // https://resend.com/docs/api-reference/contacts/get-contact
 func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, options *GetContactOptions) (Contact, error) {
 	if options == nil || options.Id == "" {
-		return Contact{}, errors.New("[ERROR]: Id is required")
+		return Contact{}, ErrContactIDRequired
 	}
 
 	var path string
@@ -279,13 +278,13 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, options *GetContac
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return Contact{}, errors.New("[ERROR]: Failed to create Contact.Get request")
+		return Contact{}, ErrFailedToCreateContactGetRequest
 	}
 
 	contact := new(Contact)
 
 	// Send Request
-	_, err = s.client.Perform(req, contact)
+	_, err = s.client.Perform(req, contact) //nolint:bodyclose
 	if err != nil {
 		return Contact{}, err
 	}
@@ -327,14 +326,14 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
-		return UpdateContactResponse{}, errors.New("[ERROR]: Failed to create Contacts.Update request")
+		return UpdateContactResponse{}, ErrFailedToCreateContactsUpdateRequest
 	}
 
 	// Build response recipient obj
 	contactsResp := new(UpdateContactResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, contactsResp)
+	_, err = s.client.Perform(req, contactsResp) //nolint:bodyclose
 	if err != nil {
 		return UpdateContactResponse{}, err
 	}
@@ -347,8 +346,6 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 // This is marked to be fixed properly in v3, since the actual fix would
 // require a breaking change
 func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
-	type Alias UpdateContactRequest
-
 	aux := make(map[string]interface{})
 
 	aux["id"] = r.Id

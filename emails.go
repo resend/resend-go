@@ -17,7 +17,7 @@ func (o SendEmailOptions) GetIdempotencyKey() string {
 // EmailTemplate represents a template configuration for sending emails.
 type EmailTemplate struct {
 	// Id is the template ID or alias to use for this email
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 	// Variables are the key-value pairs to populate the template placeholders
 	Variables map[string]interface{} `json:"variables,omitempty"`
 }
@@ -32,7 +32,7 @@ type SendEmailRequest struct {
 	Bcc         []string          `json:"bcc,omitempty"`
 	Cc          []string          `json:"cc,omitempty"`
 	ReplyTo     string            `json:"reply_to,omitempty"`
-	Html        string            `json:"html,omitempty"`
+	Html        string            `json:"html,omitempty"` //nolint:revive
 	Text        string            `json:"text,omitempty"`
 	Tags        []Tag             `json:"tags,omitempty"`
 	Attachments []*Attachment     `json:"attachments,omitempty"`
@@ -43,36 +43,36 @@ type SendEmailRequest struct {
 
 // CancelScheduledEmailResponse is the response from the Cancel call.
 type CancelScheduledEmailResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 // SendEmailResponse is the response from the Send call.
 type SendEmailResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 // UpdateEmailRequest is the request object for the Update call.
 type UpdateEmailRequest struct {
-	Id          string `json:"id"`
+	Id          string `json:"id"` //nolint:revive
 	ScheduledAt string `json:"scheduled_at"`
 }
 
 // UpdateEmailResponse is the type that represents the response from the Update call.
 type UpdateEmailResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Object string `json:"object"`
 }
 
 // Email provides the structure for the response from the Get call.
 type Email struct {
-	Id        string   `json:"id"`
+	Id        string   `json:"id"` //nolint:revive
 	Object    string   `json:"object"`
 	To        []string `json:"to"`
 	From      string   `json:"from"`
 	CreatedAt string   `json:"created_at"`
 	Subject   string   `json:"subject"`
-	Html      string   `json:"html"`
+	Html      string   `json:"html"` //nolint:revive
 	Text      string   `json:"text"`
 	Bcc       []string `json:"bcc"`
 	Cc        []string `json:"cc"`
@@ -98,12 +98,12 @@ type Tag struct {
 // When returned in a list (Data array), the Object field is omitted.
 type EmailAttachment struct {
 	Object             string `json:"object,omitempty"`
-	Id                 string `json:"id"`
+	Id                 string `json:"id"` //nolint:revive
 	Filename           string `json:"filename"`
 	ContentType        string `json:"content_type"`
 	ContentDisposition string `json:"content_disposition"`
-	ContentId          string `json:"content_id"`
-	DownloadUrl        string `json:"download_url"`
+	ContentId          string `json:"content_id"`   //nolint:revive
+	DownloadUrl        string `json:"download_url"` //nolint:revive
 	ExpiresAt          string `json:"expires_at"`
 }
 
@@ -136,13 +136,13 @@ type Attachment struct {
 	// Optional content ID for the attachment, to be used as a reference in the HTML content.
 	// If set, this attachment will be sent as an inline attachment and you can reference it
 	// in the HTML content using the `cid:` prefix.
-	ContentId string
+	ContentId string //nolint:revive
 
 	// Deprecated: Use ContentId instead. Kept for backwards compatibility.
 	// Optional content ID for the attachment, to be used as a reference in the HTML content.
 	// If set, this attachment will be sent as an inline attachment and you can reference it
 	// in the HTML content using the `cid:` prefix.
-	InlineContentId string
+	InlineContentId string //nolint:revive
 }
 
 // MarshalJSON overrides the regular JSON Marshaller to ensure that the
@@ -153,8 +153,8 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 		Filename        string `json:"filename,omitempty"`
 		Path            string `json:"path,omitempty"`
 		ContentType     string `json:"content_type,omitempty"`
-		ContentId       string `json:"content_id,omitempty"`
-		InlineContentId string `json:"inline_content_id,omitempty"`
+		ContentId       string `json:"content_id,omitempty"`        //nolint:revive
+		InlineContentId string `json:"inline_content_id,omitempty"` //nolint:revive
 	}{
 		Filename:        a.Filename,
 		Path:            a.Path,
@@ -168,15 +168,15 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 }
 
 type EmailsSvc interface {
-	CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error)
-	Cancel(emailId string) (*CancelScheduledEmailResponse, error)
+	CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error) //nolint:revive
+	Cancel(emailId string) (*CancelScheduledEmailResponse, error)                                 //nolint:revive
 	UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error)
 	SendWithContext(ctx context.Context, params *SendEmailRequest) (*SendEmailResponse, error)
 	Send(params *SendEmailRequest) (*SendEmailResponse, error)
-	GetWithContext(ctx context.Context, emailId string) (*Email, error)
-	Get(emailId string) (*Email, error)
+	GetWithContext(ctx context.Context, emailId string) (*Email, error) //nolint:revive
+	Get(emailId string) (*Email, error)                                 //nolint:revive
 
 	// Both List and ListWithOptions do the same thing, but since these List methods
 	// were introduced after some time, we kept both for overall consistency with
@@ -186,11 +186,11 @@ type EmailsSvc interface {
 	List() (ListEmailsResponse, error)
 
 	// Attachment methods for sent emails
-	GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error)
-	GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error)
-	ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error)
-	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)
-	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)
+	GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error)                //nolint:revive
+	GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error)                                                //nolint:revive
+	ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error) //nolint:revive
+	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)                       //nolint:revive
+	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)                                                       //nolint:revive
 }
 
 type EmailsSvcImpl struct {
@@ -200,13 +200,13 @@ type EmailsSvcImpl struct {
 
 // Cancel cancels an email by ID
 // https://resend.com/docs/api-reference/emails/cancel-email
-func (s *EmailsSvcImpl) Cancel(emailId string) (*CancelScheduledEmailResponse, error) {
+func (s *EmailsSvcImpl) Cancel(emailId string) (*CancelScheduledEmailResponse, error) { //nolint:revive
 	return s.CancelWithContext(context.Background(), emailId)
 }
 
 // CancelWithContext cancels an email by ID
 // https://resend.com/docs/api-reference/emails/cancel-email
-func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error) {
+func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error) { //nolint:revive
 	path := "emails/" + emailId + "/cancel"
 
 	// Prepare request
@@ -219,7 +219,7 @@ func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (
 	resp := new(CancelScheduledEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +248,7 @@ func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEma
 	updateEmailResponse := new(UpdateEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, updateEmailResponse)
+	_, err = s.client.Perform(req, updateEmailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (s *EmailsSvcImpl) SendWithOptions(ctx context.Context, params *SendEmailRe
 	emailResponse := new(SendEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, emailResponse)
+	_, err = s.client.Perform(req, emailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func (s *EmailsSvcImpl) SendWithContext(ctx context.Context, params *SendEmailRe
 	emailResponse := new(SendEmailResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, emailResponse)
+	_, err = s.client.Perform(req, emailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -311,7 +311,7 @@ func (s *EmailsSvcImpl) Send(params *SendEmailRequest) (*SendEmailResponse, erro
 
 // GetWithContext retrieves an email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Email, error) {
+func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Email, error) { //nolint:revive
 	path := "emails/" + emailId
 
 	// Prepare request
@@ -324,7 +324,7 @@ func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Em
 	emailResponse := new(Email)
 
 	// Send Request
-	_, err = s.client.Perform(req, emailResponse)
+	_, err = s.client.Perform(req, emailResponse) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Em
 
 // Get retrieves an email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-email
-func (s *EmailsSvcImpl) Get(emailId string) (*Email, error) {
+func (s *EmailsSvcImpl) Get(emailId string) (*Email, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), emailId)
 }
 
@@ -353,7 +353,7 @@ func (s *EmailsSvcImpl) ListWithOptions(ctx context.Context, options *ListOption
 	listEmailsResponse := new(ListEmailsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, listEmailsResponse)
+	_, err = s.client.Perform(req, listEmailsResponse) //nolint:bodyclose
 	if err != nil {
 		return ListEmailsResponse{}, err
 	}
@@ -375,7 +375,7 @@ func (s *EmailsSvcImpl) List() (ListEmailsResponse, error) {
 
 // GetAttachmentWithContext retrieves a single attachment from a sent email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
-func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error) {
+func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error) { //nolint:revive
 	path := "emails/" + emailId + "/attachments/" + attachmentId
 
 	// Prepare request
@@ -387,7 +387,7 @@ func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId st
 	attachment := new(EmailAttachment)
 
 	// Send Request
-	_, err = s.client.Perform(req, attachment)
+	_, err = s.client.Perform(req, attachment) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
@@ -397,13 +397,13 @@ func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId st
 
 // GetAttachment retrieves a single attachment from a sent email with the given emailId and attachmentId
 // https://resend.com/docs/api-reference/attachments/retrieve-sent-email-attachment
-func (s *EmailsSvcImpl) GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error) {
+func (s *EmailsSvcImpl) GetAttachment(emailId string, attachmentId string) (*EmailAttachment, error) { //nolint:revive
 	return s.GetAttachmentWithContext(context.Background(), emailId, attachmentId)
 }
 
 // ListAttachmentsWithOptions retrieves a list of attachments for a sent email with pagination options
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error) {
+func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error) { //nolint:revive
 	path := "emails/" + emailId + "/attachments" + buildPaginationQuery(options)
 
 	// Prepare request
@@ -416,7 +416,7 @@ func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId 
 	listAttachmentsResponse := new(ListEmailAttachmentsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, listAttachmentsResponse)
+	_, err = s.client.Perform(req, listAttachmentsResponse) //nolint:bodyclose
 	if err != nil {
 		return ListEmailAttachmentsResponse{}, err
 	}
@@ -426,12 +426,12 @@ func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId 
 
 // ListAttachmentsWithContext retrieves a list of attachments for a sent email
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error) {
+func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error) { //nolint:revive
 	return s.ListAttachmentsWithOptions(ctx, emailId, nil)
 }
 
 // ListAttachments retrieves a list of attachments for a sent email
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
-func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsResponse, error) {
+func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsResponse, error) { //nolint:revive
 	return s.ListAttachmentsWithContext(context.Background(), emailId)
 }

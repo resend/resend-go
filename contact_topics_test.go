@@ -13,7 +13,7 @@ func TestListContactTopics(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
+	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/topics", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
@@ -121,7 +121,7 @@ func TestUpdateContactTopicsById(t *testing.T) {
 
 	defer teardown()
 
-	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
+	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3" //nolint:revive
 
 	mux.HandleFunc("/contacts/"+contactId+"/topics", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)

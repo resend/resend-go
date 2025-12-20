@@ -12,10 +12,10 @@ type AudiencesSvc interface {
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListAudiencesResponse, error)
 	ListWithContext(ctx context.Context) (ListAudiencesResponse, error)
 	List() (ListAudiencesResponse, error)
-	GetWithContext(ctx context.Context, audienceId string) (Audience, error)
-	Get(audienceId string) (Audience, error)
-	RemoveWithContext(ctx context.Context, audienceId string) (RemoveAudienceResponse, error)
-	Remove(audienceId string) (RemoveAudienceResponse, error)
+	GetWithContext(ctx context.Context, audienceId string) (Audience, error)                  //nolint:revive
+	Get(audienceId string) (Audience, error)                                                  //nolint:revive
+	RemoveWithContext(ctx context.Context, audienceId string) (RemoveAudienceResponse, error) //nolint:revive
+	Remove(audienceId string) (RemoveAudienceResponse, error)                                 //nolint:revive
 }
 
 // AudiencesSvcImpl wraps SegmentsSvcImpl to provide backward compatibility
@@ -78,27 +78,27 @@ func (s *AudiencesSvcImpl) List() (ListAudiencesResponse, error) {
 // RemoveWithContext removes a given audience by id
 // Deprecated: Use Segments.RemoveWithContext instead
 // https://resend.com/docs/api-reference/segments/delete-segment
-func (s *AudiencesSvcImpl) RemoveWithContext(ctx context.Context, audienceId string) (RemoveAudienceResponse, error) {
+func (s *AudiencesSvcImpl) RemoveWithContext(ctx context.Context, audienceId string) (RemoveAudienceResponse, error) { //nolint:revive
 	return s.segments.RemoveWithContext(ctx, audienceId)
 }
 
 // Remove removes a given audience entry by id
 // Deprecated: Use Segments.Remove instead
 // https://resend.com/docs/api-reference/segments/delete-segment
-func (s *AudiencesSvcImpl) Remove(audienceId string) (RemoveAudienceResponse, error) {
+func (s *AudiencesSvcImpl) Remove(audienceId string) (RemoveAudienceResponse, error) { //nolint:revive
 	return s.segments.Remove(audienceId)
 }
 
 // GetWithContext Retrieve a single audience.
 // Deprecated: Use Segments.GetWithContext instead
 // https://resend.com/docs/api-reference/segments/get-segment
-func (s *AudiencesSvcImpl) GetWithContext(ctx context.Context, audienceId string) (Audience, error) {
+func (s *AudiencesSvcImpl) GetWithContext(ctx context.Context, audienceId string) (Audience, error) { //nolint:revive
 	return s.segments.GetWithContext(ctx, audienceId)
 }
 
 // Get Retrieve a single audience.
 // Deprecated: Use Segments.Get instead
 // https://resend.com/docs/api-reference/segments/get-segment
-func (s *AudiencesSvcImpl) Get(audienceId string) (Audience, error) {
+func (s *AudiencesSvcImpl) Get(audienceId string) (Audience, error) { //nolint:revive
 	return s.segments.Get(audienceId)
 }

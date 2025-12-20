@@ -49,16 +49,17 @@ func TestResendRequestShouldReturnErrorIfContextIsCancelled(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := client.Perform(req, nil)
-	assert.True(t, errors.Is(errors.Unwrap(), context.Canceled))
+	res, err := client.Perform(req, nil) //nolint:bodyclose
+	assert.True(t, errors.Is(err, context.Canceled))
 	assert.Nil(t, res)
 }
 
 func TestHandleError(t *testing.T) {
 	cases := []struct {
-		desc string
-		resp *http.Response
-		want error
+		desc          string
+		resp          *http.Response
+		want          string
+		wantRateLimit *RateLimitError
 	}{
 		{
 			desc: "rate_limit_error",
@@ -74,7 +75,7 @@ func TestHandleError(t *testing.T) {
 				},
 				Body: io.NopCloser(bytes.NewBufferString(`{"message":"Rate limit exceeded"}`)),
 			},
-			want: &RateLimitError{
+			wantRateLimit: &RateLimitError{
 				Message:    "Rate limit exceeded",
 				Limit:      "2",
 				Remaining:  "0",
@@ -90,7 +91,7 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Validation error"}`)),
 			},
-			want: errors.New("[ERROR]: Validation error"),
+			want: "[ERROR]: Validation error",
 		},
 		{
 			desc: "validation_error_no_json",
@@ -99,7 +100,7 @@ func TestHandleError(t *testing.T) {
 				Status:     fmt.Sprintf("%d %s", http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity)),
 				Body:       io.NopCloser(bytes.NewBufferString(`Validation error`)),
 			},
-			want: errors.New("[ERROR]: 422 Unprocessable Entity"),
+			want: "[ERROR]: 422 Unprocessable Entity",
 		},
 		{
 			desc: "bad_request",
@@ -109,7 +110,7 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Validation error"}`)),
 			},
-			want: errors.New("[ERROR]: Validation error"),
+			want: "[ERROR]: Validation error",
 		},
 		{
 			desc: "bad_request_no_json",
@@ -118,7 +119,7 @@ func TestHandleError(t *testing.T) {
 				Status:     fmt.Sprintf("%d %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)),
 				Body:       io.NopCloser(bytes.NewBufferString(`Validation error`)),
 			},
-			want: errors.New("[ERROR]: 400 Bad Request"),
+			want: "[ERROR]: 400 Bad Request",
 		},
 		{
 			desc: "bad_request_invalid_json",
@@ -128,7 +129,7 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{`)),
 			},
-			want: errors.New("[ERROR]: 400 Bad Request"),
+			want: "[ERROR]: 400 Bad Request",
 		},
 		{
 			desc: "server_error",
@@ -138,7 +139,7 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Server error"}`)),
 			},
-			want: errors.New("[ERROR]: Server error"),
+			want: "[ERROR]: Server error",
 		},
 		{
 			desc: "server_error_no_json",
@@ -147,7 +148,7 @@ func TestHandleError(t *testing.T) {
 				Status:     fmt.Sprintf("%d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)),
 				Body:       io.NopCloser(bytes.NewBufferString(`Server error`)),
 			},
-			want: errors.New("[ERROR]: 500 Internal Server Error"),
+			want: "[ERROR]: 500 Internal Server Error",
 		},
 		{
 			desc: "server_error_invalid_json",
@@ -157,7 +158,7 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{`)),
 			},
-			want: errors.New("[ERROR]: 500 Internal Server Error"),
+			want: "[ERROR]: 500 Internal Server Error",
 		},
 		{
 			desc: "server_error_no_message",
@@ -167,14 +168,22 @@ func TestHandleError(t *testing.T) {
 				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
 				Body:       io.NopCloser(bytes.NewBufferString(`{}`)),
 			},
-			want: errors.New("[ERROR]: Unknown Error"),
+			want: "[ERROR]: Unknown Error",
 		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
 			err := handleError(c.resp)
-			assert.Equal(t, c.want, err)
+			if c.wantRateLimit != nil {
+				rateLimitErr, ok := err.(*RateLimitError)
+				assert.True(t, ok)
+				assert.Equal(t, c.wantRateLimit, rateLimitErr)
+
+				return
+			}
+
+			assert.EqualError(t, err, c.want)
 		})
 	}
 }
@@ -193,7 +202,7 @@ func TestRateLimitErrorIs(t *testing.T) {
 	assert.True(t, errors.Is(rateLimitErr, ErrRateLimit))
 
 	// Test that a regular error is not identified as a rate limit error
-	regularErr := errors.New("some other error")
+	regularErr := errors.New("some other error") //nolint:err113
 	assert.False(t, errors.Is(regularErr, ErrRateLimit))
 }
 

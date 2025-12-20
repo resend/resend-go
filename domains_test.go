@@ -19,9 +19,7 @@ func TestCreateDomain(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
-		var ret interface{}
-
-		ret = `
+		var ret interface{} = `
 		{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
@@ -89,7 +87,7 @@ func TestCreateDomain(t *testing.T) {
 	}
 
 	assert.Equal(t, resp.DnsProvider, "Unidentified")
-	assert.Equal(t, resp.Id, "4dd369bc-aa82-4ff3-97de-514ae3000ee0")
+	assert.Equal(t, resp.Id, "4dd369bc-aa82-4ff3-97de-514ae3000ee0") //nolint:revive
 	assert.Equal(t, resp.Region, "us-east-1")
 	assert.Equal(t, resp.Status, "not_started")
 	assert.Equal(t, resp.CreatedAt, "2023-03-28T17:12:02.059593+00:00")
@@ -164,7 +162,7 @@ func TestListDomains(t *testing.T) {
 	}
 
 	assert.Equal(t, len(domains.Data), 1)
-	assert.Equal(t, domains.Data[0].Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.Equal(t, domains.Data[0].Id, "d91cd9bd-1176-453e-8fc1-35364d380206") //nolint:revive
 	assert.Equal(t, domains.Data[0].Name, "example.com")
 	assert.Equal(t, domains.Data[0].Status, "not_started")
 	assert.Equal(t, domains.Data[0].CreatedAt, "2023-04-26T20:21:26.347412+00:00")
@@ -226,7 +224,7 @@ func TestGetDomain(t *testing.T) {
 		t.Errorf("Domains.Get returned error: %v", err)
 	}
 
-	assert.Equal(t, domain.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.Equal(t, domain.Id, "d91cd9bd-1176-453e-8fc1-35364d380206") //nolint:revive
 	assert.Equal(t, domain.Object, "domain")
 	assert.Equal(t, domain.Name, "example.com")
 	assert.Equal(t, domain.Status, "not_started")

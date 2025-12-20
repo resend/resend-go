@@ -3,11 +3,10 @@ package resend
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 )
 
-type TlsOption = string
+type TlsOption = string //nolint:revive
 
 const (
 	Enforced      TlsOption = "enforced"
@@ -17,17 +16,17 @@ const (
 type DomainsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
-	VerifyWithContext(ctx context.Context, domainId string) (bool, error)
-	Verify(domainId string) (bool, error)
+	VerifyWithContext(ctx context.Context, domainId string) (bool, error) //nolint:revive
+	Verify(domainId string) (bool, error)                                 //nolint:revive
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListDomainsResponse, error)
 	ListWithContext(ctx context.Context) (ListDomainsResponse, error)
 	List() (ListDomainsResponse, error)
-	GetWithContext(ctx context.Context, domainId string) (Domain, error)
-	Get(domainId string) (Domain, error)
-	RemoveWithContext(ctx context.Context, domainId string) (bool, error)
-	Remove(domainId string) (bool, error)
-	UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error)
-	Update(domainId string, params *UpdateDomainRequest) (Domain, error)
+	GetWithContext(ctx context.Context, domainId string) (Domain, error)                                 //nolint:revive
+	Get(domainId string) (Domain, error)                                                                 //nolint:revive
+	RemoveWithContext(ctx context.Context, domainId string) (bool, error)                                //nolint:revive
+	Remove(domainId string) (bool, error)                                                                //nolint:revive
+	UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error) //nolint:revive
+	Update(domainId string, params *UpdateDomainRequest) (Domain, error)                                 //nolint:revive
 }
 
 type DomainsSvcImpl struct {
@@ -41,13 +40,13 @@ type CreateDomainRequest struct {
 }
 
 type CreateDomainResponse struct {
-	Id          string   `json:"id"`
+	Id          string   `json:"id"` //nolint:revive
 	Name        string   `json:"name"`
 	CreatedAt   string   `json:"createdAt"`
 	Status      string   `json:"status"`
 	Records     []Record `json:"records"`
 	Region      string   `json:"region"`
-	DnsProvider string   `json:"dnsProvider"`
+	DnsProvider string   `json:"dnsProvider"` //nolint:revive
 }
 
 type ListDomainsResponse struct {
@@ -59,11 +58,11 @@ type ListDomainsResponse struct {
 type UpdateDomainRequest struct {
 	OpenTracking  bool      `json:"open_tracking,omitempty"`
 	ClickTracking bool      `json:"click_tracking,omitempty"`
-	Tls           TlsOption `json:"tls,omitempty"`
+	Tls           TlsOption `json:"tls,omitempty"` //nolint:revive
 }
 
 type Domain struct {
-	Id        string   `json:"id,omitempty"`
+	Id        string   `json:"id,omitempty"` //nolint:revive
 	Object    string   `json:"object,omitempty"`
 	Name      string   `json:"name,omitempty"`
 	CreatedAt string   `json:"created_at,omitempty"`
@@ -76,7 +75,7 @@ type Record struct {
 	Record   string      `json:"record"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
-	Ttl      string      `json:"ttl"`
+	Ttl      string      `json:"ttl"` //nolint:revive
 	Status   string      `json:"status"`
 	Value    string      `json:"value"`
 	Priority json.Number `json:"priority,omitempty"`
@@ -84,19 +83,19 @@ type Record struct {
 
 // UpdateWithContext updates an existing Domain entry based on the given params
 // https://resend.com/docs/api-reference/domains/update-domain
-func (s *DomainsSvcImpl) UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error) {
+func (s *DomainsSvcImpl) UpdateWithContext(ctx context.Context, domainId string, params *UpdateDomainRequest) (Domain, error) { //nolint:revive
 	path := "domains/" + domainId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
-		return Domain{}, errors.New("[ERROR]: Failed to create Domains.Update request")
+		return Domain{}, ErrFailedToCreateDomainsUpdateRequest
 	}
 
 	domainUpdatedResp := new(Domain)
 
 	// Send Request
-	_, err = s.client.Perform(req, domainUpdatedResp)
+	_, err = s.client.Perform(req, domainUpdatedResp) //nolint:bodyclose
 	if err != nil {
 		return Domain{}, err
 	}
@@ -105,7 +104,7 @@ func (s *DomainsSvcImpl) UpdateWithContext(ctx context.Context, domainId string,
 }
 
 // Update is a wrapper around UpdateWithContext
-func (s *DomainsSvcImpl) Update(domainId string, params *UpdateDomainRequest) (Domain, error) {
+func (s *DomainsSvcImpl) Update(domainId string, params *UpdateDomainRequest) (Domain, error) { //nolint:revive
 	return s.UpdateWithContext(context.Background(), domainId, params)
 }
 
@@ -117,14 +116,14 @@ func (s *DomainsSvcImpl) CreateWithContext(ctx context.Context, params *CreateDo
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return CreateDomainResponse{}, errors.New("[ERROR]: Failed to create Domains.Create request")
+		return CreateDomainResponse{}, ErrFailedToCreateDomainsCreateRequest
 	}
 
 	// Build response recipient obj
 	domainsResp := new(CreateDomainResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, domainsResp)
+	_, err = s.client.Perform(req, domainsResp) //nolint:bodyclose
 	if err != nil {
 		return CreateDomainResponse{}, err
 	}
@@ -140,17 +139,17 @@ func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainRespon
 
 // VerifyWithContext verifies a given domain Id
 // https://resend.com/docs/api-reference/domains/verify-domain
-func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) {
+func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) { //nolint:revive
 	path := "domains/" + domainId + "/verify"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
-		return false, errors.New("[ERROR]: Failed to create Domains.Verify request")
+		return false, ErrFailedToCreateDomainsVerifyRequest
 	}
 
 	// Send Request
-	_, err = s.client.Perform(req, nil)
+	_, err = s.client.Perform(req, nil) //nolint:bodyclose
 	if err != nil {
 		return false, err
 	}
@@ -160,7 +159,7 @@ func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string)
 
 // Verify verifies a given domain Id
 // https://resend.com/docs/api-reference/domains/verify-domain
-func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) {
+func (s *DomainsSvcImpl) Verify(domainId string) (bool, error) { //nolint:revive
 	return s.VerifyWithContext(context.Background(), domainId)
 }
 
@@ -172,13 +171,13 @@ func (s *DomainsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptio
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListDomainsResponse{}, errors.New("[ERROR]: Failed to create Domains.List request")
+		return ListDomainsResponse{}, ErrFailedToCreateDomainsListRequest
 	}
 
 	domains := new(ListDomainsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, domains)
+	_, err = s.client.Perform(req, domains) //nolint:bodyclose
 	if err != nil {
 		return ListDomainsResponse{}, err
 	}
@@ -200,17 +199,17 @@ func (s *DomainsSvcImpl) List() (ListDomainsResponse, error) {
 
 // RemoveWithContext removes a given domain entry by id
 // https://resend.com/docs/api-reference/domains/delete-domain
-func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string) (bool, error) {
+func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string) (bool, error) { //nolint:revive
 	path := "domains/" + domainId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return false, errors.New("[ERROR]: Failed to create Domains.Remove request")
+		return false, ErrFailedToCreateDomainsRemoveRequest
 	}
 
 	// Send Request
-	_, err = s.client.Perform(req, nil)
+	_, err = s.client.Perform(req, nil) //nolint:bodyclose
 	if err != nil {
 		return false, err
 	}
@@ -220,25 +219,25 @@ func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string)
 
 // Remove removes a given domain entry by id
 // https://resend.com/docs/api-reference/domains/delete-domain
-func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) {
+func (s *DomainsSvcImpl) Remove(domainId string) (bool, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), domainId)
 }
 
 // GetWithContext retrieves a domain object
 // https://resend.com/docs/api-reference/domains/get-domain
-func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (Domain, error) {
+func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (Domain, error) { //nolint:revive
 	path := "domains/" + domainId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return Domain{}, errors.New("[ERROR]: Failed to create Domains.Get request")
+		return Domain{}, ErrFailedToCreateDomainsGetRequest
 	}
 
 	domain := new(Domain)
 
 	// Send Request
-	_, err = s.client.Perform(req, domain)
+	_, err = s.client.Perform(req, domain) //nolint:bodyclose
 	if err != nil {
 		return Domain{}, err
 	}
@@ -248,6 +247,6 @@ func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (D
 
 // Get retrieves a domain object
 // https://resend.com/docs/api-reference/domains/get-domain
-func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) {
+func (s *DomainsSvcImpl) Get(domainId string) (Domain, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), domainId)
 }

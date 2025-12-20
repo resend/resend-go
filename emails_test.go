@@ -159,7 +159,7 @@ func TestSendEmailWithInlineAttachmentUsingContentId(t *testing.T) {
 			t.Errorf("failed to read request body: %v", err)
 		}
 		// Check that content_id is sent when ContentId is used
-		expContentId := `"content_id":"test-cid"`
+		expContentId := `"content_id":"test-cid"` //nolint:revive
 		if !bytes.Contains(content, []byte(expContentId)) {
 			t.Errorf("request body does not include content_id field, got: %s", string(content))
 		}
@@ -208,7 +208,7 @@ func TestSendEmailWithInlineAttachmentUsingInlineContentId(t *testing.T) {
 			t.Errorf("failed to read request body: %v", err)
 		}
 		// Check that inline_content_id is sent when InlineContentId is used
-		expInlineContentId := `"inline_content_id":"legacy-cid"`
+		expInlineContentId := `"inline_content_id":"legacy-cid"` //nolint:revive
 		if !bytes.Contains(content, []byte(expInlineContentId)) {
 			t.Errorf("request body does not include inline_content_id field, got: %s", string(content))
 		}
@@ -257,8 +257,8 @@ func TestSendEmailWithBothContentIdAndInlineContentId(t *testing.T) {
 			t.Errorf("failed to read request body: %v", err)
 		}
 		// When both are set, both should be sent to maintain compatibility
-		expContentId := `"content_id":"preferred-cid"`
-		expInlineContentId := `"inline_content_id":"legacy-cid"`
+		expContentId := `"content_id":"preferred-cid"`           //nolint:revive
+		expInlineContentId := `"inline_content_id":"legacy-cid"` //nolint:revive
 
 		if !bytes.Contains(content, []byte(expContentId)) {
 			t.Errorf("request body does not include content_id field, got: %s", string(content))

@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -12,10 +11,10 @@ type SegmentsSvc interface {
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListSegmentsResponse, error)
 	ListWithContext(ctx context.Context) (ListSegmentsResponse, error)
 	List() (ListSegmentsResponse, error)
-	GetWithContext(ctx context.Context, segmentId string) (Segment, error)
-	Get(segmentId string) (Segment, error)
-	RemoveWithContext(ctx context.Context, segmentId string) (RemoveSegmentResponse, error)
-	Remove(segmentId string) (RemoveSegmentResponse, error)
+	GetWithContext(ctx context.Context, segmentId string) (Segment, error)                  //nolint:revive
+	Get(segmentId string) (Segment, error)                                                  //nolint:revive
+	RemoveWithContext(ctx context.Context, segmentId string) (RemoveSegmentResponse, error) //nolint:revive
+	Remove(segmentId string) (RemoveSegmentResponse, error)                                 //nolint:revive
 }
 
 type SegmentsSvcImpl struct {
@@ -27,13 +26,13 @@ type CreateSegmentRequest struct {
 }
 
 type CreateSegmentResponse struct {
-	Id     string `json:"id"`
+	Id     string `json:"id"` //nolint:revive
 	Name   string `json:"name"`
 	Object string `json:"object"`
 }
 
 type RemoveSegmentResponse struct {
-	Id      string `json:"id"`
+	Id      string `json:"id"` //nolint:revive
 	Object  string `json:"object"`
 	Deleted bool   `json:"deleted"`
 }
@@ -45,7 +44,7 @@ type ListSegmentsResponse struct {
 }
 
 type Segment struct {
-	Id        string `json:"id"`
+	Id        string `json:"id"` //nolint:revive
 	Name      string `json:"name"`
 	Object    string `json:"object"`
 	CreatedAt string `json:"created_at"`
@@ -59,14 +58,14 @@ func (s *SegmentsSvcImpl) CreateWithContext(ctx context.Context, params *CreateS
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return CreateSegmentResponse{}, errors.New("[ERROR]: Failed to create Segments.Create request")
+		return CreateSegmentResponse{}, ErrFailedToCreateSegmentsCreateRequest
 	}
 
 	// Build response recipient obj
 	segmentsResp := new(CreateSegmentResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, segmentsResp)
+	_, err = s.client.Perform(req, segmentsResp) //nolint:bodyclose
 	if err != nil {
 		return CreateSegmentResponse{}, err
 	}
@@ -88,13 +87,13 @@ func (s *SegmentsSvcImpl) ListWithOptions(ctx context.Context, options *ListOpti
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListSegmentsResponse{}, errors.New("[ERROR]: Failed to create Segments.List request")
+		return ListSegmentsResponse{}, ErrFailedToCreateSegmentsListRequest
 	}
 
 	segments := new(ListSegmentsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, segments)
+	_, err = s.client.Perform(req, segments) //nolint:bodyclose
 	if err != nil {
 		return ListSegmentsResponse{}, err
 	}
@@ -116,19 +115,19 @@ func (s *SegmentsSvcImpl) List() (ListSegmentsResponse, error) {
 
 // RemoveWithContext removes a given segment by id
 // https://resend.com/docs/api-reference/segments/delete-segment
-func (s *SegmentsSvcImpl) RemoveWithContext(ctx context.Context, segmentId string) (RemoveSegmentResponse, error) {
+func (s *SegmentsSvcImpl) RemoveWithContext(ctx context.Context, segmentId string) (RemoveSegmentResponse, error) { //nolint:revive
 	path := "segments/" + segmentId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
-		return RemoveSegmentResponse{}, errors.New("[ERROR]: Failed to create Segment.Remove request")
+		return RemoveSegmentResponse{}, ErrFailedToCreateSegmentRemoveRequest
 	}
 
 	resp := new(RemoveSegmentResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return RemoveSegmentResponse{}, err
 	}
@@ -138,25 +137,25 @@ func (s *SegmentsSvcImpl) RemoveWithContext(ctx context.Context, segmentId strin
 
 // Remove removes a given segment entry by id
 // https://resend.com/docs/api-reference/segments/delete-segment
-func (s *SegmentsSvcImpl) Remove(segmentId string) (RemoveSegmentResponse, error) {
+func (s *SegmentsSvcImpl) Remove(segmentId string) (RemoveSegmentResponse, error) { //nolint:revive
 	return s.RemoveWithContext(context.Background(), segmentId)
 }
 
 // GetWithContext Retrieve a single segment.
 // https://resend.com/docs/api-reference/segments/get-segment
-func (s *SegmentsSvcImpl) GetWithContext(ctx context.Context, segmentId string) (Segment, error) {
+func (s *SegmentsSvcImpl) GetWithContext(ctx context.Context, segmentId string) (Segment, error) { //nolint:revive
 	path := "segments/" + segmentId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return Segment{}, errors.New("[ERROR]: Failed to create Segment.Get request")
+		return Segment{}, ErrFailedToCreateSegmentGetRequest
 	}
 
 	segment := new(Segment)
 
 	// Send Request
-	_, err = s.client.Perform(req, segment)
+	_, err = s.client.Perform(req, segment) //nolint:bodyclose
 	if err != nil {
 		return Segment{}, err
 	}
@@ -166,6 +165,6 @@ func (s *SegmentsSvcImpl) GetWithContext(ctx context.Context, segmentId string) 
 
 // Get Retrieve a single segment.
 // https://resend.com/docs/api-reference/segments/get-segment
-func (s *SegmentsSvcImpl) Get(segmentId string) (Segment, error) {
+func (s *SegmentsSvcImpl) Get(segmentId string) (Segment, error) { //nolint:revive
 	return s.GetWithContext(context.Background(), segmentId)
 }

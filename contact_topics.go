@@ -2,13 +2,12 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
 // ContactTopic represents a topic subscription for a contact
 type ContactTopic struct {
-	Id           string `json:"id"`
+	Id           string `json:"id"` //nolint:revive
 	Name         string `json:"name"`
 	Description  string `json:"description"`
 	Subscription string `json:"subscription"`
@@ -23,20 +22,20 @@ type ListContactTopicsResponse struct {
 
 // TopicSubscriptionUpdate represents a single topic subscription update
 type TopicSubscriptionUpdate struct {
-	Id           string `json:"id"`
+	Id           string `json:"id"` //nolint:revive
 	Subscription string `json:"subscription"`
 }
 
 // UpdateContactTopicsRequest is the request for updating contact topics
 type UpdateContactTopicsRequest struct {
-	Id     string                    `json:"-"`
+	Id     string                    `json:"-"` //nolint:revive
 	Email  string                    `json:"-"`
 	Topics []TopicSubscriptionUpdate `json:"topics"`
 }
 
 // UpdateContactTopicsResponse is the response from updating contact topics
 type UpdateContactTopicsResponse struct {
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint:revive
 }
 
 // ContactTopicsSvc handles operations for contact topics
@@ -58,7 +57,7 @@ type ContactTopicsSvcImpl struct {
 // https://resend.com/docs/api-reference/contacts/get-contact-topics
 func (s *ContactTopicsSvcImpl) ListWithOptions(ctx context.Context, id string, options *ListOptions) (ListContactTopicsResponse, error) {
 	if id == "" {
-		return ListContactTopicsResponse{}, errors.New("[ERROR]: Contact ID or email is missing")
+		return ListContactTopicsResponse{}, ErrContactTopicsContactIDOrEmailMissing
 	}
 
 	path := "contacts/" + id + "/topics" + buildPaginationQuery(options)
@@ -66,13 +65,13 @@ func (s *ContactTopicsSvcImpl) ListWithOptions(ctx context.Context, id string, o
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return ListContactTopicsResponse{}, errors.New("[ERROR]: Failed to create ContactTopics.List request")
+		return ListContactTopicsResponse{}, ErrFailedToCreateContactTopicsListRequest
 	}
 
 	topics := new(ListContactTopicsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, topics)
+	_, err = s.client.Perform(req, topics) //nolint:bodyclose
 	if err != nil {
 		return ListContactTopicsResponse{}, err
 	}
@@ -99,11 +98,11 @@ func (s *ContactTopicsSvcImpl) List(id string) (ListContactTopicsResponse, error
 // https://resend.com/docs/api-reference/contacts/update-contact-topics
 func (s *ContactTopicsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateContactTopicsRequest) (UpdateContactTopicsResponse, error) {
 	if params.Id == "" && params.Email == "" {
-		return UpdateContactTopicsResponse{}, errors.New("[ERROR]: Contact ID or email is missing")
+		return UpdateContactTopicsResponse{}, ErrContactTopicsContactIDOrEmailMissing
 	}
 
 	if len(params.Topics) == 0 {
-		return UpdateContactTopicsResponse{}, errors.New("[ERROR]: Topics array is empty")
+		return UpdateContactTopicsResponse{}, ErrContactTopicsArrayEmpty
 	}
 
 	var identifier string
@@ -118,13 +117,13 @@ func (s *ContactTopicsSvcImpl) UpdateWithContext(ctx context.Context, params *Up
 	// Prepare request - send only the topics array as body
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params.Topics)
 	if err != nil {
-		return UpdateContactTopicsResponse{}, errors.New("[ERROR]: Failed to create ContactTopics.Update request")
+		return UpdateContactTopicsResponse{}, ErrFailedToCreateContactTopicsUpdateRequest
 	}
 
 	resp := new(UpdateContactTopicsResponse)
 
 	// Send Request
-	_, err = s.client.Perform(req, resp)
+	_, err = s.client.Perform(req, resp) //nolint:bodyclose
 	if err != nil {
 		return UpdateContactTopicsResponse{}, err
 	}
