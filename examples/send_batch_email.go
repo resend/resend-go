@@ -86,7 +86,7 @@ func sendBatchEmails() {
 		fmt.Printf("  - Email ID: %s\n", email.Id)
 	}
 	
-	if sent.Errors != nil && len(sent.Errors) > 0 {
+	if len(sent.Errors) > 0 {
 		fmt.Printf("Failed to send %d emails:\n", len(sent.Errors))
 		for _, err := range sent.Errors {
 			fmt.Printf("  - Index %d: %s\n", err.Index, err.Message)

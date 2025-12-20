@@ -311,6 +311,7 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 	}
 
 	now := time.Now().Unix()
+
 	diff := now - timestamp
 	if diff > DefaultWebhookToleranceSeconds || diff < -DefaultWebhookToleranceSeconds {
 		return fmt.Errorf("timestamp outside tolerance window: difference of %d seconds", diff)
@@ -321,6 +322,7 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 
 	// Step 3: Decode the signing secret (strip whsec_ prefix and base64 decode)
 	secret := strings.TrimPrefix(options.WebhookSecret, "whsec_")
+
 	decodedSecret, err := base64.StdEncoding.DecodeString(secret)
 	if err != nil {
 		return fmt.Errorf("failed to decode webhook secret: %w", err)
@@ -353,5 +355,6 @@ func generateSignature(secret, content []byte) string {
 	h := hmac.New(sha256.New, secret)
 	h.Write(content)
 	signature := h.Sum(nil)
+
 	return base64.StdEncoding.EncodeToString(signature)
 }

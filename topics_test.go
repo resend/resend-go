@@ -12,6 +12,7 @@ import (
 
 func TestCreateTopic(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +22,7 @@ func TestCreateTopic(t *testing.T) {
 
 		// Decode request body to verify it
 		var req CreateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -33,7 +35,7 @@ func TestCreateTopic(t *testing.T) {
 		{
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -43,11 +45,13 @@ func TestCreateTopic(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
 }
 
 func TestCreateTopicWithOptOut(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +61,7 @@ func TestCreateTopicWithOptOut(t *testing.T) {
 
 		// Decode request body to verify it
 		var req CreateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -69,7 +74,7 @@ func TestCreateTopicWithOptOut(t *testing.T) {
 		{
 			"id": "opt-out-topic-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -79,11 +84,13 @@ func TestCreateTopicWithOptOut(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "opt-out-topic-id", resp.Id)
 }
 
 func TestCreateTopicWithDescription(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -93,6 +100,7 @@ func TestCreateTopicWithDescription(t *testing.T) {
 
 		// Decode request body to verify it
 		var req CreateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -106,7 +114,7 @@ func TestCreateTopicWithDescription(t *testing.T) {
 		{
 			"id": "topic-with-description-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -117,11 +125,13 @@ func TestCreateTopicWithDescription(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "topic-with-description-id", resp.Id)
 }
 
 func TestCreateTopicWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -133,10 +143,11 @@ func TestCreateTopicWithContext(t *testing.T) {
 		{
 			"id": "context-topic-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Topics.CreateWithContext(ctx, &CreateTopicRequest{
 		Name:                "Context Topic",
 		DefaultSubscription: DefaultSubscriptionOptIn,
@@ -144,11 +155,13 @@ func TestCreateTopicWithContext(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.CreateWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-topic-id", resp.Id)
 }
 
 func TestGetTopic(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
@@ -166,13 +179,14 @@ func TestGetTopic(t *testing.T) {
 			"default_subscription": "opt_in",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Get(topicId)
 	if err != nil {
 		t.Errorf("Topics.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
 	assert.Equal(t, "Weekly Newsletter", resp.Name)
 	assert.Equal(t, "Weekly newsletter for our subscribers", resp.Description)
@@ -182,6 +196,7 @@ func TestGetTopic(t *testing.T) {
 
 func TestGetTopicWithOptOut(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "opt-out-topic-id"
@@ -199,13 +214,14 @@ func TestGetTopicWithOptOut(t *testing.T) {
 			"default_subscription": "opt_out",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Get(topicId)
 	if err != nil {
 		t.Errorf("Topics.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "opt-out-topic-id", resp.Id)
 	assert.Equal(t, "Product Updates", resp.Name)
 	assert.Equal(t, "", resp.Description)
@@ -215,6 +231,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 
 func TestGetTopicWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "context-topic-id"
@@ -232,14 +249,16 @@ func TestGetTopicWithContext(t *testing.T) {
 			"default_subscription": "opt_in",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Topics.GetWithContext(ctx, topicId)
 	if err != nil {
 		t.Errorf("Topics.GetWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-topic-id", resp.Id)
 	assert.Equal(t, "Context Topic", resp.Name)
 	assert.Equal(t, "Test topic with context", resp.Description)
@@ -249,6 +268,7 @@ func TestGetTopicWithContext(t *testing.T) {
 
 func TestListTopics(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -281,16 +301,18 @@ func TestListTopics(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
+
 	resp, err := client.Topics.List(&ListOptions{
 		Limit: &limit,
 	})
 	if err != nil {
 		t.Errorf("Topics.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 2, len(resp.Data))
@@ -305,6 +327,7 @@ func TestListTopics(t *testing.T) {
 
 func TestListTopicsWithAfter(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -331,11 +354,12 @@ func TestListTopicsWithAfter(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
 	after := "topic-1-id"
+
 	resp, err := client.Topics.List(&ListOptions{
 		Limit: &limit,
 		After: &after,
@@ -343,6 +367,7 @@ func TestListTopicsWithAfter(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.True(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -351,6 +376,7 @@ func TestListTopicsWithAfter(t *testing.T) {
 
 func TestListTopicsWithBefore(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -377,11 +403,12 @@ func TestListTopicsWithBefore(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
 	before := "topic-3-id"
+
 	resp, err := client.Topics.List(&ListOptions{
 		Limit:  &limit,
 		Before: &before,
@@ -389,6 +416,7 @@ func TestListTopicsWithBefore(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -397,6 +425,7 @@ func TestListTopicsWithBefore(t *testing.T) {
 
 func TestListTopicsWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -418,14 +447,16 @@ func TestListTopicsWithContext(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Topics.ListWithContext(ctx, &ListOptions{})
 	if err != nil {
 		t.Errorf("Topics.ListWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -434,6 +465,7 @@ func TestListTopicsWithContext(t *testing.T) {
 
 func TestListTopicsWithoutOptions(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/topics", func(w http.ResponseWriter, r *http.Request) {
@@ -468,13 +500,14 @@ func TestListTopicsWithoutOptions(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.List(nil)
 	if err != nil {
 		t.Errorf("Topics.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 2, len(resp.Data))
@@ -482,6 +515,7 @@ func TestListTopicsWithoutOptions(t *testing.T) {
 
 func TestUpdateTopic(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
@@ -493,6 +527,7 @@ func TestUpdateTopic(t *testing.T) {
 
 		// Decode request body to verify it
 		var req UpdateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -505,7 +540,7 @@ func TestUpdateTopic(t *testing.T) {
 		{
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -515,11 +550,13 @@ func TestUpdateTopic(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
 }
 
 func TestUpdateTopicNameOnly(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "topic-name-only-id"
@@ -531,6 +568,7 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 
 		// Decode request body to verify it
 		var req UpdateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -543,7 +581,7 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 		{
 			"id": "topic-name-only-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -552,11 +590,13 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "topic-name-only-id", resp.Id)
 }
 
 func TestUpdateTopicDescriptionOnly(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "topic-description-only-id"
@@ -568,6 +608,7 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 
 		// Decode request body to verify it
 		var req UpdateTopicRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -580,7 +621,7 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 		{
 			"id": "topic-description-only-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -589,11 +630,13 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "topic-description-only-id", resp.Id)
 }
 
 func TestUpdateTopicWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "context-update-id"
@@ -607,10 +650,11 @@ func TestUpdateTopicWithContext(t *testing.T) {
 		{
 			"id": "context-update-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Topics.UpdateWithContext(ctx, topicId, &UpdateTopicRequest{
 		Name:        "Context Update",
 		Description: "Updated with context",
@@ -618,11 +662,13 @@ func TestUpdateTopicWithContext(t *testing.T) {
 	if err != nil {
 		t.Errorf("Topics.UpdateWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-update-id", resp.Id)
 }
 
 func TestRemoveTopic(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
@@ -638,13 +684,14 @@ func TestRemoveTopic(t *testing.T) {
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Remove(topicId)
 	if err != nil {
 		t.Errorf("Topics.Remove returned error: %v", err)
 	}
+
 	assert.Equal(t, "topic", resp.Object)
 	assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", resp.Id)
 	assert.True(t, resp.Deleted)
@@ -652,6 +699,7 @@ func TestRemoveTopic(t *testing.T) {
 
 func TestRemoveTopicWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topicId := "context-remove-id"
@@ -667,14 +715,16 @@ func TestRemoveTopicWithContext(t *testing.T) {
 			"id": "context-remove-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Topics.RemoveWithContext(ctx, topicId)
 	if err != nil {
 		t.Errorf("Topics.RemoveWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "topic", resp.Object)
 	assert.Equal(t, "context-remove-id", resp.Id)
 	assert.True(t, resp.Deleted)

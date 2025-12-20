@@ -58,7 +58,6 @@ func (s *ApiKeysSvcImpl) CreateWithContext(ctx context.Context, params *CreateAp
 
 	// Send Request
 	_, err = s.client.Perform(req, apiKeysResp)
-
 	if err != nil {
 		return CreateApiKeyResponse{}, err
 	}
@@ -87,7 +86,6 @@ func (s *ApiKeysSvcImpl) ListWithOptions(ctx context.Context, options *ListOptio
 
 	// Send Request
 	_, err = s.client.Perform(req, apiKeysResp)
-
 	if err != nil {
 		return ListApiKeysResponse{}, err
 	}
@@ -119,7 +117,6 @@ func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string)
 
 	// Send Request
 	_, err = s.client.Perform(req, nil)
-
 	if err != nil {
 		return false, err
 	}

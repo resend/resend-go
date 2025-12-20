@@ -1,0 +1,45 @@
+version: "3"
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
+  go:lint:
+    desc: runs golangci-lint
+    cmds:
+      - golangci-lint run --config=.golangci.yaml --verbose --fix
+    preconditions:
+      - which golangci-lint
+
+  go:test:
+    desc: runs go tests
+    cmds:
+      - go test -v ./...
+
+  go:fmt:
+    desc: format all go code
+    cmds:
+      - go fmt ./...
+
+  go:build:
+    desc: builds the go project
+    cmds:
+      - go build -v ./...
+
+  go:tidy:
+    desc: Runs go mod tidy on the backend
+    aliases: [tidy]
+    cmds:
+      - go mod tidy
+
+  go:all:
+    aliases: [go]
+    desc: Runs all go test and lint related tasks
+    cmds:
+      - task: go:tidy
+      - task: go:fmt
+      - task: go:lint
+      - task: go:test
+      - task: go:build

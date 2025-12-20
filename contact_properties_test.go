@@ -10,6 +10,7 @@ import (
 
 func TestCreateContactProperty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/contact-properties", func(w http.ResponseWriter, r *http.Request) {
@@ -31,16 +32,19 @@ func TestCreateContactProperty(t *testing.T) {
 		Type:          "number",
 		FallbackValue: 0,
 	}
+
 	resp, err := client.ContactProperties.Create(req)
 	if err != nil {
 		t.Errorf("ContactProperties.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "contact_property", resp.Object)
 	assert.Equal(t, "a1b2c3d4-e5f6-7890-abcd-ef1234567890", resp.Id)
 }
 
 func TestCreateContactPropertyKeyMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	req := &CreateContactPropertyRequest{
@@ -56,6 +60,7 @@ func TestCreateContactPropertyKeyMissing(t *testing.T) {
 
 func TestCreateContactPropertyTypeMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	req := &CreateContactPropertyRequest{
@@ -71,6 +76,7 @@ func TestCreateContactPropertyTypeMissing(t *testing.T) {
 
 func TestListContactProperties(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/contact-properties", func(w http.ResponseWriter, r *http.Request) {
@@ -130,6 +136,7 @@ func TestListContactProperties(t *testing.T) {
 
 func TestGetContactProperty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -167,6 +174,7 @@ func TestGetContactProperty(t *testing.T) {
 
 func TestGetContactPropertyIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	property, err := client.ContactProperties.Get("")
@@ -178,6 +186,7 @@ func TestGetContactPropertyIdMissing(t *testing.T) {
 
 func TestUpdateContactProperty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -200,6 +209,7 @@ func TestUpdateContactProperty(t *testing.T) {
 		Id:            propertyId,
 		FallbackValue: 25,
 	}
+
 	resp, err := client.ContactProperties.Update(req)
 	if err != nil {
 		t.Errorf("ContactProperties.Update returned error: %v", err)
@@ -211,6 +221,7 @@ func TestUpdateContactProperty(t *testing.T) {
 
 func TestUpdateContactPropertyIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	req := &UpdateContactPropertyRequest{
@@ -225,6 +236,7 @@ func TestUpdateContactPropertyIdMissing(t *testing.T) {
 
 func TestRemoveContactProperty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	propertyId := "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -255,6 +267,7 @@ func TestRemoveContactProperty(t *testing.T) {
 
 func TestRemoveContactPropertyIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	deleted, err := client.ContactProperties.Remove("")

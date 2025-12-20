@@ -9,7 +9,7 @@ import (
 type SendBroadcastRequest struct {
 	BroadcastId string `json:"broadcast_id"`
 
-	//Schedule email to be sent later. The date should be in language natural (e.g.: in 1 min)
+	// Schedule email to be sent later. The date should be in language natural (e.g.: in 1 min)
 	// or ISO 8601 format (e.g: 2024-08-05T11:52:01.858Z).
 	ScheduledAt string `json:"scheduled_at"`
 }
@@ -22,7 +22,7 @@ type CreateBroadcastRequest struct {
 	ReplyTo    []string `json:"reply_to,omitempty"`
 	Html       string   `json:"html,omitempty"`
 	Text       string   `json:"text,omitempty"`
-	Name       string   `json:"name,omitempty""`
+	Name       string   `json:"name,omitempty"`
 }
 
 type UpdateBroadcastRequest struct {
@@ -132,7 +132,6 @@ func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *Creat
 
 	// Send Request
 	_, err = s.client.Perform(req, broadcastResp)
-
 	if err != nil {
 		return CreateBroadcastResponse{}, err
 	}
@@ -165,7 +164,6 @@ func (s *BroadcastsSvcImpl) UpdateWithContext(ctx context.Context, params *Updat
 
 	// Send Request
 	_, err = s.client.Perform(req, broadcastResp)
-
 	if err != nil {
 		return UpdateBroadcastResponse{}, err
 	}
@@ -180,7 +178,6 @@ func (s *BroadcastsSvcImpl) Update(params *UpdateBroadcastRequest) (UpdateBroadc
 // GetWithContext Retrieve a single broadcast.
 // https://resend.com/docs/api-reference/broadcasts/get-broadcast
 func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error) {
-
 	if broadcastId == "" {
 		return Broadcast{}, errors.New("[ERROR]: broadcastId cannot be empty")
 	}
@@ -197,7 +194,6 @@ func (s *BroadcastsSvcImpl) GetWithContext(ctx context.Context, broadcastId stri
 
 	// Send Request
 	_, err = s.client.Perform(req, broadcast)
-
 	if err != nil {
 		return Broadcast{}, err
 	}
@@ -230,7 +226,6 @@ func (s *BroadcastsSvcImpl) SendWithContext(ctx context.Context, params *SendBro
 
 	// Send Request
 	_, err = s.client.Perform(req, broadcastResp)
-
 	if err != nil {
 		return SendBroadcastResponse{}, err
 	}
@@ -258,7 +253,6 @@ func (s *BroadcastsSvcImpl) RemoveWithContext(ctx context.Context, broadcastId s
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return RemoveBroadcastResponse{}, err
 	}
@@ -286,7 +280,6 @@ func (s *BroadcastsSvcImpl) ListWithOptions(ctx context.Context, options *ListOp
 
 	// Send Request
 	_, err = s.client.Perform(req, broadcasts)
-
 	if err != nil {
 		return ListBroadcastsResponse{}, err
 	}

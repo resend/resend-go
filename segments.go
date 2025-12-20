@@ -67,7 +67,6 @@ func (s *SegmentsSvcImpl) CreateWithContext(ctx context.Context, params *CreateS
 
 	// Send Request
 	_, err = s.client.Perform(req, segmentsResp)
-
 	if err != nil {
 		return CreateSegmentResponse{}, err
 	}
@@ -96,7 +95,6 @@ func (s *SegmentsSvcImpl) ListWithOptions(ctx context.Context, options *ListOpti
 
 	// Send Request
 	_, err = s.client.Perform(req, segments)
-
 	if err != nil {
 		return ListSegmentsResponse{}, err
 	}
@@ -131,7 +129,6 @@ func (s *SegmentsSvcImpl) RemoveWithContext(ctx context.Context, segmentId strin
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return RemoveSegmentResponse{}, err
 	}
@@ -160,7 +157,6 @@ func (s *SegmentsSvcImpl) GetWithContext(ctx context.Context, segmentId string) 
 
 	// Send Request
 	_, err = s.client.Perform(req, segment)
-
 	if err != nil {
 		return Segment{}, err
 	}

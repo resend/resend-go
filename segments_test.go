@@ -10,6 +10,7 @@ import (
 
 func TestCreateSegment(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments", func(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +19,7 @@ func TestCreateSegment(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "segment",
@@ -31,10 +33,12 @@ func TestCreateSegment(t *testing.T) {
 	req := &CreateSegmentRequest{
 		Name: "New Segment",
 	}
+
 	resp, err := client.Segments.Create(req)
 	if err != nil {
 		t.Errorf("Segments.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "78261eea-8f8b-4381-83c6-79fa7120f1c")
 	assert.Equal(t, resp.Object, "segment")
 	assert.Equal(t, resp.Name, "Registered Users")
@@ -42,6 +46,7 @@ func TestCreateSegment(t *testing.T) {
 
 func TestListSegments(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments", func(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +82,7 @@ func TestListSegments(t *testing.T) {
 
 func TestRemoveSegment(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments/b6d24b8e-af0b-4c3c-be0c-359bbd97381e", func(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +90,7 @@ func TestRemoveSegment(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "segment",
@@ -98,6 +105,7 @@ func TestRemoveSegment(t *testing.T) {
 	if err != nil {
 		t.Errorf("Segments.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted.Deleted)
 	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
 	assert.Equal(t, deleted.Object, "segment")
@@ -105,6 +113,7 @@ func TestRemoveSegment(t *testing.T) {
 
 func TestGetSegment(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {

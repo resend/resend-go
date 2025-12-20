@@ -11,6 +11,7 @@ func BytesToIntArray(a []byte) []int {
 	for i, v := range a {
 		res[i] = int(v)
 	}
+
 	return res
 }
 
@@ -18,5 +19,6 @@ func getEnv(key, df string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}
+
 	return df
 }

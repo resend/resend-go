@@ -97,7 +97,6 @@ func (s *DomainsSvcImpl) UpdateWithContext(ctx context.Context, domainId string,
 
 	// Send Request
 	_, err = s.client.Perform(req, domainUpdatedResp)
-
 	if err != nil {
 		return Domain{}, err
 	}
@@ -126,7 +125,6 @@ func (s *DomainsSvcImpl) CreateWithContext(ctx context.Context, params *CreateDo
 
 	// Send Request
 	_, err = s.client.Perform(req, domainsResp)
-
 	if err != nil {
 		return CreateDomainResponse{}, err
 	}
@@ -153,7 +151,6 @@ func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string)
 
 	// Send Request
 	_, err = s.client.Perform(req, nil)
-
 	if err != nil {
 		return false, err
 	}
@@ -182,7 +179,6 @@ func (s *DomainsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptio
 
 	// Send Request
 	_, err = s.client.Perform(req, domains)
-
 	if err != nil {
 		return ListDomainsResponse{}, err
 	}
@@ -215,7 +211,6 @@ func (s *DomainsSvcImpl) RemoveWithContext(ctx context.Context, domainId string)
 
 	// Send Request
 	_, err = s.client.Perform(req, nil)
-
 	if err != nil {
 		return false, err
 	}
@@ -244,7 +239,6 @@ func (s *DomainsSvcImpl) GetWithContext(ctx context.Context, domainId string) (D
 
 	// Send Request
 	_, err = s.client.Perform(req, domain)
-
 	if err != nil {
 		return Domain{}, err
 	}

@@ -11,6 +11,7 @@ import (
 
 func TestBatchSendEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +25,7 @@ func TestBatchSendEmail(t *testing.T) {
 				{Id: "2"},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -38,10 +40,12 @@ func TestBatchSendEmail(t *testing.T) {
 			To: []string{"d@e.com"},
 		},
 	}
+
 	resp, err := client.Batch.Send(req)
 	if err != nil {
 		t.Errorf("BatchEmail.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Data[0].Id, "1")
 	assert.Equal(t, resp.Data[1].Id, "2")
 	// Verify Errors field is nil (backward compatibility)
@@ -50,6 +54,7 @@ func TestBatchSendEmail(t *testing.T) {
 
 func TestBatchSendEmailWithErrors(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +73,7 @@ func TestBatchSendEmailWithErrors(t *testing.T) {
 				{Index: 3, Message: "Invalid email address."},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -102,7 +108,9 @@ func TestBatchSendEmailWithErrors(t *testing.T) {
 
 func TestBatchSendWithOptionsEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
+
 	ctx := context.Background()
 
 	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +127,7 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 				{Id: "2"},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -142,6 +151,7 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 	if err != nil {
 		t.Errorf("BatchEmail.SendWithOptions returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Data[0].Id, "1")
 	assert.Equal(t, resp.Data[1].Id, "2")
 	// Verify Errors field is nil (backward compatibility)
@@ -150,7 +160,9 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 
 func TestBatchSendWithValidationMode(t *testing.T) {
 	setup()
+
 	defer teardown()
+
 	ctx := context.Background()
 
 	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +182,7 @@ func TestBatchSendWithValidationMode(t *testing.T) {
 				{Index: 1, Message: "Invalid email format"},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -203,7 +216,9 @@ func TestBatchSendWithValidationMode(t *testing.T) {
 
 func TestBatchSendWithStrictValidation(t *testing.T) {
 	setup()
+
 	defer teardown()
+
 	ctx := context.Background()
 
 	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
@@ -220,6 +235,7 @@ func TestBatchSendWithStrictValidation(t *testing.T) {
 				{Id: "2"},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -246,7 +262,9 @@ func TestBatchSendWithStrictValidation(t *testing.T) {
 
 func TestBatchSendWithInvalidValidationMode(t *testing.T) {
 	setup()
+
 	defer teardown()
+
 	ctx := context.Background()
 
 	req := []*SendEmailRequest{

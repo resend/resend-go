@@ -11,6 +11,7 @@ import (
 
 func TestContactSegmentsAddWithContactId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -42,6 +43,7 @@ func TestContactSegmentsAddWithContactId(t *testing.T) {
 
 func TestContactSegmentsAddWithEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	email := "user@example.com"
@@ -88,6 +90,7 @@ func TestContactSegmentsAddValidation(t *testing.T) {
 
 func TestContactSegmentsRemoveWithContactId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -120,6 +123,7 @@ func TestContactSegmentsRemoveWithContactId(t *testing.T) {
 
 func TestContactSegmentsListWithContactId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -159,6 +163,7 @@ func TestContactSegmentsListWithContactId(t *testing.T) {
 
 func TestContactSegmentsListWithEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	email := "user@example.com"
@@ -189,6 +194,7 @@ func TestContactSegmentsListWithEmail(t *testing.T) {
 
 func TestContactSegmentsListWithPagination(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"

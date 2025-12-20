@@ -11,6 +11,7 @@ import (
 
 func TestCreateDomain(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +20,7 @@ func TestCreateDomain(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
@@ -80,10 +82,12 @@ func TestCreateDomain(t *testing.T) {
 		Region:           "us-east-1",
 		CustomReturnPath: "outbound",
 	}
+
 	resp, err := client.Domains.Create(req)
 	if err != nil {
 		t.Errorf("Domains.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.DnsProvider, "Unidentified")
 	assert.Equal(t, resp.Id, "4dd369bc-aa82-4ff3-97de-514ae3000ee0")
 	assert.Equal(t, resp.Region, "us-east-1")
@@ -105,6 +109,7 @@ func TestCreateDomain(t *testing.T) {
 
 func TestVerifyDomain(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206/verify", func(w http.ResponseWriter, r *http.Request) {
@@ -118,11 +123,13 @@ func TestVerifyDomain(t *testing.T) {
 	if err != nil {
 		t.Errorf("Domains.Verify returned error: %v", err)
 	}
+
 	assert.True(t, verified)
 }
 
 func TestListDomains(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
@@ -167,6 +174,7 @@ func TestListDomains(t *testing.T) {
 
 func TestRemoveDomain(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains/b6d24b8e-af0b-4c3c-be0c-359bbd97381e", func(w http.ResponseWriter, r *http.Request) {
@@ -180,11 +188,13 @@ func TestRemoveDomain(t *testing.T) {
 	if err != nil {
 		t.Errorf("Domains.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted)
 }
 
 func TestGetDomain(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
@@ -228,6 +238,7 @@ func TestGetDomain(t *testing.T) {
 
 func TestUpdateDomain(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
@@ -248,10 +259,12 @@ func TestUpdateDomain(t *testing.T) {
 		OpenTracking: true,
 		Tls:          Opportunistic,
 	}
+
 	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
 	if err != nil {
 		t.Errorf("Domains.Update returned error: %v", err)
 	}
+
 	assert.True(t, updated.Id == "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.True(t, updated.Object == "domain")
 }

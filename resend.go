@@ -50,11 +50,11 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails            *EmailsSvcImpl
-	Batch             BatchSvc
-	ApiKeys           ApiKeysSvc
-	Domains           DomainsSvc
-	Segments          SegmentsSvc
+	Emails   *EmailsSvcImpl
+	Batch    BatchSvc
+	ApiKeys  ApiKeysSvc
+	Domains  DomainsSvc
+	Segments SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
 	Audiences         AudiencesSvc
 	Contacts          *ContactsSvcImpl
@@ -106,6 +106,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
+
 	return c
 }
 
@@ -114,7 +115,6 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 // It is used to set additional options like idempotency key
 func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string, params interface{}, options Options) (*http.Request, error) {
 	req, err := c.NewRequest(ctx, method, path, params)
-
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +145,7 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params int
 	}
 
 	var req *http.Request
+
 	req, err = http.NewRequestWithContext(ctx, method, u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -152,6 +153,7 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params int
 
 	if params != nil {
 		buf := new(bytes.Buffer)
+
 		err = json.NewEncoder(buf).Encode(params)
 		if err != nil {
 			return nil, err
@@ -208,7 +210,6 @@ func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, er
 // handleError tries to handle errors based on HTTP status codes
 func handleError(resp *http.Response) error {
 	switch resp.StatusCode {
-
 	// Handle rate limit errors (429)
 	case http.StatusTooManyRequests:
 		r := &DefaultError{}
@@ -260,6 +261,7 @@ func handleError(resp *http.Response) error {
 			// TODO: replace this with a new ResendError type
 			return errors.New("[ERROR]: " + r.Message)
 		}
+
 		return errors.New("[ERROR]: Unknown Error")
 	}
 }
@@ -291,9 +293,11 @@ func buildPaginationQuery(options *ListOptions) string {
 	if options.Limit != nil {
 		query.Set("limit", fmt.Sprintf("%d", *options.Limit))
 	}
+
 	if options.After != nil {
 		query.Set("after", *options.After)
 	}
+
 	if options.Before != nil {
 		query.Set("before", *options.Before)
 	}
@@ -301,5 +305,6 @@ func buildPaginationQuery(options *ListOptions) string {
 	if len(query) > 0 {
 		return "?" + query.Encode()
 	}
+
 	return ""
 }

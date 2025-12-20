@@ -86,7 +86,6 @@ func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (
 
 	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +112,6 @@ func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOpt
 	listEmailsResponse := new(ListReceivedEmailsResponse)
 
 	_, err = s.client.Perform(req, listEmailsResponse)
-
 	if err != nil {
 		return ListReceivedEmailsResponse{}, err
 	}
@@ -148,7 +146,6 @@ func (s *ReceivingSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId
 
 	// Send Request
 	_, err = s.client.Perform(req, attachment)
-
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +175,6 @@ func (s *ReceivingSvcImpl) ListAttachmentsWithOptions(ctx context.Context, email
 
 	// Send Request
 	_, err = s.client.Perform(req, listAttachmentsResponse)
-
 	if err != nil {
 		return ListEmailAttachmentsResponse{}, err
 	}

@@ -11,6 +11,7 @@ import (
 
 func TestCreateContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -21,6 +22,7 @@ func TestCreateContact(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "contact",
@@ -34,16 +36,19 @@ func TestCreateContact(t *testing.T) {
 		Email:      "email@example.com",
 		AudienceId: audienceId,
 	}
+
 	resp, err := client.Contacts.Create(req)
 	if err != nil {
 		t.Errorf("Contacts.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Object, "contact")
 	assert.Equal(t, resp.Id, "479e3145-dd38-476b-932c-529ceb705947")
 }
 
 func TestListContacts(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -87,6 +92,7 @@ func TestListContacts(t *testing.T) {
 
 func TestRemoveContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -97,6 +103,7 @@ func TestRemoveContact(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "contact",
@@ -111,11 +118,13 @@ func TestRemoveContact(t *testing.T) {
 	if err != nil {
 		t.Errorf("Domains.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted.Deleted)
 }
 
 func TestGetContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -155,6 +164,7 @@ func TestGetContact(t *testing.T) {
 
 func TestGetContactByEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -195,6 +205,7 @@ func TestGetContactByEmail(t *testing.T) {
 
 func TestUpdateContactById(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -206,6 +217,7 @@ func TestUpdateContactById(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"data": {
@@ -222,10 +234,12 @@ func TestUpdateContactById(t *testing.T) {
 		Id:         id,
 		FirstName:  "Updated First Name",
 	}
+
 	resp, err := client.Contacts.Update(req)
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
 	}
+
 	assert.NotNil(t, resp.Data)
 	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
 	assert.Equal(t, resp.Error, struct{}{})
@@ -233,6 +247,7 @@ func TestUpdateContactById(t *testing.T) {
 
 func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -244,6 +259,7 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"data": {
@@ -265,6 +281,7 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 		FirstName:  "Updated First Name",
 	}
 	req.SetUnsubscribed(false)
+
 	_, err := client.Contacts.Update(req)
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
@@ -273,6 +290,7 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 
 func TestUpdateContactUnsubscribedNil(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -284,6 +302,7 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"data": {
@@ -304,6 +323,7 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 		Id:         id,
 		FirstName:  "Updated First Name",
 	}
+
 	_, err := client.Contacts.Update(req)
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
@@ -312,6 +332,7 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 
 func TestUpdateContactByEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -323,6 +344,7 @@ func TestUpdateContactByEmail(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"data": {
@@ -339,10 +361,12 @@ func TestUpdateContactByEmail(t *testing.T) {
 		Email:      email,
 		FirstName:  "Updated First Name",
 	}
+
 	resp, err := client.Contacts.Update(req)
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
 	}
+
 	assert.NotNil(t, resp.Data)
 	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
 	assert.Equal(t, resp.Error, struct{}{})
@@ -350,6 +374,7 @@ func TestUpdateContactByEmail(t *testing.T) {
 
 func TestUpdateContactIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -371,6 +396,7 @@ func TestUpdateContactIdMissing(t *testing.T) {
 
 func TestUpdateContactEmailMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
@@ -391,6 +417,7 @@ func TestUpdateContactEmailMissing(t *testing.T) {
 
 func TestUpdateContactAudienceIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	// With the new global contacts feature, AudienceId is now optional
@@ -429,10 +456,12 @@ func TestUpdateContactAudienceIdMissing(t *testing.T) {
 	assert.Equal(t, "123123123", resp.Data.Id)
 	assert.Equal(t, "Updated First Name", resp.Data.FirstName)
 }
+
 // Global Contacts Tests
 
 func TestCreateGlobalContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/contacts", func(w http.ResponseWriter, r *http.Request) {
@@ -456,16 +485,19 @@ func TestCreateGlobalContact(t *testing.T) {
 			"signup_source": "website",
 		},
 	}
+
 	resp, err := client.Contacts.Create(req)
 	if err != nil {
 		t.Errorf("Contacts.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "contact", resp.Object)
 	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
 }
 
 func TestListGlobalContacts(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/contacts", func(w http.ResponseWriter, r *http.Request) {
@@ -509,6 +541,7 @@ func TestListGlobalContacts(t *testing.T) {
 
 func TestGetGlobalContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -548,6 +581,7 @@ func TestGetGlobalContact(t *testing.T) {
 
 func TestUpdateGlobalContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -585,8 +619,8 @@ func TestUpdateGlobalContact(t *testing.T) {
 			"tier": "enterprise",
 		},
 	}
-	resp, err := client.Contacts.Update(params)
 
+	resp, err := client.Contacts.Update(params)
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
 	}
@@ -600,6 +634,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 
 func TestRemoveGlobalContact(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "479e3145-dd38-476b-932c-529ceb705947"
@@ -609,6 +644,7 @@ func TestRemoveGlobalContact(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		var ret interface{}
+
 		ret = `{
 			"object": "contact",
 			"id": "479e3145-dd38-476b-932c-529ceb705947",
@@ -622,6 +658,7 @@ func TestRemoveGlobalContact(t *testing.T) {
 	if err != nil {
 		t.Errorf("Contacts.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted.Deleted)
 	assert.Equal(t, contactId, deleted.Id)
 	assert.Equal(t, "contact", deleted.Object)

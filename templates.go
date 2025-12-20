@@ -166,7 +166,6 @@ func (s *TemplatesSvcImpl) CreateWithContext(ctx context.Context, params *Create
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +195,6 @@ func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +224,6 @@ func (s *TemplatesSvcImpl) ListWithContext(ctx context.Context, options *ListOpt
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +253,6 @@ func (s *TemplatesSvcImpl) UpdateWithContext(ctx context.Context, identifier str
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +282,6 @@ func (s *TemplatesSvcImpl) PublishWithContext(ctx context.Context, identifier st
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +311,6 @@ func (s *TemplatesSvcImpl) DuplicateWithContext(ctx context.Context, identifier 
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +340,6 @@ func (s *TemplatesSvcImpl) RemoveWithContext(ctx context.Context, identifier str
 
 	// Send Request
 	_, err = s.client.Perform(req, templateResponse)
-
 	if err != nil {
 		return nil, err
 	}

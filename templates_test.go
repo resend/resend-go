@@ -12,6 +12,7 @@ import (
 
 func TestCreateTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +22,7 @@ func TestCreateTemplate(t *testing.T) {
 
 		// Decode request body to verify it
 		var req CreateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -34,7 +36,7 @@ func TestCreateTemplate(t *testing.T) {
 			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -44,12 +46,14 @@ func TestCreateTemplate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestCreateTemplateWithVariables(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +63,7 @@ func TestCreateTemplateWithVariables(t *testing.T) {
 
 		// Decode request body to verify variables
 		var req CreateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -82,7 +87,7 @@ func TestCreateTemplateWithVariables(t *testing.T) {
 			"id": "template-with-vars-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -108,12 +113,14 @@ func TestCreateTemplateWithVariables(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-with-vars-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestCreateTemplateWithAllFields(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -123,6 +130,7 @@ func TestCreateTemplateWithAllFields(t *testing.T) {
 
 		// Decode request body to verify all fields
 		var req CreateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -147,7 +155,7 @@ func TestCreateTemplateWithAllFields(t *testing.T) {
 			"id": "full-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -162,12 +170,14 @@ func TestCreateTemplateWithAllFields(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "full-template-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestCreateTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -180,10 +190,11 @@ func TestCreateTemplateWithContext(t *testing.T) {
 			"id": "context-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.CreateWithContext(ctx, &CreateTemplateRequest{
 		Name: "context-template",
 		Html: "<p>Content</p>",
@@ -191,12 +202,14 @@ func TestCreateTemplateWithContext(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.CreateWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-template-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -206,6 +219,7 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 
 		// Decode request body to verify all variable types
 		var req CreateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -228,7 +242,7 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 			"id": "all-types-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -250,12 +264,14 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "all-types-template-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -265,6 +281,7 @@ func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 
 		// Decode request body to verify ReplyTo as string
 		var req CreateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -279,7 +296,7 @@ func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 			"id": "single-reply-to-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -290,11 +307,13 @@ func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, "single-reply-to-id", resp.Id)
 }
 
 func TestGetTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
@@ -330,13 +349,14 @@ func TestGetTemplate(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateId)
 	if err != nil {
 		t.Errorf("Templates.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
 	assert.Equal(t, "reset-password", resp.Alias)
@@ -361,6 +381,7 @@ func TestGetTemplate(t *testing.T) {
 
 func TestGetTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateAlias := "welcome-email"
@@ -387,13 +408,14 @@ func TestGetTemplateByAlias(t *testing.T) {
 			"text": "Welcome!",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateAlias)
 	if err != nil {
 		t.Errorf("Templates.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "template-id-123", resp.Id)
 	assert.Equal(t, "welcome-email", resp.Alias)
@@ -408,6 +430,7 @@ func TestGetTemplateByAlias(t *testing.T) {
 
 func TestGetTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "context-test-id"
@@ -434,14 +457,16 @@ func TestGetTemplateWithContext(t *testing.T) {
 			"text": "Test",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.GetWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.GetWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "context-test-id", resp.Id)
 	assert.Equal(t, "Context Test", resp.Name)
@@ -450,6 +475,7 @@ func TestGetTemplateWithContext(t *testing.T) {
 
 func TestListTemplates(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -486,16 +512,18 @@ func TestListTemplates(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
+
 	resp, err := client.Templates.List(&ListOptions{
 		Limit: &limit,
 	})
 	if err != nil {
 		t.Errorf("Templates.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 2, len(resp.Data))
@@ -513,6 +541,7 @@ func TestListTemplates(t *testing.T) {
 
 func TestListTemplatesWithAfter(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -541,11 +570,12 @@ func TestListTemplatesWithAfter(t *testing.T) {
 			],
 			"has_more": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
 	after := "34a080c9-b17d-4187-ad80-5af20266e535"
+
 	resp, err := client.Templates.List(&ListOptions{
 		Limit: &limit,
 		After: &after,
@@ -553,6 +583,7 @@ func TestListTemplatesWithAfter(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.True(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -561,6 +592,7 @@ func TestListTemplatesWithAfter(t *testing.T) {
 
 func TestListTemplatesWithBefore(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -589,11 +621,12 @@ func TestListTemplatesWithBefore(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
 	before := "34a080c9-b17d-4187-ad80-5af20266e535"
+
 	resp, err := client.Templates.List(&ListOptions{
 		Limit:  &limit,
 		Before: &before,
@@ -601,6 +634,7 @@ func TestListTemplatesWithBefore(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -609,6 +643,7 @@ func TestListTemplatesWithBefore(t *testing.T) {
 
 func TestListTemplatesWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -632,14 +667,16 @@ func TestListTemplatesWithContext(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.ListWithContext(ctx, &ListOptions{})
 	if err != nil {
 		t.Errorf("Templates.ListWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -648,6 +685,7 @@ func TestListTemplatesWithContext(t *testing.T) {
 
 func TestListTemplatesWithoutOptions(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/templates", func(w http.ResponseWriter, r *http.Request) {
@@ -686,13 +724,14 @@ func TestListTemplatesWithoutOptions(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.List(nil)
 	if err != nil {
 		t.Errorf("Templates.List returned error: %v", err)
 	}
+
 	assert.Equal(t, "list", resp.Object)
 	assert.False(t, resp.HasMore)
 	assert.Equal(t, 2, len(resp.Data))
@@ -700,6 +739,7 @@ func TestListTemplatesWithoutOptions(t *testing.T) {
 
 func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "multi-reply-to-id"
@@ -726,13 +766,14 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 			"text": "Test",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateId)
 	if err != nil {
 		t.Errorf("Templates.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "multi-reply-to-id", resp.Id)
 	assert.NotNil(t, resp.ReplyTo)
 
@@ -746,6 +787,7 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 
 func TestUpdateTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
@@ -757,6 +799,7 @@ func TestUpdateTemplate(t *testing.T) {
 
 		// Decode request body to verify it
 		var req UpdateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -770,7 +813,7 @@ func TestUpdateTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -780,12 +823,14 @@ func TestUpdateTemplate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestUpdateTemplateWithVariables(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "template-with-vars"
@@ -797,6 +842,7 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 
 		// Decode request body to verify variables
 		var req UpdateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -815,7 +861,7 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 			"id": "template-with-vars",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -837,12 +883,14 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-with-vars", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestUpdateTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateAlias := "my-template-alias"
@@ -857,7 +905,7 @@ func TestUpdateTemplateByAlias(t *testing.T) {
 			"id": "updated-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateAlias, &UpdateTemplateRequest{
@@ -867,12 +915,14 @@ func TestUpdateTemplateByAlias(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "updated-by-alias-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestUpdateTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "context-update-id"
@@ -887,10 +937,11 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 			"id": "context-update-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.UpdateWithContext(ctx, templateId, &UpdateTemplateRequest{
 		Name: "context-updated",
 		Html: "<p>Context update</p>",
@@ -898,12 +949,14 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.UpdateWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-update-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestUpdateTemplateWithAllFields(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "full-update-id"
@@ -915,6 +968,7 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 
 		// Decode request body to verify all fields
 		var req UpdateTemplateRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -938,7 +992,7 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 			"id": "full-update-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -953,12 +1007,14 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 	if err != nil {
 		t.Errorf("Templates.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, "full-update-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestPublishTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
@@ -973,19 +1029,21 @@ func TestPublishTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Publish(templateId)
 	if err != nil {
 		t.Errorf("Templates.Publish returned error: %v", err)
 	}
+
 	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestPublishTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateAlias := "my-template"
@@ -1000,19 +1058,21 @@ func TestPublishTemplateByAlias(t *testing.T) {
 			"id": "published-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Publish(templateAlias)
 	if err != nil {
 		t.Errorf("Templates.Publish returned error: %v", err)
 	}
+
 	assert.Equal(t, "published-by-alias-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestPublishTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "context-publish-id"
@@ -1027,20 +1087,23 @@ func TestPublishTemplateWithContext(t *testing.T) {
 			"id": "context-publish-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.PublishWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.PublishWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-publish-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestDuplicateTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
@@ -1055,19 +1118,21 @@ func TestDuplicateTemplate(t *testing.T) {
 			"id": "duplicated-template-id-789",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Duplicate(templateId)
 	if err != nil {
 		t.Errorf("Templates.Duplicate returned error: %v", err)
 	}
+
 	assert.Equal(t, "duplicated-template-id-789", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestDuplicateTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateAlias := "my-template"
@@ -1082,19 +1147,21 @@ func TestDuplicateTemplateByAlias(t *testing.T) {
 			"id": "duplicated-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Duplicate(templateAlias)
 	if err != nil {
 		t.Errorf("Templates.Duplicate returned error: %v", err)
 	}
+
 	assert.Equal(t, "duplicated-by-alias-id", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestDuplicateTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "context-duplicate-id"
@@ -1109,20 +1176,23 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 			"id": "context-duplicate-id-result",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.DuplicateWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.DuplicateWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-duplicate-id-result", resp.Id)
 	assert.Equal(t, "template", resp.Object)
 }
 
 func TestRemoveTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
@@ -1138,13 +1208,14 @@ func TestRemoveTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Remove(templateId)
 	if err != nil {
 		t.Errorf("Templates.Remove returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "34a080c9-b17d-4187-ad80-5af20266e535", resp.Id)
 	assert.True(t, resp.Deleted)
@@ -1152,6 +1223,7 @@ func TestRemoveTemplate(t *testing.T) {
 
 func TestRemoveTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateAlias := "my-template"
@@ -1167,13 +1239,14 @@ func TestRemoveTemplateByAlias(t *testing.T) {
 			"id": "removed-by-alias-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Remove(templateAlias)
 	if err != nil {
 		t.Errorf("Templates.Remove returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "removed-by-alias-id", resp.Id)
 	assert.True(t, resp.Deleted)
@@ -1181,6 +1254,7 @@ func TestRemoveTemplateByAlias(t *testing.T) {
 
 func TestRemoveTemplateWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	templateId := "context-remove-id"
@@ -1196,14 +1270,16 @@ func TestRemoveTemplateWithContext(t *testing.T) {
 			"id": "context-remove-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Templates.RemoveWithContext(ctx, templateId)
 	if err != nil {
 		t.Errorf("Templates.RemoveWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "template", resp.Object)
 	assert.Equal(t, "context-remove-id", resp.Id)
 	assert.True(t, resp.Deleted)

@@ -11,7 +11,7 @@ type MissingRequiredFieldsError struct {
 }
 
 func (e *MissingRequiredFieldsError) Error() string {
-	return fmt.Sprintf("%s", e.message)
+	return e.message
 }
 
 // ErrRateLimit is a sentinel error for rate limit detection with errors.Is
@@ -43,7 +43,7 @@ func (e *RateLimitError) Error() string {
 
 // Is implements errors.Is support for detecting rate limit errors
 func (e *RateLimitError) Is(target error) bool {
-	return target == ErrRateLimit
+	return errors.Is(target, ErrRateLimit)
 }
 
 // BroadcastsSvc errors

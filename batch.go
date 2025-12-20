@@ -91,7 +91,6 @@ func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailR
 
 	// Send Request
 	_, err = s.client.Perform(req, batchSendEmailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +120,6 @@ func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailR
 
 	// Send Request
 	_, err = s.client.Perform(req, batchSendEmailResponse)
-
 	if err != nil {
 		return nil, err
 	}

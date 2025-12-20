@@ -12,6 +12,7 @@ import (
 
 func TestGetReceivedEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/receiving/8136d3fb-0439-4b09-b939-b8436a3524b6", func(w http.ResponseWriter, r *http.Request) {
@@ -45,13 +46,14 @@ func TestGetReceivedEmail(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.Get("8136d3fb-0439-4b09-b939-b8436a3524b6")
 	if err != nil {
 		t.Errorf("Emails.Receiving.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "8136d3fb-0439-4b09-b939-b8436a3524b6", resp.Id)
 	assert.Equal(t, "inbound", resp.Object)
 	assert.Equal(t, "Acme <onboarding@resend.dev>", resp.From)
@@ -76,6 +78,7 @@ func TestGetReceivedEmail(t *testing.T) {
 
 func TestGetReceivedEmailWithNullFields(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/receiving/null-fields-id", func(w http.ResponseWriter, r *http.Request) {
@@ -99,13 +102,14 @@ func TestGetReceivedEmailWithNullFields(t *testing.T) {
 			"headers": {},
 			"attachments": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.Get("null-fields-id")
 	if err != nil {
 		t.Errorf("Emails.Receiving.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, "null-fields-id", resp.Id)
 	assert.Equal(t, "", resp.Html)
 	assert.Equal(t, "", resp.Text)
@@ -118,6 +122,7 @@ func TestGetReceivedEmailWithNullFields(t *testing.T) {
 
 func TestListReceivedEmails(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/receiving", func(w http.ResponseWriter, r *http.Request) {
@@ -163,6 +168,7 @@ func TestListReceivedEmails(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
+
 		if err := json.NewEncoder(w).Encode(ret); err != nil {
 			panic(err)
 		}
@@ -186,6 +192,7 @@ func TestListReceivedEmails(t *testing.T) {
 
 func TestListReceivedEmailsWithParameters(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/receiving", func(w http.ResponseWriter, r *http.Request) {
@@ -241,6 +248,7 @@ func TestListReceivedEmailsWithParameters(t *testing.T) {
 
 func TestListReceivedEmailsEmpty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/receiving", func(w http.ResponseWriter, r *http.Request) {
@@ -271,6 +279,7 @@ func TestListReceivedEmailsEmpty(t *testing.T) {
 
 func TestGetReceivedEmailAttachment(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
@@ -292,13 +301,14 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 			"download_url": "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
 			"expires_at": "2025-10-17T14:29:41.521Z"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.GetAttachment(emailId, attachmentId)
 	if err != nil {
 		t.Errorf("Emails.Receiving.GetAttachment returned error: %v", err)
 	}
+
 	assert.Equal(t, "2a0c9ce0-3112-4728-976e-47ddcd16a318", resp.Id)
 	assert.Equal(t, "avatar.png", resp.Filename)
 	assert.Equal(t, "image/png", resp.ContentType)
@@ -310,6 +320,7 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 
 func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "test-email-id"
@@ -331,14 +342,16 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 			"download_url": "https://inbound-cdn.resend.com/test-email-id/attachments/test-attachment-id",
 			"expires_at": "2025-10-18T12:00:00.000Z"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Emails.Receiving.GetAttachmentWithContext(ctx, emailId, attachmentId)
 	if err != nil {
 		t.Errorf("Emails.Receiving.GetAttachmentWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "test-attachment-id", resp.Id)
 	assert.Equal(t, "document.pdf", resp.Filename)
 	assert.Equal(t, "application/pdf", resp.ContentType)
@@ -350,6 +363,7 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 
 func TestListReceivedEmailAttachments(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "4ef9a417-02e9-4d39-ad75-9611e0fcc33c"
@@ -409,6 +423,7 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 
 func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "test-email-id"
@@ -465,6 +480,7 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 
 func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "email-no-attachments"
@@ -497,6 +513,7 @@ func TestListReceivedEmailAttachmentsEmpty(t *testing.T) {
 
 func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	emailId := "context-test-id"
@@ -528,6 +545,7 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Emails.Receiving.ListAttachmentsWithContext(ctx, emailId)
 	if err != nil {
 		t.Errorf("Emails.Receiving.ListAttachmentsWithContext returned error: %v", err)

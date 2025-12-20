@@ -48,9 +48,9 @@ type RemoveContactOptions struct {
 }
 
 type CreateContactRequest struct {
-	Email      string `json:"email"`
-	AudienceId string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
-	Unsubscribed bool `json:"unsubscribed,omitempty"`
+	Email        string `json:"email"`
+	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
+	Unsubscribed bool   `json:"unsubscribed,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	// Properties are custom key-value pairs for global contacts (when audience_id is omitted).
@@ -151,7 +151,6 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateC
 
 	// Send Request
 	_, err = s.client.Perform(req, contactsResp)
-
 	if err != nil {
 		return CreateContactResponse{}, err
 	}
@@ -201,7 +200,6 @@ func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListCont
 
 	// Send Request
 	_, err = s.client.Perform(req, contacts)
-
 	if err != nil {
 		return ListContactsResponse{}, err
 	}
@@ -245,7 +243,6 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, options *Remove
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return RemoveContactResponse{}, err
 	}
@@ -289,7 +286,6 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, options *GetContac
 
 	// Send Request
 	_, err = s.client.Perform(req, contact)
-
 	if err != nil {
 		return Contact{}, err
 	}
@@ -339,7 +335,6 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 
 	// Send Request
 	_, err = s.client.Perform(req, contactsResp)
-
 	if err != nil {
 		return UpdateContactResponse{}, err
 	}
@@ -353,6 +348,7 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 // require a breaking change
 func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	type Alias UpdateContactRequest
+
 	aux := make(map[string]interface{})
 
 	aux["id"] = r.Id
@@ -363,20 +359,22 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	if r.AudienceId != "" {
 		aux["audience_id"] = r.AudienceId
 	}
+
 	if r.FirstName != "" {
 		aux["first_name"] = r.FirstName
 	}
+
 	if r.LastName != "" {
 		aux["last_name"] = r.LastName
 	}
+
 	if r.unsubscribedSet {
 		aux["unsubscribed"] = r.Unsubscribed
 	}
 	// Include properties if provided (for global contacts)
-	if r.Properties != nil && len(r.Properties) > 0 {
+	if len(r.Properties) > 0 {
 		aux["properties"] = r.Properties
 	}
 
 	return json.Marshal(aux)
 }
-

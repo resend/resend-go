@@ -1,0 +1,51 @@
+version: "2"
+run:
+  allow-serial-runners: true
+linters:
+  enable:
+    - bodyclose
+    - err113
+    - gocritic
+    - gocyclo
+    - gosec
+    - misspell
+    - mnd
+    - noctx
+    - revive
+    - staticcheck
+    - whitespace
+    - wsl_v5
+  settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - .github/*
+      - examples/*
+      - resources/*
+issues:
+  fix: true
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
+    goimports:
+      local-prefixes:
+        - github.com/resend/resend-go/v3
+  exclusions:
+    generated: lax
+    paths:
+      - .github/*
+      - examples/*
+      - resources/*

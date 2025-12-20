@@ -12,6 +12,7 @@ import (
 // which internally calls the Segments API
 func TestCreateAudience(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	// Note: This still hits /segments endpoint because Audiences wraps Segments
@@ -21,6 +22,7 @@ func TestCreateAudience(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "segment",
@@ -34,10 +36,12 @@ func TestCreateAudience(t *testing.T) {
 	req := &CreateAudienceRequest{
 		Name: "New Audience",
 	}
+
 	resp, err := client.Audiences.Create(req)
 	if err != nil {
 		t.Errorf("Audiences.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "78261eea-8f8b-4381-83c6-79fa7120f1c")
 	assert.Equal(t, resp.Object, "segment")
 	assert.Equal(t, resp.Name, "Registered Users")
@@ -45,6 +49,7 @@ func TestCreateAudience(t *testing.T) {
 
 func TestListAudiences(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments", func(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +85,7 @@ func TestListAudiences(t *testing.T) {
 
 func TestRemoveAudience(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments/b6d24b8e-af0b-4c3c-be0c-359bbd97381e", func(w http.ResponseWriter, r *http.Request) {
@@ -87,6 +93,7 @@ func TestRemoveAudience(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "segment",
@@ -101,6 +108,7 @@ func TestRemoveAudience(t *testing.T) {
 	if err != nil {
 		t.Errorf("Audiences.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted.Deleted)
 	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
 	assert.Equal(t, deleted.Object, "segment")
@@ -108,6 +116,7 @@ func TestRemoveAudience(t *testing.T) {
 
 func TestGetAudience(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/segments/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {

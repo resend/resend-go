@@ -10,6 +10,7 @@ import (
 
 func TestListContactTopics(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
@@ -65,6 +66,7 @@ func TestListContactTopics(t *testing.T) {
 
 func TestListContactTopicsByEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactEmail := "steve.wozniak@gmail.com"
@@ -104,6 +106,7 @@ func TestListContactTopicsByEmail(t *testing.T) {
 
 func TestListContactTopicsIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	topics, err := client.Contacts.Topics.List("")
@@ -115,6 +118,7 @@ func TestListContactTopicsIdMissing(t *testing.T) {
 
 func TestUpdateContactTopicsById(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
@@ -156,6 +160,7 @@ func TestUpdateContactTopicsById(t *testing.T) {
 
 func TestUpdateContactTopicsByEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	contactEmail := "steve.wozniak@gmail.com"
@@ -193,6 +198,7 @@ func TestUpdateContactTopicsByEmail(t *testing.T) {
 
 func TestUpdateContactTopicsIdMissing(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	params := &UpdateContactTopicsRequest{
@@ -213,6 +219,7 @@ func TestUpdateContactTopicsIdMissing(t *testing.T) {
 
 func TestUpdateContactTopicsEmptyArray(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	params := &UpdateContactTopicsRequest{

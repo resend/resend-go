@@ -163,6 +163,7 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 		ContentId:       a.ContentId,
 		InlineContentId: a.InlineContentId,
 	}
+
 	return json.Marshal(na)
 }
 
@@ -219,7 +220,6 @@ func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,6 @@ func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEma
 
 	// Send Request
 	_, err = s.client.Perform(req, updateEmailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +273,6 @@ func (s *EmailsSvcImpl) SendWithOptions(ctx context.Context, params *SendEmailRe
 
 	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +296,6 @@ func (s *EmailsSvcImpl) SendWithContext(ctx context.Context, params *SendEmailRe
 
 	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +325,6 @@ func (s *EmailsSvcImpl) GetWithContext(ctx context.Context, emailId string) (*Em
 
 	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -358,7 +354,6 @@ func (s *EmailsSvcImpl) ListWithOptions(ctx context.Context, options *ListOption
 
 	// Send Request
 	_, err = s.client.Perform(req, listEmailsResponse)
-
 	if err != nil {
 		return ListEmailsResponse{}, err
 	}
@@ -393,7 +388,6 @@ func (s *EmailsSvcImpl) GetAttachmentWithContext(ctx context.Context, emailId st
 
 	// Send Request
 	_, err = s.client.Perform(req, attachment)
-
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +417,6 @@ func (s *EmailsSvcImpl) ListAttachmentsWithOptions(ctx context.Context, emailId 
 
 	// Send Request
 	_, err = s.client.Perform(req, listAttachmentsResponse)
-
 	if err != nil {
 		return ListEmailAttachmentsResponse{}, err
 	}

@@ -53,3 +53,16 @@ func main() {
 ```
 
 You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)
+
+## Developing
+
+Setup [Taskfile](https://taskfile.dev/installation/) by following the
+instructions and using one of the various convenient package managers or
+installation scripts. After installation, you can then simply run `task install`
+to load other ancillary tools / helpers. Having or installing Taskfile is not required to develop
+against this repository, it's purely a convenience utility and does not affect the package build or test.
+
+Several nice to have `task` commands are in the file for working in a go environment, such as:
+- `task go:lint`
+- `task go:fmt`
+- `task go:test`

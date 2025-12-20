@@ -10,6 +10,7 @@ import (
 
 func TestCreateBroadcast(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +19,7 @@ func TestCreateBroadcast(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"
@@ -32,15 +34,18 @@ func TestCreateBroadcast(t *testing.T) {
 		From:       "hi@example.com",
 		Subject:    "Hello, world!",
 	}
+
 	resp, err := client.Broadcasts.Create(req)
 	if err != nil {
 		t.Errorf("Broadcasts.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 }
 
 func TestUpdateBroadcast(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b", func(w http.ResponseWriter, r *http.Request) {
@@ -60,15 +65,18 @@ func TestUpdateBroadcast(t *testing.T) {
 		BroadcastId: "559ac32e-9ef5-46fb-82a1-b76b840c0f7b",
 		Name:        "Updated Broadcast",
 	}
+
 	resp, err := client.Broadcasts.Update(req)
 	if err != nil {
 		t.Errorf("Broadcasts.Update returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
 }
 
 func TestCreateBroadcastValidations(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	req1 := &CreateBroadcastRequest{
@@ -78,6 +86,7 @@ func TestCreateBroadcastValidations(t *testing.T) {
 	}
 	_, err := client.Broadcasts.Create(req1)
 	assert.NotNil(t, err)
+
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: From cannot be empty")
 	}
@@ -88,6 +97,7 @@ func TestCreateBroadcastValidations(t *testing.T) {
 	}
 	_, err = client.Broadcasts.Create(req2)
 	assert.NotNil(t, err)
+
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: Either SegmentId or AudienceId must be provided")
 	}
@@ -100,6 +110,7 @@ func TestCreateBroadcastValidations(t *testing.T) {
 	}
 	_, err = client.Broadcasts.Create(req3)
 	assert.NotNil(t, err)
+
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: Subject cannot be empty")
 	}
@@ -107,6 +118,7 @@ func TestCreateBroadcastValidations(t *testing.T) {
 
 func TestGetBroadcast(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b", func(w http.ResponseWriter, r *http.Request) {
@@ -153,10 +165,12 @@ func TestGetBroadcast(t *testing.T) {
 
 func TestGetBroadcastValidations(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	_, err := client.Broadcasts.Get("")
 	assert.NotNil(t, err)
+
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: broadcastId cannot be empty")
 	}
@@ -164,6 +178,7 @@ func TestGetBroadcastValidations(t *testing.T) {
 
 func TestSendBroadcast(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/send", func(w http.ResponseWriter, r *http.Request) {
@@ -193,6 +208,7 @@ func TestSendBroadcast(t *testing.T) {
 
 func TestSendBroadcastValidations(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	req1 := &SendBroadcastRequest{
@@ -201,6 +217,7 @@ func TestSendBroadcastValidations(t *testing.T) {
 
 	_, err := client.Broadcasts.Send(req1)
 	assert.NotNil(t, err)
+
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: BroadcastId cannot be empty")
 	}
@@ -208,6 +225,7 @@ func TestSendBroadcastValidations(t *testing.T) {
 
 func TestRemoveBroadcast(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts/b6d24b8e-af0b-4c3c-be0c-359bbd97381e", func(w http.ResponseWriter, r *http.Request) {
@@ -215,6 +233,7 @@ func TestRemoveBroadcast(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 
 		var ret interface{}
+
 		ret = `
 		{
 			"object": "broadcast",
@@ -229,6 +248,7 @@ func TestRemoveBroadcast(t *testing.T) {
 	if err != nil {
 		t.Errorf("Broadcasts.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted.Deleted)
 	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
 	assert.Equal(t, deleted.Object, "broadcast")
@@ -236,6 +256,7 @@ func TestRemoveBroadcast(t *testing.T) {
 
 func TestListBroadcasts(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
@@ -275,5 +296,4 @@ func TestListBroadcasts(t *testing.T) {
 
 	assert.Equal(t, len(broadcasts.Data), 2)
 	assert.Equal(t, broadcasts.Object, "list")
-
 }

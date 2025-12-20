@@ -23,10 +23,12 @@ func TestResendRequestHeaders(t *testing.T) {
 	params := &SendEmailRequest{
 		To: []string{"email@example.com", "email2@example.com"},
 	}
+
 	req, err := client.NewRequest(ctx, "POST", "/emails/", params)
 	if err != nil {
 		t.Error(err)
 	}
+
 	assert.Equal(t, req.Header["Accept"][0], "application/json")
 	assert.Equal(t, req.Header["Content-Type"][0], "application/json")
 	assert.Equal(t, req.Method, http.MethodPost)
@@ -41,13 +43,14 @@ func TestResendRequestShouldReturnErrorIfContextIsCancelled(t *testing.T) {
 	client := NewClient("123")
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
+
 	req, err := client.NewRequest(ctx, "POST", "/", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
 	res, err := client.Perform(req, nil)
-	assert.True(t, errors.Unwrap(err) == context.Canceled)
+	assert.True(t, errors.Is(errors.Unwrap(), context.Canceled))
 	assert.Nil(t, res)
 }
 

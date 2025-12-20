@@ -34,6 +34,7 @@ func teardown() {
 
 func TestScheduleEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +45,7 @@ func TestScheduleEmail(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -54,15 +56,18 @@ func TestScheduleEmail(t *testing.T) {
 		To:          []string{"d@e.com"},
 		ScheduledAt: "2024-09-05T11:52:01.858Z",
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestSendEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +78,7 @@ func TestSendEmail(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -82,29 +88,36 @@ func TestSendEmail(t *testing.T) {
 	req := &SendEmailRequest{
 		To: []string{"d@e.com"},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestSendEmailWithAttachment(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
+
 		content, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
 		}
+
 		exp := `"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt","content_type":"text/plain"}]`
 		if !bytes.Contains(content, []byte(exp)) {
 			t.Errorf("request body does not include attachment data")
 		}
+
 		w.WriteHeader(http.StatusOK)
+
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
@@ -123,20 +136,24 @@ func TestSendEmailWithAttachment(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestSendEmailWithInlineAttachmentUsingContentId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
+
 		content, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
@@ -146,7 +163,9 @@ func TestSendEmailWithInlineAttachmentUsingContentId(t *testing.T) {
 		if !bytes.Contains(content, []byte(expContentId)) {
 			t.Errorf("request body does not include content_id field, got: %s", string(content))
 		}
+
 		w.WriteHeader(http.StatusOK)
+
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
@@ -166,20 +185,24 @@ func TestSendEmailWithInlineAttachmentUsingContentId(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestSendEmailWithInlineAttachmentUsingInlineContentId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
+
 		content, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
@@ -189,7 +212,9 @@ func TestSendEmailWithInlineAttachmentUsingInlineContentId(t *testing.T) {
 		if !bytes.Contains(content, []byte(expInlineContentId)) {
 			t.Errorf("request body does not include inline_content_id field, got: %s", string(content))
 		}
+
 		w.WriteHeader(http.StatusOK)
+
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
@@ -209,20 +234,24 @@ func TestSendEmailWithInlineAttachmentUsingInlineContentId(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestSendEmailWithBothContentIdAndInlineContentId(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		w.Header().Set("Content-Type", "application/json")
+
 		content, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Errorf("failed to read request body: %v", err)
@@ -230,13 +259,17 @@ func TestSendEmailWithBothContentIdAndInlineContentId(t *testing.T) {
 		// When both are set, both should be sent to maintain compatibility
 		expContentId := `"content_id":"preferred-cid"`
 		expInlineContentId := `"inline_content_id":"legacy-cid"`
+
 		if !bytes.Contains(content, []byte(expContentId)) {
 			t.Errorf("request body does not include content_id field, got: %s", string(content))
 		}
+
 		if !bytes.Contains(content, []byte(expInlineContentId)) {
 			t.Errorf("request body does not include inline_content_id field, got: %s", string(content))
 		}
+
 		w.WriteHeader(http.StatusOK)
+
 		ret := &SendEmailResponse{
 			Id: "1923781293",
 		}
@@ -257,15 +290,18 @@ func TestSendEmailWithBothContentIdAndInlineContentId(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "1923781293")
 }
 
 func TestGetEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/49a3999c-0ce1-4ea6-ab68-afcd6dc2e794", func(w http.ResponseWriter, r *http.Request) {
@@ -282,13 +318,14 @@ func TestGetEmail(t *testing.T) {
 			"subject": "Hello World",
 			"html":"html"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 	if err != nil {
 		t.Errorf("Emails.Get returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 	assert.Equal(t, resp.From, "from@example.com")
 	assert.Equal(t, resp.Html, "html")
@@ -298,6 +335,7 @@ func TestGetEmail(t *testing.T) {
 
 func TestCancelScheduledEmail(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/cancel", func(w http.ResponseWriter, r *http.Request) {
@@ -310,13 +348,14 @@ func TestCancelScheduledEmail(t *testing.T) {
 			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
 			"object": "email"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Cancel("dacf4072-4119-4d88-932f-6202748ac7c8")
 	if err != nil {
 		t.Errorf("Emails.Cancel returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
 	assert.Equal(t, resp.Object, "email")
 }
@@ -335,6 +374,7 @@ func TestSendEmailWithOptions(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	assert.Equal(t, req.Header["Accept"][0], "application/json")
 	assert.Equal(t, req.Header["Content-Type"][0], "application/json")
 	assert.Equal(t, req.Method, http.MethodPost)
@@ -351,6 +391,7 @@ func testMethod(t *testing.T, r *http.Request, expected string) {
 
 func TestListEmails(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -386,6 +427,7 @@ func TestListEmails(t *testing.T) {
 				},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -408,6 +450,7 @@ func TestListEmails(t *testing.T) {
 
 func TestListEmailsWithParameters(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -439,6 +482,7 @@ func TestListEmailsWithParameters(t *testing.T) {
 				},
 			},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -453,6 +497,7 @@ func TestListEmailsWithParameters(t *testing.T) {
 		After:  &after,
 		Before: &before,
 	}
+
 	resp, err := client.Emails.ListWithOptions(context.Background(), options)
 	if err != nil {
 		t.Errorf("Emails.List returned error: %v", err)
@@ -467,6 +512,7 @@ func TestListEmailsWithParameters(t *testing.T) {
 
 func TestListEmailsWithContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -479,6 +525,7 @@ func TestListEmailsWithContext(t *testing.T) {
 			HasMore: false,
 			Data:    []Email{},
 		}
+
 		err := json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -486,6 +533,7 @@ func TestListEmailsWithContext(t *testing.T) {
 	})
 
 	ctx := context.Background()
+
 	resp, err := client.Emails.ListWithContext(ctx)
 	if err != nil {
 		t.Errorf("Emails.ListWithContext returned error: %v", err)
@@ -498,6 +546,7 @@ func TestListEmailsWithContext(t *testing.T) {
 
 func TestSendEmailWithTemplate(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -507,6 +556,7 @@ func TestSendEmailWithTemplate(t *testing.T) {
 
 		// Decode request body to verify template fields
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -520,6 +570,7 @@ func TestSendEmailWithTemplate(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "template-email-123",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -527,22 +578,25 @@ func TestSendEmailWithTemplate(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Welcome!",
 		Template: &EmailTemplate{
 			Id: "welcome-template",
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-email-123", resp.Id)
 }
 
 func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -552,6 +606,7 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 
 		// Decode request body to verify template fields
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -567,6 +622,7 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "template-email-456",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -574,8 +630,8 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "noreply@example.com",
-		To:   []string{"john@example.com"},
+		From:    "noreply@example.com",
+		To:      []string{"john@example.com"},
 		Subject: "Welcome to our service",
 		Template: &EmailTemplate{
 			Id: "user-welcome",
@@ -585,15 +641,18 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-email-456", resp.Id)
 }
 
 func TestSendEmailWithTemplateByAlias(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -603,6 +662,7 @@ func TestSendEmailWithTemplateByAlias(t *testing.T) {
 
 		// Decode request body to verify template alias
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -615,6 +675,7 @@ func TestSendEmailWithTemplateByAlias(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "template-alias-789",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -622,22 +683,25 @@ func TestSendEmailWithTemplateByAlias(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "team@example.com",
-		To:   []string{"user@example.com"},
+		From:    "team@example.com",
+		To:      []string{"user@example.com"},
 		Subject: "Hello!",
 		Template: &EmailTemplate{
 			Id: "welcome-v2",
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-alias-789", resp.Id)
 }
 
 func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -647,6 +711,7 @@ func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 
 		// Decode request body to verify overrides
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -669,6 +734,7 @@ func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "template-override-999",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -691,15 +757,18 @@ func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, "template-override-999", resp.Id)
 }
 
 func TestSendEmailWithTemplateAndContext(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -709,6 +778,7 @@ func TestSendEmailWithTemplateAndContext(t *testing.T) {
 
 		// Decode request body to verify template
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -720,6 +790,7 @@ func TestSendEmailWithTemplateAndContext(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "context-template-email-111",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -728,8 +799,8 @@ func TestSendEmailWithTemplateAndContext(t *testing.T) {
 
 	ctx := context.Background()
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Context Test",
 		Template: &EmailTemplate{
 			Id: "context-template",
@@ -738,15 +809,18 @@ func TestSendEmailWithTemplateAndContext(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.SendWithContext(ctx, req)
 	if err != nil {
 		t.Errorf("Emails.SendWithContext returned error: %v", err)
 	}
+
 	assert.Equal(t, "context-template-email-111", resp.Id)
 }
 
 func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
@@ -756,6 +830,7 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 
 		// Decode request body to verify complex variables
 		var req SendEmailRequest
+
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			t.Errorf("Failed to decode request body: %v", err)
@@ -769,6 +844,7 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 		ret := &SendEmailResponse{
 			Id: "complex-vars-email-222",
 		}
+
 		err = json.NewEncoder(w).Encode(&ret)
 		if err != nil {
 			panic(err)
@@ -776,8 +852,8 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Complex Variables Test",
 		Template: &EmailTemplate{
 			Id: "complex-template",
@@ -786,9 +862,11 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 			},
 		},
 	}
+
 	resp, err := client.Emails.Send(req)
 	if err != nil {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
+
 	assert.Equal(t, "complex-vars-email-222", resp.Id)
 }

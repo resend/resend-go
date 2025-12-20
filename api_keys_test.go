@@ -10,6 +10,7 @@ import (
 
 func TestCreateApiKey(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/api-keys", func(w http.ResponseWriter, r *http.Request) {
@@ -22,22 +23,25 @@ func TestCreateApiKey(t *testing.T) {
 			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
 			"token": "re_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	req := &CreateApiKeyRequest{
 		Name: "new api key",
 	}
+
 	resp, err := client.ApiKeys.Create(req)
 	if err != nil {
 		t.Errorf("ApiKeys.Create returned error: %v", err)
 	}
+
 	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
 	assert.Equal(t, resp.Token, "re_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv")
 }
 
 func TestListApiKeys(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/api-keys", func(w http.ResponseWriter, r *http.Request) {
@@ -55,19 +59,21 @@ func TestListApiKeys(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.ApiKeys.List()
 	if err != nil {
 		t.Errorf("ApiKeys.List returned error: %v", err)
 	}
+
 	assert.Equal(t, len(resp.Data), 1)
 	assert.Equal(t, resp.Data[0].Name, "Production")
 }
 
 func TestRemoveApiKey(t *testing.T) {
 	setup()
+
 	defer teardown()
 
 	mux.HandleFunc("/api-keys/keyid", func(w http.ResponseWriter, r *http.Request) {
@@ -81,5 +87,6 @@ func TestRemoveApiKey(t *testing.T) {
 	if err != nil {
 		t.Errorf("ApiKeys.Remove returned error: %v", err)
 	}
+
 	assert.True(t, deleted)
 }

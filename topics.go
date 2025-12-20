@@ -95,7 +95,6 @@ func (s *TopicsSvcImpl) CreateWithContext(ctx context.Context, params *CreateTop
 
 	// Send Request
 	_, err = s.client.Perform(req, topicResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +124,6 @@ func (s *TopicsSvcImpl) GetWithContext(ctx context.Context, topicId string) (*To
 
 	// Send Request
 	_, err = s.client.Perform(req, topicResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +153,6 @@ func (s *TopicsSvcImpl) ListWithContext(ctx context.Context, options *ListOption
 
 	// Send Request
 	_, err = s.client.Perform(req, topicResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +182,6 @@ func (s *TopicsSvcImpl) UpdateWithContext(ctx context.Context, topicId string, p
 
 	// Send Request
 	_, err = s.client.Perform(req, topicResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +211,6 @@ func (s *TopicsSvcImpl) RemoveWithContext(ctx context.Context, topicId string) (
 
 	// Send Request
 	_, err = s.client.Perform(req, topicResponse)
-
 	if err != nil {
 		return nil, err
 	}

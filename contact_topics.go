@@ -73,7 +73,6 @@ func (s *ContactTopicsSvcImpl) ListWithOptions(ctx context.Context, id string, o
 
 	// Send Request
 	_, err = s.client.Perform(req, topics)
-
 	if err != nil {
 		return ListContactTopicsResponse{}, err
 	}
@@ -126,7 +125,6 @@ func (s *ContactTopicsSvcImpl) UpdateWithContext(ctx context.Context, params *Up
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return UpdateContactTopicsResponse{}, err
 	}

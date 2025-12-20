@@ -84,7 +84,6 @@ func (s *ContactSegmentsSvcImpl) AddWithContext(ctx context.Context, params *Add
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return AddContactSegmentResponse{}, err
 	}
@@ -127,7 +126,6 @@ func (s *ContactSegmentsSvcImpl) RemoveWithContext(ctx context.Context, params *
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return RemoveContactSegmentResponse{}, err
 	}
@@ -166,7 +164,6 @@ func (s *ContactSegmentsSvcImpl) ListWithOptions(ctx context.Context, params *Li
 
 	// Send Request
 	_, err = s.client.Perform(req, segments)
-
 	if err != nil {
 		return ListContactSegmentsResponse{}, err
 	}

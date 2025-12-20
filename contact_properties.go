@@ -90,7 +90,6 @@ func (s *ContactPropertiesSvcImpl) CreateWithContext(ctx context.Context, params
 
 	// Send Request
 	_, err = s.client.Perform(req, propertyResp)
-
 	if err != nil {
 		return CreateContactPropertyResponse{}, err
 	}
@@ -119,7 +118,6 @@ func (s *ContactPropertiesSvcImpl) ListWithOptions(ctx context.Context, options 
 
 	// Send Request
 	_, err = s.client.Perform(req, properties)
-
 	if err != nil {
 		return ListContactPropertiesResponse{}, err
 	}
@@ -158,7 +156,6 @@ func (s *ContactPropertiesSvcImpl) GetWithContext(ctx context.Context, id string
 
 	// Send Request
 	_, err = s.client.Perform(req, property)
-
 	if err != nil {
 		return ContactProperty{}, err
 	}
@@ -192,7 +189,6 @@ func (s *ContactPropertiesSvcImpl) UpdateWithContext(ctx context.Context, params
 
 	// Send Request
 	_, err = s.client.Perform(req, propertyResp)
-
 	if err != nil {
 		return UpdateContactPropertyResponse{}, err
 	}
@@ -225,7 +221,6 @@ func (s *ContactPropertiesSvcImpl) RemoveWithContext(ctx context.Context, id str
 
 	// Send Request
 	_, err = s.client.Perform(req, resp)
-
 	if err != nil {
 		return RemoveContactPropertyResponse{}, err
 	}
