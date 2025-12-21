@@ -17,8 +17,6 @@ jobs:
       matrix:
         go:
           - "1.25"
-          - "1.24"
-          - "1.23"
     name: "Test: go v${{ matrix.go }}"
     steps:
       - uses: actions/checkout@v6
