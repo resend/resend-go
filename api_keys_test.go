@@ -22,7 +22,7 @@ func TestCreateApiKey(t *testing.T) {
 			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
 			"token": "re_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	req := &CreateApiKeyRequest{
@@ -55,7 +55,7 @@ func TestListApiKeys(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.ApiKeys.List()

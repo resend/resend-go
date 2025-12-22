@@ -33,7 +33,7 @@ func TestCreateTopic(t *testing.T) {
 		{
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -69,7 +69,7 @@ func TestCreateTopicWithOptOut(t *testing.T) {
 		{
 			"id": "opt-out-topic-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -106,7 +106,7 @@ func TestCreateTopicWithDescription(t *testing.T) {
 		{
 			"id": "topic-with-description-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Create(&CreateTopicRequest{
@@ -133,7 +133,7 @@ func TestCreateTopicWithContext(t *testing.T) {
 		{
 			"id": "context-topic-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -166,7 +166,7 @@ func TestGetTopic(t *testing.T) {
 			"default_subscription": "opt_in",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Get(topicId)
@@ -199,7 +199,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 			"default_subscription": "opt_out",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Get(topicId)
@@ -232,7 +232,7 @@ func TestGetTopicWithContext(t *testing.T) {
 			"default_subscription": "opt_in",
 			"created_at": "2023-04-08T00:11:13.110779+00:00"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -281,7 +281,7 @@ func TestListTopics(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -331,7 +331,7 @@ func TestListTopicsWithAfter(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -377,7 +377,7 @@ func TestListTopicsWithBefore(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -418,7 +418,7 @@ func TestListTopicsWithContext(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -468,7 +468,7 @@ func TestListTopicsWithoutOptions(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.List(nil)
@@ -505,7 +505,7 @@ func TestUpdateTopic(t *testing.T) {
 		{
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -543,7 +543,7 @@ func TestUpdateTopicNameOnly(t *testing.T) {
 		{
 			"id": "topic-name-only-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -580,7 +580,7 @@ func TestUpdateTopicDescriptionOnly(t *testing.T) {
 		{
 			"id": "topic-description-only-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Update(topicId, &UpdateTopicRequest{
@@ -607,7 +607,7 @@ func TestUpdateTopicWithContext(t *testing.T) {
 		{
 			"id": "context-update-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -638,7 +638,7 @@ func TestRemoveTopic(t *testing.T) {
 			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Topics.Remove(topicId)
@@ -667,7 +667,7 @@ func TestRemoveTopicWithContext(t *testing.T) {
 			"id": "context-remove-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()

@@ -34,7 +34,7 @@ func TestCreateTemplate(t *testing.T) {
 			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -82,7 +82,7 @@ func TestCreateTemplateWithVariables(t *testing.T) {
 			"id": "template-with-vars-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -147,7 +147,7 @@ func TestCreateTemplateWithAllFields(t *testing.T) {
 			"id": "full-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -180,7 +180,7 @@ func TestCreateTemplateWithContext(t *testing.T) {
 			"id": "context-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -228,7 +228,7 @@ func TestCreateTemplateWithAllVariableTypes(t *testing.T) {
 			"id": "all-types-template-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -279,7 +279,7 @@ func TestCreateTemplateWithSingleReplyTo(t *testing.T) {
 			"id": "single-reply-to-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Create(&CreateTemplateRequest{
@@ -330,7 +330,7 @@ func TestGetTemplate(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateId)
@@ -387,7 +387,7 @@ func TestGetTemplateByAlias(t *testing.T) {
 			"text": "Welcome!",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateAlias)
@@ -434,7 +434,7 @@ func TestGetTemplateWithContext(t *testing.T) {
 			"text": "Test",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -486,7 +486,7 @@ func TestListTemplates(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -541,7 +541,7 @@ func TestListTemplatesWithAfter(t *testing.T) {
 			],
 			"has_more": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -589,7 +589,7 @@ func TestListTemplatesWithBefore(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 2
@@ -632,7 +632,7 @@ func TestListTemplatesWithContext(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -686,7 +686,7 @@ func TestListTemplatesWithoutOptions(t *testing.T) {
 			],
 			"has_more": false
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.List(nil)
@@ -726,7 +726,7 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 			"text": "Test",
 			"variables": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Get(templateId)
@@ -770,7 +770,7 @@ func TestUpdateTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -815,7 +815,7 @@ func TestUpdateTemplateWithVariables(t *testing.T) {
 			"id": "template-with-vars",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -857,7 +857,7 @@ func TestUpdateTemplateByAlias(t *testing.T) {
 			"id": "updated-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateAlias, &UpdateTemplateRequest{
@@ -887,7 +887,7 @@ func TestUpdateTemplateWithContext(t *testing.T) {
 			"id": "context-update-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -938,7 +938,7 @@ func TestUpdateTemplateWithAllFields(t *testing.T) {
 			"id": "full-update-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
@@ -973,7 +973,7 @@ func TestPublishTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Publish(templateId)
@@ -1000,7 +1000,7 @@ func TestPublishTemplateByAlias(t *testing.T) {
 			"id": "published-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Publish(templateAlias)
@@ -1027,7 +1027,7 @@ func TestPublishTemplateWithContext(t *testing.T) {
 			"id": "context-publish-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -1055,7 +1055,7 @@ func TestDuplicateTemplate(t *testing.T) {
 			"id": "duplicated-template-id-789",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Duplicate(templateId)
@@ -1082,7 +1082,7 @@ func TestDuplicateTemplateByAlias(t *testing.T) {
 			"id": "duplicated-by-alias-id",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Duplicate(templateAlias)
@@ -1109,7 +1109,7 @@ func TestDuplicateTemplateWithContext(t *testing.T) {
 			"id": "context-duplicate-id-result",
 			"object": "template"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -1138,7 +1138,7 @@ func TestRemoveTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Remove(templateId)
@@ -1167,7 +1167,7 @@ func TestRemoveTemplateByAlias(t *testing.T) {
 			"id": "removed-by-alias-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Templates.Remove(templateAlias)
@@ -1196,7 +1196,7 @@ func TestRemoveTemplateWithContext(t *testing.T) {
 			"id": "context-remove-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()

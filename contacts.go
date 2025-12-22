@@ -48,9 +48,9 @@ type RemoveContactOptions struct {
 }
 
 type CreateContactRequest struct {
-	Email      string `json:"email"`
-	AudienceId string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
-	Unsubscribed bool `json:"unsubscribed,omitempty"`
+	Email        string `json:"email"`
+	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
+	Unsubscribed bool   `json:"unsubscribed,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	// Properties are custom key-value pairs for global contacts (when audience_id is omitted).
@@ -373,10 +373,10 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 		aux["unsubscribed"] = r.Unsubscribed
 	}
 	// Include properties if provided (for global contacts)
-	if r.Properties != nil && len(r.Properties) > 0 {
+	// len() for nil maps is defined as zero
+	if len(r.Properties) > 0 {
 		aux["properties"] = r.Properties
 	}
 
 	return json.Marshal(aux)
 }
-

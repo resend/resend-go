@@ -282,7 +282,7 @@ func TestGetEmail(t *testing.T) {
 			"subject": "Hello World",
 			"html":"html"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Get("49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
@@ -310,7 +310,7 @@ func TestCancelScheduledEmail(t *testing.T) {
 			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
 			"object": "email"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Cancel("dacf4072-4119-4d88-932f-6202748ac7c8")
@@ -527,8 +527,8 @@ func TestSendEmailWithTemplate(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Welcome!",
 		Template: &EmailTemplate{
 			Id: "welcome-template",
@@ -574,8 +574,8 @@ func TestSendEmailWithTemplateAndVariables(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "noreply@example.com",
-		To:   []string{"john@example.com"},
+		From:    "noreply@example.com",
+		To:      []string{"john@example.com"},
 		Subject: "Welcome to our service",
 		Template: &EmailTemplate{
 			Id: "user-welcome",
@@ -622,8 +622,8 @@ func TestSendEmailWithTemplateByAlias(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "team@example.com",
-		To:   []string{"user@example.com"},
+		From:    "team@example.com",
+		To:      []string{"user@example.com"},
 		Subject: "Hello!",
 		Template: &EmailTemplate{
 			Id: "welcome-v2",
@@ -728,8 +728,8 @@ func TestSendEmailWithTemplateAndContext(t *testing.T) {
 
 	ctx := context.Background()
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Context Test",
 		Template: &EmailTemplate{
 			Id: "context-template",
@@ -776,8 +776,8 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 	})
 
 	req := &SendEmailRequest{
-		From: "sender@example.com",
-		To:   []string{"recipient@example.com"},
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
 		Subject: "Complex Variables Test",
 		Template: &EmailTemplate{
 			Id: "complex-template",
