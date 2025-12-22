@@ -24,7 +24,7 @@ func TestCreateWebhook(t *testing.T) {
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"signing_secret": "whsec_xxxxxxxxxx"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	req := &CreateWebhookRequest{
@@ -55,7 +55,7 @@ func TestCreateWebhookWithContext(t *testing.T) {
 			"id": "test-webhook-id",
 			"signing_secret": "whsec_test_secret"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -93,7 +93,7 @@ func TestGetWebhook(t *testing.T) {
 			"events": ["email.sent", "email.received"],
 			"signing_secret": "whsec_xxxxxxxxxx"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Webhooks.Get(webhookId)
@@ -132,7 +132,7 @@ func TestGetWebhookWithContext(t *testing.T) {
 			"events": ["email.delivered"],
 			"signing_secret": "whsec_test_secret"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -166,7 +166,7 @@ func TestUpdateWebhook(t *testing.T) {
 			"object": "webhook",
 			"id": "430eed87-632a-4ea6-90db-0aace67ec228"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	endpoint := "https://new-webhook.example.com/handler"
@@ -200,7 +200,7 @@ func TestUpdateWebhookWithContext(t *testing.T) {
 			"object": "webhook",
 			"id": "test-update-id"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()
@@ -246,7 +246,7 @@ func TestListWebhooks(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Webhooks.List()
@@ -293,7 +293,7 @@ func TestListWebhooksWithOptions(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	limit := 10
@@ -329,7 +329,7 @@ func TestRemoveWebhook(t *testing.T) {
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Webhooks.Remove(webhookId)
@@ -358,7 +358,7 @@ func TestRemoveWebhookWithContext(t *testing.T) {
 			"id": "test-delete-id",
 			"deleted": true
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()

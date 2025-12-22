@@ -45,7 +45,7 @@ func TestGetReceivedEmail(t *testing.T) {
 				}
 			]
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.Get("8136d3fb-0439-4b09-b939-b8436a3524b6")
@@ -99,7 +99,7 @@ func TestGetReceivedEmailWithNullFields(t *testing.T) {
 			"headers": {},
 			"attachments": []
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.Get("null-fields-id")
@@ -292,7 +292,7 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 			"download_url": "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
 			"expires_at": "2025-10-17T14:29:41.521Z"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	resp, err := client.Emails.Receiving.GetAttachment(emailId, attachmentId)
@@ -331,7 +331,7 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 			"download_url": "https://inbound-cdn.resend.com/test-email-id/attachments/test-attachment-id",
 			"expires_at": "2025-10-18T12:00:00.000Z"
 		}`
-		fmt.Fprintf(w, ret)
+		fmt.Fprint(w, ret)
 	})
 
 	ctx := context.Background()

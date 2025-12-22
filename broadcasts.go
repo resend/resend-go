@@ -22,7 +22,7 @@ type CreateBroadcastRequest struct {
 	ReplyTo    []string `json:"reply_to,omitempty"`
 	Html       string   `json:"html,omitempty"`
 	Text       string   `json:"text,omitempty"`
-	Name       string   `json:"name,omitempty""`
+	Name       string   `json:"name,omitempty"`
 }
 
 type UpdateBroadcastRequest struct {
