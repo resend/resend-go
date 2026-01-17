@@ -22,7 +22,15 @@ type CreateBroadcastRequest struct {
 	ReplyTo    []string `json:"reply_to,omitempty"`
 	Html       string   `json:"html,omitempty"`
 	Text       string   `json:"text,omitempty"`
-	Name       string   `json:"name,omitempty""`
+	Name       string   `json:"name,omitempty"`
+
+	// Send the broadcast immediately upon creation instead of creating a draft.
+	Send bool `json:"send,omitempty"`
+
+	// Schedule email to be sent later. The date should be in natural language (e.g.: in 1 min)
+	// or ISO 8601 format (e.g: 2024-08-05T11:52:01.858Z).
+	// Only valid when Send is true.
+	ScheduledAt string `json:"scheduled_at,omitempty"`
 }
 
 type UpdateBroadcastRequest struct {

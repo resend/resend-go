@@ -39,6 +39,71 @@ func TestCreateBroadcast(t *testing.T) {
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
 }
 
+func TestCreateAndSendBroadcast(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		var ret interface{}
+		ret = `
+		{
+			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &CreateBroadcastRequest{
+		Name:       "New Broadcast",
+		AudienceId: "709d076c-2bb1-4be6-94ed-3f8f32622db6",
+		From:       "hi@example.com",
+		Subject:    "Hello, world!",
+		Send:       true,
+	}
+	resp, err := client.Broadcasts.Create(req)
+	if err != nil {
+		t.Errorf("Broadcasts.Create returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+}
+
+func TestCreateAndScheduleBroadcast(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		var ret interface{}
+		ret = `
+		{
+			"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &CreateBroadcastRequest{
+		Name:        "New Broadcast",
+		AudienceId:  "709d076c-2bb1-4be6-94ed-3f8f32622db6",
+		From:        "hi@example.com",
+		Subject:     "Hello, world!",
+		Send:        true,
+		ScheduledAt: "2024-12-01T19:32:22.980Z",
+	}
+	resp, err := client.Broadcasts.Create(req)
+	if err != nil {
+		t.Errorf("Broadcasts.Create returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+}
+
 func TestUpdateBroadcast(t *testing.T) {
 	setup()
 	defer teardown()
