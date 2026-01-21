@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version     = "3.0.0"
+	version     = "3.1.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -50,11 +50,11 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails            *EmailsSvcImpl
-	Batch             BatchSvc
-	ApiKeys           ApiKeysSvc
-	Domains           DomainsSvc
-	Segments          SegmentsSvc
+	Emails   *EmailsSvcImpl
+	Batch    BatchSvc
+	ApiKeys  ApiKeysSvc
+	Domains  DomainsSvc
+	Segments SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
 	Audiences         AudiencesSvc
 	Contacts          *ContactsSvcImpl
