@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -30,6 +31,17 @@ var defaultHTTPClient = &http.Client{
 // circuit breakers, or any other HTTP-level middleware.
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
+}
+
+// isNilHTTPClient checks if an HTTPClient is nil, including typed-nil values.
+// In Go, an interface containing a nil pointer is not equal to nil,
+// so we need reflection to detect this case.
+func isNilHTTPClient(c HTTPClient) bool {
+	if c == nil {
+		return true
+	}
+	v := reflect.ValueOf(c)
+	return v.Kind() == reflect.Ptr && v.IsNil()
 }
 
 // Options interface is used to define additional options that can be passed
@@ -80,7 +92,7 @@ func NewClient(apiKey string) *Client {
 
 // NewCustomClient builds a new Resend API client, using a provided Http client.
 func NewCustomClient(httpClient HTTPClient, apiKey string) *Client {
-	if httpClient == nil {
+	if isNilHTTPClient(httpClient) {
 		httpClient = defaultHTTPClient
 	}
 
