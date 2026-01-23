@@ -25,6 +25,13 @@ var defaultHTTPClient = &http.Client{
 	Timeout: time.Minute,
 }
 
+// HTTPClient is an interface that allows custom HTTP client implementations.
+// This enables users to implement custom rate limiting, retry logic,
+// circuit breakers, or any other HTTP-level middleware.
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // Options interface is used to define additional options that can be passed
 // to the API methods.
 type Options interface {
@@ -35,7 +42,7 @@ type Options interface {
 // Client handles communication with Resend API.
 type Client struct {
 	// HTTP client
-	client *http.Client
+	client HTTPClient
 
 	// Api Key
 	ApiKey string
@@ -72,7 +79,7 @@ func NewClient(apiKey string) *Client {
 }
 
 // NewCustomClient builds a new Resend API client, using a provided Http client.
-func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
+func NewCustomClient(httpClient HTTPClient, apiKey string) *Client {
 	if httpClient == nil {
 		httpClient = defaultHTTPClient
 	}
@@ -112,7 +119,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 // NewRequestWithOptions builds and returns a new HTTP request object
 // based on the given arguments and options
 // It is used to set additional options like idempotency key
-func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string, params interface{}, options Options) (*http.Request, error) {
+func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string, params any, options Options) (*http.Request, error) {
 	req, err := c.NewRequest(ctx, method, path, params)
 
 	if err != nil {
@@ -138,7 +145,7 @@ func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string,
 
 // NewRequest builds and returns a new HTTP request object
 // based on the given arguments
-func (c *Client) NewRequest(ctx context.Context, method, path string, params interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, path string, params any) (*http.Request, error) {
 	u, err := c.BaseURL.Parse(path)
 	if err != nil {
 		return nil, err
@@ -173,7 +180,7 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params int
 }
 
 // Perform sends the request to the Resend API
-func (c *Client) Perform(req *http.Request, ret interface{}) (*http.Response, error) {
+func (c *Client) Perform(req *http.Request, ret any) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
