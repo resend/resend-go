@@ -51,7 +51,14 @@ func TestListApiKeys(t *testing.T) {
 				{
 				  "id": "91f3200a-df72-4654-b0cd-f202395f5354",
 				  "name": "Production",
-				  "created_at": "2023-04-08T00:11:13.110779+00:00"
+				  "created_at": "2023-04-08T00:11:13.110779+00:00",
+				  "last_used_at": "2024-01-01T00:00:00.000Z"
+				},
+				{
+				  "id": "b6d24b8e-af0b-4c3c-be0c-359bbd685d1f",
+				  "name": "Staging",
+				  "created_at": "2023-04-08T00:11:13.110779+00:00",
+				  "last_used_at": null
 				}
 			]
 		}`
@@ -62,8 +69,12 @@ func TestListApiKeys(t *testing.T) {
 	if err != nil {
 		t.Errorf("ApiKeys.List returned error: %v", err)
 	}
-	assert.Equal(t, len(resp.Data), 1)
+	assert.Equal(t, len(resp.Data), 2)
 	assert.Equal(t, resp.Data[0].Name, "Production")
+	assert.NotNil(t, resp.Data[0].LastUsedAt)
+	assert.Equal(t, *resp.Data[0].LastUsedAt, "2024-01-01T00:00:00.000Z")
+	assert.Equal(t, resp.Data[1].Name, "Staging")
+	assert.Nil(t, resp.Data[1].LastUsedAt)
 }
 
 func TestRemoveApiKey(t *testing.T) {
