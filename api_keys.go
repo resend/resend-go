@@ -23,9 +23,10 @@ type ListApiKeysResponse struct {
 }
 
 type ApiKey struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"created_at"`
+	Id         string  `json:"id"`
+	Name       string  `json:"name"`
+	CreatedAt  string  `json:"created_at"`
+	LastUsedAt *string `json:"last_used_at"`
 }
 
 type ApiKeysSvc interface {
