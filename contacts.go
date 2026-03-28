@@ -35,7 +35,8 @@ type GetContactOptions struct {
 
 // ListContactsOptions contains parameters for listing contacts
 type ListContactsOptions struct {
-	AudienceId string  // Optional - omit for global contacts
+	AudienceId string  // Deprecated: Use SegmentId instead
+	SegmentId  string  // Optional - filter contacts by segment ID
 	Limit      *int    // Optional - number of results to return
 	After      *string // Optional - cursor for pagination
 	Before     *string // Optional - cursor for pagination
@@ -160,24 +161,31 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateC
 }
 
 // List returns the list of all contacts
-// If options.AudienceId is empty, lists global contacts. Otherwise lists audience-specific contacts.
+// If options.SegmentId (or legacy options.AudienceId) is set, lists contacts in that segment.
+// Otherwise lists global contacts.
 // https://resend.com/docs/api-reference/contacts/list-contacts
 func (s *ContactsSvcImpl) List(options *ListContactsOptions) (ListContactsResponse, error) {
 	return s.ListWithContext(context.Background(), options)
 }
 
 // ListWithContext returns the list of all contacts with context
-// If options.AudienceId is empty, lists global contacts. Otherwise lists audience-specific contacts.
+// If options.SegmentId (or legacy options.AudienceId) is set, lists contacts in that segment.
+// Otherwise lists global contacts.
 // https://resend.com/docs/api-reference/contacts/list-contacts
 func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListContactsOptions) (ListContactsResponse, error) {
 	if options == nil {
 		options = &ListContactsOptions{}
 	}
 
+	// Prefer SegmentId; fall back to AudienceId for backwards compatibility
+	segmentId := options.SegmentId
+	if segmentId == "" {
+		segmentId = options.AudienceId
+	}
+
 	var path string
-	if options.AudienceId != "" {
-		// Audience-specific contacts (legacy)
-		path = "audiences/" + options.AudienceId + "/contacts"
+	if segmentId != "" {
+		path = "segments/" + segmentId + "/contacts"
 	} else {
 		// Global contacts
 		path = "contacts"
