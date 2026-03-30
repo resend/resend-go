@@ -161,7 +161,8 @@ func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateC
 }
 
 // List returns the list of all contacts
-// If options.SegmentId (or legacy options.AudienceId) is set, lists contacts in that segment.
+// If options.SegmentId is set, lists contacts in that segment.
+// If options.AudienceId is set (legacy), lists contacts in that audience.
 // Otherwise lists global contacts.
 // https://resend.com/docs/api-reference/contacts/list-contacts
 func (s *ContactsSvcImpl) List(options *ListContactsOptions) (ListContactsResponse, error) {
@@ -169,7 +170,8 @@ func (s *ContactsSvcImpl) List(options *ListContactsOptions) (ListContactsRespon
 }
 
 // ListWithContext returns the list of all contacts with context
-// If options.SegmentId (or legacy options.AudienceId) is set, lists contacts in that segment.
+// If options.SegmentId is set, lists contacts in that segment.
+// If options.AudienceId is set (legacy), lists contacts in that audience.
 // Otherwise lists global contacts.
 // https://resend.com/docs/api-reference/contacts/list-contacts
 func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListContactsOptions) (ListContactsResponse, error) {
@@ -177,15 +179,12 @@ func (s *ContactsSvcImpl) ListWithContext(ctx context.Context, options *ListCont
 		options = &ListContactsOptions{}
 	}
 
-	// Prefer SegmentId; fall back to AudienceId for backwards compatibility
-	segmentId := options.SegmentId
-	if segmentId == "" {
-		segmentId = options.AudienceId
-	}
-
 	var path string
-	if segmentId != "" {
-		path = "segments/" + segmentId + "/contacts"
+	if options.SegmentId != "" {
+		path = "segments/" + options.SegmentId + "/contacts"
+	} else if options.AudienceId != "" {
+		// Legacy: AudienceId uses the audiences endpoint
+		path = "audiences/" + options.AudienceId + "/contacts"
 	} else {
 		// Global contacts
 		path = "contacts"

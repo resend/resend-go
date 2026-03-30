@@ -89,10 +89,10 @@ func TestListContactsByAudienceIdFallback(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// AudienceId is deprecated but should still route to /segments/{id}/contacts
+	// AudienceId is deprecated but should still route to /audiences/{id}/contacts (not segments)
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
 
-	mux.HandleFunc("/segments/"+audienceId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/audiences/"+audienceId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodGet)
 		w.WriteHeader(http.StatusOK)
 
