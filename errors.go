@@ -97,3 +97,9 @@ var (
 	ErrFailedToCreateTopicUpdateRequest = errors.New("[ERROR]: Failed to create Topics.Update request")
 	ErrFailedToCreateTopicRemoveRequest = errors.New("[ERROR]: Failed to create Topics.Remove request")
 )
+
+// LogsSvc errors
+var (
+	ErrFailedToCreateLogsGetRequest  = errors.New("[ERROR]: Failed to create Logs.Get request")
+	ErrFailedToCreateLogsListRequest = errors.New("[ERROR]: Failed to create Logs.List request")
+)
