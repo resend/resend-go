@@ -46,6 +46,50 @@ func TestListContacts(t *testing.T) {
 	setup()
 	defer teardown()
 
+	segmentId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+
+	mux.HandleFunc("/segments/"+segmentId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"data": [
+				{
+					"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"email": "steve.wozniak@gmail.com",
+					"first_name": "Steve",
+					"last_name": "Wozniak",
+					"created_at": "2023-10-06T23:47:56.678Z",
+					"unsubscribed": false
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	contacts, err := client.Contacts.List(&ListContactsOptions{
+		SegmentId: segmentId,
+	})
+	if err != nil {
+		t.Errorf("Contacts.List returned error: %v", err)
+	}
+
+	assert.Equal(t, len(contacts.Data), 1)
+	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
+	assert.Equal(t, contacts.Data[0].FirstName, "Steve")
+	assert.Equal(t, contacts.Data[0].LastName, "Wozniak")
+	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06T23:47:56.678Z")
+	assert.Equal(t, contacts.Data[0].Unsubscribed, false)
+}
+
+func TestListContactsByAudienceIdFallback(t *testing.T) {
+	setup()
+	defer teardown()
+
+	// AudienceId is deprecated but should still route to /audiences/{id}/contacts (not segments)
 	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
 
 	mux.HandleFunc("/audiences/"+audienceId+"/contacts", func(w http.ResponseWriter, r *http.Request) {
@@ -79,10 +123,6 @@ func TestListContacts(t *testing.T) {
 
 	assert.Equal(t, len(contacts.Data), 1)
 	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
-	assert.Equal(t, contacts.Data[0].FirstName, "Steve")
-	assert.Equal(t, contacts.Data[0].LastName, "Wozniak")
-	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06T23:47:56.678Z")
-	assert.Equal(t, contacts.Data[0].Unsubscribed, false)
 }
 
 func TestRemoveContact(t *testing.T) {
