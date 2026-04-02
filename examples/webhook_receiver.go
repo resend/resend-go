@@ -55,7 +55,7 @@ func webhookReceiverExample() {
 		}
 
 		// Parse the verified payload
-		var payload map[string]any
+		var payload resend.WebhookPayload
 		if err := json.Unmarshal(body, &payload); err != nil {
 			log.Printf("Error parsing JSON: %v", err)
 			http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
@@ -63,8 +63,63 @@ func webhookReceiverExample() {
 		}
 
 		log.Printf("✓ Webhook verified successfully!")
-		log.Printf("Event Type: %v", payload["type"])
-		log.Printf("Payload: %v", payload)
+		log.Printf("Event Type: %v", payload.Type)
+		switch t := payload.Data.(type) {
+		case *resend.WebhookPayloadContactCreated, *resend.WebhookPayloadContactDeleted, *resend.WebhookPayloadContactUpdated:
+			fmt.Printf("%s: ID: %s, Audience ID: %s, Segment IDs: %v\n", payload.Type, t.ID, t.AudienceID, t.SegmentIDs)
+		case *resend.WebhookPayloadContactTopicsUpdated:
+			fmt.Printf("%s: Topic IDs: ", payload.Type)
+			for _, topic := range t.Topics {
+				fmt.Printf("%s ", topic.ID)
+			}
+			fmt.Println()
+		case *resend.WebhookPayloadDomainCreated, *resend.WebhookPayloadDomainDeleted, *resend.WebhookPayloadDomainUpdated:
+			fmt.Printf("%s: ID: %s\n", payload.Type, t.ID)
+		case *resend.WebhookPayloadEmailBounced:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Message ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.MessageID, t.TemplateID)
+		case *resend.WebhookPayloadEmailClicked:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Message ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.MessageID, t.TemplateID)
+		case *resend.WebhookPayloadEmailComplained, *resend.WebhookPayloadEmailDelivered, *resend.WebhookPayloadEmailDeliveryDelayed:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Message ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.MessageID, t.TemplateID)
+		case *resend.WebhookPayloadEmailFailed:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.TemplateID)
+		case *resend.WebhookPayloadEmailOpened:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Message ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.MessageID, t.TemplateID)
+		case *resend.WebhookPayloadEmailReceived:
+			fmt.Printf("%s: Email ID: %s, Message ID: %s\n", payload.Type, t.EmailID, t.MessageID)
+		case *resend.WebhookPayloadEmailScheduled:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.TemplateID)
+		case *resend.WebhookPayloadEmailSent:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Message ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.MessageID, t.TemplateID)
+		case *resend.WebhookPayloadEmailSuppressed:
+			fmt.Printf("%s: Broadcast ID: %s, Email ID: %s, Template ID: %s\n", payload.Type, t.BroadcastID, t.EmailID, t.TemplateID)
+		case *resend.WebhookPayloadInboxCreated, *resend.WebhookPayloadInboxDeleted:
+			fmt.Printf("%s: Inbox ID: %s\n", payload.Type, t.InboxID)
+		case *resend.WebhookPayloadInboxDraftCreated, *resend.WebhookPayloadInboxDraftUpdated, *resend.WebhookPayloadInboxEmailReceived, *resend.WebhookPayloadInboxEmailSent, *resend.WebhookPayloadInboxThreadCreated:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s, Draft ID: %s\n", payload.Type, t.InboxID, t.ThreadID, t.DraftID)
+		case *resend.WebhookPayloadInboxDraftDeleted:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s, Draft ID: %s\n", payload.Type, t.InboxID, t.ThreadID, t.DraftID)
+		case *resend.WebhookPayloadInboxDraftSent:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s, Email ID: %s, Draft ID: %s\n", payload.Type, t.InboxID, t.ThreadID, t.EmailID, t.DraftID)
+		case *resend.WebhookPayloadInboxThreadAssigned:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s\n", payload.Type, t.InboxID, t.ThreadID)
+		case *resend.WebhookPayloadInboxThreadFolderUpdated:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s\n", payload.Type, t.InboxID, t.ThreadID)
+		case *resend.WebhookPayloadInboxThreadLabelsUpdated:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s\n", payload.Type, t.InboxID, t.ThreadID)
+		case *resend.WebhookPayloadInboxThreadUnassigned:
+			fmt.Printf("%s: Inbox ID: %s, Thread ID: %s\n", payload.Type, t.InboxID, t.ThreadID)
+		case *resend.WebhookPayloadInboxUpdated, *resend.WebhookPayloadInboxUpdated:
+			fmt.Printf("%s: Inbox ID: %s\n", payload.Type, t.InboxID)
+		case *resend.WebhookPayloadSuppressionAdded:
+			fmt.Printf("%s: ID: %s, Source ID: %s\n", payload.Type, t.ID, t.SourceID)
+		case *resend.WebhookPayloadSuppressionRemoved:
+			fmt.Printf("%s: ID: %s, Source ID: %v\n", payload.Type, t.ID, t.SourceID)
+		case *resend.WebhookPayloadTopicCreated, *resend.WebhookPayloadTopicDeleted, *resend.WebhookPayloadTopicUpdated:
+			fmt.Printf("%s: ID: %s\n", payload.Type, t.ID)
+		default:
+			fmt.Printf("%s: Unknown type: %T\n", payload.Type, t)
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
