@@ -226,6 +226,139 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.Records[0].Name, "bounces")
 }
 
+func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprint(w, `{
+			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
+			"name": "example.com",
+			"createdAt": "2023-03-28T17:12:02.059593+00:00",
+			"status": "not_started",
+			"region": "us-east-1",
+			"dnsProvider": "Unidentified",
+			"open_tracking": true,
+			"click_tracking": true,
+			"tracking_subdomain": "links",
+			"records": [
+				{
+					"record": "SPF",
+					"name": "bounces",
+					"type": "MX",
+					"ttl": "Auto",
+					"status": "not_started",
+					"value": "feedback-smtp.us-east-1.amazonses.com",
+					"priority": 10
+				},
+				{
+					"record": "Tracking",
+					"name": "links.example.com",
+					"value": "links1.resend-dns.com",
+					"type": "CNAME",
+					"ttl": "Auto",
+					"status": "not_started"
+				}
+			]
+		}`)
+	})
+
+	req := &CreateDomainRequest{
+		Name:              "example.com",
+		Region:            "us-east-1",
+		TrackingSubdomain: "links",
+	}
+	resp, err := client.Domains.Create(req)
+	if err != nil {
+		t.Errorf("Domains.Create returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "4dd369bc-aa82-4ff3-97de-514ae3000ee0")
+	assert.True(t, resp.OpenTracking)
+	assert.True(t, resp.ClickTracking)
+	assert.Equal(t, resp.TrackingSubdomain, "links")
+	assert.Equal(t, len(resp.Records), 2)
+	assert.Equal(t, resp.Records[1].Record, "Tracking")
+	assert.Equal(t, resp.Records[1].Name, "links.example.com")
+	assert.Equal(t, resp.Records[1].Value, "links1.resend-dns.com")
+	assert.Equal(t, resp.Records[1].Type, "CNAME")
+	assert.Equal(t, resp.Records[1].Priority, json.Number(""))
+}
+
+func TestGetDomainWithTrackingFields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `{
+			"object": "domain",
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"name": "example.com",
+			"status": "not_started",
+			"created_at": "2023-04-26T20:21:26.347412+00:00",
+			"region": "us-east-1",
+			"open_tracking": true,
+			"click_tracking": true,
+			"tracking_subdomain": "links",
+			"records": [
+				{
+					"record": "SPF",
+					"name": "bounces"
+				},
+				{
+					"record": "Tracking",
+					"name": "links.example.com",
+					"value": "links1.resend-dns.com",
+					"type": "CNAME",
+					"ttl": "Auto",
+					"status": "not_started"
+				}
+			]
+		}`)
+	})
+
+	domain, err := client.Domains.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
+	if err != nil {
+		t.Errorf("Domains.Get returned error: %v", err)
+	}
+	assert.Equal(t, domain.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.True(t, domain.OpenTracking)
+	assert.True(t, domain.ClickTracking)
+	assert.Equal(t, domain.TrackingSubdomain, "links")
+}
+
+func TestUpdateDomainWithTrackingSubdomain(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		fmt.Fprint(w, `{
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"object": "domain"
+		}`)
+	})
+
+	params := &UpdateDomainRequest{
+		TrackingSubdomain: "links",
+	}
+	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
+	if err != nil {
+		t.Errorf("Domains.Update returned error: %v", err)
+	}
+	assert.Equal(t, updated.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+}
+
 func TestUpdateDomain(t *testing.T) {
 	setup()
 	defer teardown()
