@@ -35,19 +35,23 @@ type DomainsSvcImpl struct {
 }
 
 type CreateDomainRequest struct {
-	Name             string `json:"name"`
-	Region           string `json:"region,omitempty"`
-	CustomReturnPath string `json:"custom_return_path,omitempty"`
+	Name              string `json:"name"`
+	Region            string `json:"region,omitempty"`
+	CustomReturnPath  string `json:"custom_return_path,omitempty"`
+	TrackingSubdomain string `json:"tracking_subdomain,omitempty"`
 }
 
 type CreateDomainResponse struct {
-	Id          string   `json:"id"`
-	Name        string   `json:"name"`
-	CreatedAt   string   `json:"createdAt"`
-	Status      string   `json:"status"`
-	Records     []Record `json:"records"`
-	Region      string   `json:"region"`
-	DnsProvider string   `json:"dnsProvider"`
+	Id                string   `json:"id"`
+	Name              string   `json:"name"`
+	CreatedAt         string   `json:"createdAt"`
+	Status            string   `json:"status"`
+	Records           []Record `json:"records"`
+	Region            string   `json:"region"`
+	DnsProvider       string   `json:"dnsProvider"`
+	OpenTracking      bool     `json:"open_tracking,omitempty"`
+	ClickTracking     bool     `json:"click_tracking,omitempty"`
+	TrackingSubdomain string   `json:"tracking_subdomain,omitempty"`
 }
 
 type ListDomainsResponse struct {
@@ -57,19 +61,23 @@ type ListDomainsResponse struct {
 }
 
 type UpdateDomainRequest struct {
-	OpenTracking  bool      `json:"open_tracking,omitempty"`
-	ClickTracking bool      `json:"click_tracking,omitempty"`
-	Tls           TlsOption `json:"tls,omitempty"`
+	OpenTracking      bool      `json:"open_tracking,omitempty"`
+	ClickTracking     bool      `json:"click_tracking,omitempty"`
+	Tls               TlsOption `json:"tls,omitempty"`
+	TrackingSubdomain string    `json:"tracking_subdomain,omitempty"`
 }
 
 type Domain struct {
-	Id        string   `json:"id,omitempty"`
-	Object    string   `json:"object,omitempty"`
-	Name      string   `json:"name,omitempty"`
-	CreatedAt string   `json:"created_at,omitempty"`
-	Status    string   `json:"status,omitempty"`
-	Region    string   `json:"region,omitempty"`
-	Records   []Record `json:"records,omitempty"`
+	Id                string   `json:"id,omitempty"`
+	Object            string   `json:"object,omitempty"`
+	Name              string   `json:"name,omitempty"`
+	CreatedAt         string   `json:"created_at,omitempty"`
+	Status            string   `json:"status,omitempty"`
+	Region            string   `json:"region,omitempty"`
+	Records           []Record `json:"records,omitempty"`
+	OpenTracking      bool     `json:"open_tracking,omitempty"`
+	ClickTracking     bool     `json:"click_tracking,omitempty"`
+	TrackingSubdomain string   `json:"tracking_subdomain,omitempty"`
 }
 
 type Record struct {
