@@ -26,7 +26,7 @@ func TestCreateAutomation(t *testing.T) {
 			{Key: "trigger_1", Type: AutomationStepTypeTrigger, Config: map[string]any{"event_name": "user.created"}},
 			{Key: "send_1", Type: AutomationStepTypeSendEmail, Config: map[string]any{"template": map[string]any{"id": "tpl_abc"}}},
 		},
-		Connections: []AutomationEdge{
+		Connections: []AutomationConnection{
 			{From: "trigger_1", To: "send_1"},
 		},
 	})
@@ -53,11 +53,11 @@ func TestGetAutomation(t *testing.T) {
 			"created_at": "2026-04-01T00:00:00Z",
 			"updated_at": "2026-04-01T00:00:00Z",
 			"steps": [
-				{"type": "trigger", "config": {"event_name": "user.created"}},
-				{"type": "send_email", "config": {"template_id": "tpl_abc"}}
+				{"key": "trigger_1", "type": "trigger", "config": {"event_name": "user.created"}},
+				{"key": "send_1", "type": "send_email", "config": {"template": {"id": "tpl_abc"}}}
 			],
 			"connections": [
-				{"from": "step_1", "to": "step_2"}
+				{"from": "trigger_1", "to": "send_1"}
 			]
 		}`)
 	})
@@ -71,7 +71,9 @@ func TestGetAutomation(t *testing.T) {
 	assert.Equal(t, "Welcome Flow", resp.Name)
 	assert.Equal(t, AutomationStatusEnabled, resp.Status)
 	assert.Equal(t, 2, len(resp.Steps))
+	assert.Equal(t, "trigger_1", resp.Steps[0].Key)
 	assert.Equal(t, AutomationStepTypeTrigger, resp.Steps[0].Type)
+	assert.Equal(t, "send_1", resp.Steps[1].Key)
 	assert.Equal(t, 1, len(resp.Connections))
 }
 
@@ -266,6 +268,104 @@ func TestListAutomationRunsWithOptions(t *testing.T) {
 	assert.Equal(t, "run_1", resp.Data[0].Id)
 }
 
+func TestCreateAutomationWithDelayAndWaitForEvent(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/automations", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{"object":"automation","id":"aut_456"}`)
+	})
+
+	resp, err := client.Automations.Create(&CreateAutomationRequest{
+		Name: "Onboarding Flow",
+		Steps: []AutomationStep{
+			{Key: "trigger_1", Type: AutomationStepTypeTrigger, Config: map[string]any{
+				"event_name": "user.created",
+			}},
+			{Key: "delay_1", Type: AutomationStepTypeDelay, Config: map[string]any{
+				"duration": "30 minutes",
+			}},
+			{Key: "wait_1", Type: AutomationStepTypeWaitForEvent, Config: map[string]any{
+				"event_name": "user.verified",
+				"timeout":    "1 hour",
+			}},
+			{Key: "send_1", Type: AutomationStepTypeSendEmail, Config: map[string]any{
+				"template": map[string]any{"id": "tpl_abc"},
+			}},
+		},
+		Connections: []AutomationConnection{
+			{From: "trigger_1", To: "delay_1"},
+			{From: "delay_1", To: "wait_1"},
+			{From: "wait_1", To: "send_1", Type: AutomationConnectionTypeEventReceived},
+			{From: "wait_1", To: "send_1", Type: AutomationConnectionTypeTimeout},
+		},
+	})
+	if err != nil {
+		t.Errorf("Automations.Create returned error: %v", err)
+	}
+	assert.Equal(t, "automation", resp.Object)
+	assert.Equal(t, "aut_456", resp.Id)
+}
+
+func TestGetAutomationStepResponseKeys(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/automations/aut_456", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "automation",
+			"id": "aut_456",
+			"name": "Onboarding Flow",
+			"status": "disabled",
+			"created_at": "2026-04-10T00:00:00Z",
+			"updated_at": "2026-04-10T00:00:00Z",
+			"steps": [
+				{"key": "trigger_1", "type": "trigger", "config": {"event_name": "user.created"}},
+				{"key": "delay_1", "type": "delay", "config": {"duration": "30 minutes"}},
+				{"key": "wait_1", "type": "wait_for_event", "config": {"event_name": "user.verified", "timeout": "1 hour"}},
+				{"key": "send_1", "type": "send_email", "config": {"template": {"id": "tpl_abc"}}}
+			],
+			"connections": [
+				{"from": "trigger_1", "to": "delay_1"},
+				{"from": "delay_1", "to": "wait_1"},
+				{"from": "wait_1", "to": "send_1", "type": "event_received"},
+				{"from": "wait_1", "to": "send_1", "type": "timeout"}
+			]
+		}`)
+	})
+
+	resp, err := client.Automations.Get("aut_456")
+	if err != nil {
+		t.Errorf("Automations.Get returned error: %v", err)
+	}
+	assert.Equal(t, 4, len(resp.Steps))
+
+	assert.Equal(t, "trigger_1", resp.Steps[0].Key)
+	assert.Equal(t, AutomationStepTypeTrigger, resp.Steps[0].Type)
+
+	assert.Equal(t, "delay_1", resp.Steps[1].Key)
+	assert.Equal(t, AutomationStepTypeDelay, resp.Steps[1].Type)
+	assert.Equal(t, "30 minutes", resp.Steps[1].Config["duration"])
+
+	assert.Equal(t, "wait_1", resp.Steps[2].Key)
+	assert.Equal(t, AutomationStepTypeWaitForEvent, resp.Steps[2].Type)
+	assert.Equal(t, "user.verified", resp.Steps[2].Config["event_name"])
+	assert.Equal(t, "1 hour", resp.Steps[2].Config["timeout"])
+
+	assert.Equal(t, "send_1", resp.Steps[3].Key)
+	assert.Equal(t, AutomationStepTypeSendEmail, resp.Steps[3].Type)
+
+	assert.Equal(t, 4, len(resp.Connections))
+	assert.Equal(t, AutomationConnectionTypeEventReceived, resp.Connections[2].Type)
+	assert.Equal(t, AutomationConnectionTypeTimeout, resp.Connections[3].Type)
+}
+
 func TestGetAutomationRun(t *testing.T) {
 	setup()
 	defer teardown()
@@ -282,8 +382,8 @@ func TestGetAutomationRun(t *testing.T) {
 			"completed_at": "2026-04-01T00:01:00Z",
 			"created_at": "2026-04-01T00:00:00Z",
 			"steps": [
-				{"type": "trigger", "status": "completed", "started_at": "2026-04-01T00:00:00Z", "completed_at": "2026-04-01T00:00:01Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:00Z"},
-				{"type": "send_email", "status": "completed", "started_at": "2026-04-01T00:00:01Z", "completed_at": "2026-04-01T00:01:00Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:01Z"}
+				{"key": "trigger_1", "type": "trigger", "status": "completed", "started_at": "2026-04-01T00:00:00Z", "completed_at": "2026-04-01T00:00:01Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:00Z"},
+				{"key": "send_1", "type": "send_email", "status": "completed", "started_at": "2026-04-01T00:00:01Z", "completed_at": "2026-04-01T00:01:00Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:01Z"}
 			]
 		}`)
 	})
@@ -298,7 +398,9 @@ func TestGetAutomationRun(t *testing.T) {
 	assert.NotNil(t, resp.StartedAt)
 	assert.NotNil(t, resp.CompletedAt)
 	assert.Equal(t, 2, len(resp.Steps))
+	assert.Equal(t, "trigger_1", resp.Steps[0].Key)
 	assert.Equal(t, AutomationStepTypeTrigger, resp.Steps[0].Type)
 	assert.Equal(t, "completed", resp.Steps[0].Status)
+	assert.Equal(t, "send_1", resp.Steps[1].Key)
 	assert.Equal(t, AutomationStepTypeSendEmail, resp.Steps[1].Type)
 }

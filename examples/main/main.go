@@ -53,7 +53,7 @@ func main() {
 				},
 			},
 		},
-		Connections: []resend.AutomationEdge{
+		Connections: []resend.AutomationConnection{
 			{From: "trigger_1", To: "send_1"},
 		},
 	})
@@ -68,6 +68,12 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("Automation name: %s, status: %s\n", retrieved.Name, retrieved.Status)
+	for _, step := range retrieved.Steps {
+		fmt.Printf("  Step key: %s, type: %s\n", step.Key, step.Type)
+	}
+	for _, conn := range retrieved.Connections {
+		fmt.Printf("  Connection: %s -> %s\n", conn.From, conn.To)
+	}
 
 	// List automations
 	automations, err := client.Automations.ListWithContext(ctx)
@@ -132,6 +138,9 @@ func main() {
 			panic(err)
 		}
 		fmt.Printf("Run id: %s, status: %s, steps: %d\n", run.Id, run.Status, len(run.Steps))
+		for _, step := range run.Steps {
+			fmt.Printf("  Step key: %s, type: %s, status: %s\n", step.Key, step.Type, step.Status)
+		}
 	}
 
 	// Delete the automation
@@ -140,6 +149,88 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("Deleted automation id: %s, deleted: %v\n", deleted.Id, deleted.Deleted)
+
+	// Create an event for the wait_for_event step
+	event, err := client.Events.CreateWithContext(ctx, &resend.CreateEventRequest{
+		Name: "user.verified",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Created event id: %s\n", event.Id)
+
+	// Create a multi-step automation using delay and wait_for_event
+	// delay config: use "duration" (human-readable string) or "seconds" (number) — not both
+	// wait_for_event config: use "timeout" (human-readable string) — timeout_seconds is not supported
+	multiStep, err := client.Automations.CreateWithContext(ctx, &resend.CreateAutomationRequest{
+		Name:   "Onboarding Flow",
+		Status: resend.AutomationStatusDisabled,
+		Steps: []resend.AutomationStep{
+			{
+				Key:  "trigger_1",
+				Type: resend.AutomationStepTypeTrigger,
+				Config: map[string]any{
+					"event_name": "user.created",
+				},
+			},
+			{
+				Key:  "delay_1",
+				Type: resend.AutomationStepTypeDelay,
+				Config: map[string]any{
+					"duration": "30 minutes",
+				},
+			},
+			{
+				Key:  "wait_1",
+				Type: resend.AutomationStepTypeWaitForEvent,
+				Config: map[string]any{
+					"event_name": "user.verified",
+					"timeout":    "1 hour",
+				},
+			},
+			{
+				Key:  "send_1",
+				Type: resend.AutomationStepTypeSendEmail,
+				Config: map[string]any{
+					"template": map[string]any{
+						"id": template.Id,
+					},
+				},
+			},
+		},
+		Connections: []resend.AutomationConnection{
+			{From: "trigger_1", To: "delay_1"},
+			{From: "delay_1", To: "wait_1"},
+			{From: "wait_1", To: "send_1", Type: resend.AutomationConnectionTypeEventReceived},
+			{From: "wait_1", To: "send_1", Type: resend.AutomationConnectionTypeTimeout},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Created multi-step automation id: %s\n", multiStep.Id)
+
+	// Get to verify step keys and config shapes come back correctly
+	retrieved2, err := client.Automations.GetWithContext(ctx, multiStep.Id)
+	if err != nil {
+		panic(err)
+	}
+	for _, step := range retrieved2.Steps {
+		fmt.Printf("  Step key: %s, type: %s, config: %v\n", step.Key, step.Type, step.Config)
+	}
+
+	// Clean up
+	_, err = client.Automations.RemoveWithContext(ctx, multiStep.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Deleted multi-step automation\n")
+
+	_, err = client.Events.RemoveWithContext(ctx, event.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Deleted event id: %s\n", event.Id)
 
 	// Clean up: delete the template
 	removedTemplate, err := client.Templates.RemoveWithContext(ctx, template.Id)

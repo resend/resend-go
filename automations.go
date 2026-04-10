@@ -37,14 +37,14 @@ const (
 	AutomationStepTypeAddToSegment  AutomationStepType = "add_to_segment"
 )
 
-type AutomationEdgeType = string
+type AutomationConnectionType = string
 
 const (
-	AutomationEdgeTypeDefault         AutomationEdgeType = "default"
-	AutomationEdgeTypeConditionMet    AutomationEdgeType = "condition_met"
-	AutomationEdgeTypeConditionNotMet AutomationEdgeType = "condition_not_met"
-	AutomationEdgeTypeTimeout         AutomationEdgeType = "timeout"
-	AutomationEdgeTypeEventReceived   AutomationEdgeType = "event_received"
+	AutomationConnectionTypeDefault         AutomationConnectionType = "default"
+	AutomationConnectionTypeConditionMet    AutomationConnectionType = "condition_met"
+	AutomationConnectionTypeConditionNotMet AutomationConnectionType = "condition_not_met"
+	AutomationConnectionTypeTimeout         AutomationConnectionType = "timeout"
+	AutomationConnectionTypeEventReceived   AutomationConnectionType = "event_received"
 )
 
 type AutomationStep struct {
@@ -54,21 +54,22 @@ type AutomationStep struct {
 }
 
 type AutomationStepResponse struct {
+	Key    string             `json:"key"`
 	Type   AutomationStepType `json:"type"`
 	Config map[string]any     `json:"config"`
 }
 
-type AutomationEdge struct {
-	From     string             `json:"from"`
-	To       string             `json:"to"`
-	EdgeType AutomationEdgeType `json:"edge_type,omitempty"`
+type AutomationConnection struct {
+	From string                   `json:"from"`
+	To   string                   `json:"to"`
+	Type AutomationConnectionType `json:"type,omitempty"`
 }
 
 type CreateAutomationRequest struct {
 	Name        string           `json:"name"`
 	Status      AutomationStatus `json:"status,omitempty"`
 	Steps       []AutomationStep `json:"steps"`
-	Connections []AutomationEdge `json:"connections"`
+	Connections []AutomationConnection `json:"connections"`
 }
 
 type CreateAutomationResponse struct {
@@ -80,7 +81,7 @@ type UpdateAutomationRequest struct {
 	Name        string           `json:"name,omitempty"`
 	Status      AutomationStatus `json:"status,omitempty"`
 	Steps       []AutomationStep `json:"steps,omitempty"`
-	Connections []AutomationEdge `json:"connections,omitempty"`
+	Connections []AutomationConnection `json:"connections,omitempty"`
 }
 
 type UpdateAutomationResponse struct {
@@ -122,7 +123,7 @@ type Automation struct {
 	CreatedAt   string                   `json:"created_at"`
 	UpdatedAt   string                   `json:"updated_at"`
 	Steps       []AutomationStepResponse `json:"steps"`
-	Connections []AutomationEdge         `json:"connections"`
+	Connections []AutomationConnection         `json:"connections"`
 }
 
 type AutomationRunListItem struct {
@@ -140,6 +141,7 @@ type ListAutomationRunsResponse struct {
 }
 
 type AutomationRunStep struct {
+	Key         string             `json:"key"`
 	Type        AutomationStepType `json:"type"`
 	Status      string             `json:"status"`
 	StartedAt   *string            `json:"started_at"`
