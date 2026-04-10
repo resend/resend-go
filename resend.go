@@ -64,6 +64,8 @@ type Client struct {
 	Topics            TopicsSvc
 	Webhooks          WebhooksSvc
 	Logs              LogsSvc
+	Automations       AutomationsSvc
+	Events            EventsSvc
 }
 
 // NewClient is the default client constructor
@@ -105,6 +107,8 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Topics = &TopicsSvcImpl{client: c}
 	c.Webhooks = &WebhooksSvcImpl{client: c}
 	c.Logs = &LogsSvcImpl{client: c}
+	c.Automations = &AutomationsSvcImpl{client: c}
+	c.Events = &EventsSvcImpl{client: c}
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)

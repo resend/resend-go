@@ -103,3 +103,25 @@ var (
 	ErrFailedToCreateLogsGetRequest  = errors.New("[ERROR]: Failed to create Logs.Get request")
 	ErrFailedToCreateLogsListRequest = errors.New("[ERROR]: Failed to create Logs.List request")
 )
+
+// AutomationsSvc errors
+var (
+	ErrFailedToCreateAutomationCreateRequest   = errors.New("[ERROR]: Failed to create Automations.Create request")
+	ErrFailedToCreateAutomationGetRequest      = errors.New("[ERROR]: Failed to create Automations.Get request")
+	ErrFailedToCreateAutomationListRequest     = errors.New("[ERROR]: Failed to create Automations.List request")
+	ErrFailedToCreateAutomationUpdateRequest   = errors.New("[ERROR]: Failed to create Automations.Update request")
+	ErrFailedToCreateAutomationRemoveRequest   = errors.New("[ERROR]: Failed to create Automations.Remove request")
+	ErrFailedToCreateAutomationStopRequest     = errors.New("[ERROR]: Failed to create Automations.Stop request")
+	ErrFailedToCreateAutomationListRunsRequest = errors.New("[ERROR]: Failed to create Automations.ListRuns request")
+	ErrFailedToCreateAutomationGetRunRequest   = errors.New("[ERROR]: Failed to create Automations.GetRun request")
+)
+
+// EventsSvc errors
+var (
+	ErrFailedToCreateEventCreateRequest = errors.New("[ERROR]: Failed to create Events.Create request")
+	ErrFailedToCreateEventGetRequest    = errors.New("[ERROR]: Failed to create Events.Get request")
+	ErrFailedToCreateEventListRequest   = errors.New("[ERROR]: Failed to create Events.List request")
+	ErrFailedToCreateEventUpdateRequest = errors.New("[ERROR]: Failed to create Events.Update request")
+	ErrFailedToCreateEventRemoveRequest = errors.New("[ERROR]: Failed to create Events.Remove request")
+	ErrFailedToCreateEventSendRequest   = errors.New("[ERROR]: Failed to create Events.Send request")
+)

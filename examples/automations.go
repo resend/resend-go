@@ -1,4 +1,4 @@
-package main
+package examples
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/resend/resend-go/v3"
 )
 
-func main() {
+func automationsExample() {
 	ctx := context.TODO()
 	apiKey := os.Getenv("RESEND_API_KEY")
 
