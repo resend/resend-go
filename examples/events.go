@@ -61,7 +61,7 @@ func eventsExample() {
 	}
 	fmt.Printf("Page events: %d\n", len(eventsPage.Data))
 
-	if eventsPage.HasMore {
+	if eventsPage.HasMore && len(eventsPage.Data) > 0 {
 		lastId := eventsPage.Data[len(eventsPage.Data)-1].Id
 		nextPage, err := client.Events.ListWithOptions(ctx, &resend.ListOptions{
 			Limit: &limit,

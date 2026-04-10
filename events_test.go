@@ -28,7 +28,7 @@ func TestCreateEvent(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("Events.Create returned error: %v", err)
+		t.Fatalf("Events.Create returned error: %v", err)
 	}
 	assert.Equal(t, "event", resp.Object)
 	assert.Equal(t, "evt_123", resp.Id)
@@ -49,7 +49,7 @@ func TestCreateEventNoSchema(t *testing.T) {
 		Name: "order.placed",
 	})
 	if err != nil {
-		t.Errorf("Events.Create returned error: %v", err)
+		t.Fatalf("Events.Create returned error: %v", err)
 	}
 	assert.Equal(t, "evt_456", resp.Id)
 }
@@ -74,7 +74,7 @@ func TestGetEvent(t *testing.T) {
 
 	resp, err := client.Events.Get("evt_123")
 	if err != nil {
-		t.Errorf("Events.Get returned error: %v", err)
+		t.Fatalf("Events.Get returned error: %v", err)
 	}
 	assert.Equal(t, "event", resp.Object)
 	assert.Equal(t, "evt_123", resp.Id)
@@ -104,7 +104,7 @@ func TestGetEventByName(t *testing.T) {
 
 	resp, err := client.Events.Get("user.created")
 	if err != nil {
-		t.Errorf("Events.Get returned error: %v", err)
+		t.Fatalf("Events.Get returned error: %v", err)
 	}
 	assert.Equal(t, "evt_123", resp.Id)
 	assert.Equal(t, "user.created", resp.Name)
@@ -131,7 +131,7 @@ func TestListEvents(t *testing.T) {
 
 	resp, err := client.Events.List()
 	if err != nil {
-		t.Errorf("Events.List returned error: %v", err)
+		t.Fatalf("Events.List returned error: %v", err)
 	}
 	assert.Equal(t, "list", resp.Object)
 	assert.Equal(t, false, resp.HasMore)
@@ -167,7 +167,7 @@ func TestListEventsWithOptions(t *testing.T) {
 		After: &after,
 	})
 	if err != nil {
-		t.Errorf("Events.ListWithOptions returned error: %v", err)
+		t.Fatalf("Events.ListWithOptions returned error: %v", err)
 	}
 	assert.Equal(t, true, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -192,7 +192,7 @@ func TestUpdateEvent(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("Events.Update returned error: %v", err)
+		t.Fatalf("Events.Update returned error: %v", err)
 	}
 	assert.Equal(t, "event", resp.Object)
 	assert.Equal(t, "evt_123", resp.Id)
@@ -211,7 +211,7 @@ func TestRemoveEvent(t *testing.T) {
 
 	resp, err := client.Events.Remove("evt_123")
 	if err != nil {
-		t.Errorf("Events.Remove returned error: %v", err)
+		t.Fatalf("Events.Remove returned error: %v", err)
 	}
 	assert.Equal(t, "event", resp.Object)
 	assert.Equal(t, "evt_123", resp.Id)
@@ -237,7 +237,7 @@ func TestSendEvent(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("Events.Send returned error: %v", err)
+		t.Fatalf("Events.Send returned error: %v", err)
 	}
 	assert.Equal(t, "event", resp.Object)
 	assert.Equal(t, "user.created", resp.Event)
@@ -259,7 +259,7 @@ func TestSendEventWithContactId(t *testing.T) {
 		ContactId: "c1b2c3d4-e5f6-7890-abcd-ef1234567890",
 	})
 	if err != nil {
-		t.Errorf("Events.Send returned error: %v", err)
+		t.Fatalf("Events.Send returned error: %v", err)
 	}
 	assert.Equal(t, "order.placed", resp.Event)
 }

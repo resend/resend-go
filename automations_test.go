@@ -31,7 +31,7 @@ func TestCreateAutomation(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("Automations.Create returned error: %v", err)
+		t.Fatalf("Automations.Create returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_123", resp.Id)
@@ -64,7 +64,7 @@ func TestGetAutomation(t *testing.T) {
 
 	resp, err := client.Automations.Get("aut_123")
 	if err != nil {
-		t.Errorf("Automations.Get returned error: %v", err)
+		t.Fatalf("Automations.Get returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_123", resp.Id)
@@ -97,7 +97,7 @@ func TestListAutomations(t *testing.T) {
 
 	resp, err := client.Automations.List()
 	if err != nil {
-		t.Errorf("Automations.List returned error: %v", err)
+		t.Fatalf("Automations.List returned error: %v", err)
 	}
 	assert.Equal(t, "list", resp.Object)
 	assert.Equal(t, false, resp.HasMore)
@@ -135,7 +135,7 @@ func TestListAutomationsWithOptions(t *testing.T) {
 		Limit:  &limit,
 	})
 	if err != nil {
-		t.Errorf("Automations.ListWithOptions returned error: %v", err)
+		t.Fatalf("Automations.ListWithOptions returned error: %v", err)
 	}
 	assert.Equal(t, true, resp.HasMore)
 	assert.Equal(t, 1, len(resp.Data))
@@ -157,7 +157,7 @@ func TestUpdateAutomation(t *testing.T) {
 		Status: AutomationStatusEnabled,
 	})
 	if err != nil {
-		t.Errorf("Automations.Update returned error: %v", err)
+		t.Fatalf("Automations.Update returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_123", resp.Id)
@@ -176,7 +176,7 @@ func TestRemoveAutomation(t *testing.T) {
 
 	resp, err := client.Automations.Remove("aut_123")
 	if err != nil {
-		t.Errorf("Automations.Remove returned error: %v", err)
+		t.Fatalf("Automations.Remove returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_123", resp.Id)
@@ -196,7 +196,7 @@ func TestStopAutomation(t *testing.T) {
 
 	resp, err := client.Automations.Stop("aut_123")
 	if err != nil {
-		t.Errorf("Automations.Stop returned error: %v", err)
+		t.Fatalf("Automations.Stop returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_123", resp.Id)
@@ -223,7 +223,7 @@ func TestListAutomationRuns(t *testing.T) {
 
 	resp, err := client.Automations.ListRuns("aut_123")
 	if err != nil {
-		t.Errorf("Automations.ListRuns returned error: %v", err)
+		t.Fatalf("Automations.ListRuns returned error: %v", err)
 	}
 	assert.Equal(t, "list", resp.Object)
 	assert.Equal(t, false, resp.HasMore)
@@ -262,7 +262,7 @@ func TestListAutomationRunsWithOptions(t *testing.T) {
 		Limit:  &limit,
 	})
 	if err != nil {
-		t.Errorf("Automations.ListRunsWithContext returned error: %v", err)
+		t.Fatalf("Automations.ListRunsWithContext returned error: %v", err)
 	}
 	assert.Equal(t, 1, len(resp.Data))
 	assert.Equal(t, "run_1", resp.Data[0].Id)
@@ -304,7 +304,7 @@ func TestCreateAutomationWithDelayAndWaitForEvent(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("Automations.Create returned error: %v", err)
+		t.Fatalf("Automations.Create returned error: %v", err)
 	}
 	assert.Equal(t, "automation", resp.Object)
 	assert.Equal(t, "aut_456", resp.Id)
@@ -342,7 +342,7 @@ func TestGetAutomationStepResponseKeys(t *testing.T) {
 
 	resp, err := client.Automations.Get("aut_456")
 	if err != nil {
-		t.Errorf("Automations.Get returned error: %v", err)
+		t.Fatalf("Automations.Get returned error: %v", err)
 	}
 	assert.Equal(t, 4, len(resp.Steps))
 
@@ -390,7 +390,7 @@ func TestGetAutomationRun(t *testing.T) {
 
 	resp, err := client.Automations.GetRun("aut_123", "run_1")
 	if err != nil {
-		t.Errorf("Automations.GetRun returned error: %v", err)
+		t.Fatalf("Automations.GetRun returned error: %v", err)
 	}
 	assert.Equal(t, "automation_run", resp.Object)
 	assert.Equal(t, "run_1", resp.Id)
