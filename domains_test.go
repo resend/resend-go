@@ -295,7 +295,6 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 	assert.Equal(t, resp.Records[1].Type, "CNAME")
 	assert.Equal(t, resp.Records[1].Priority, json.Number(""))
 	assert.Equal(t, resp.Records[2].Record, RecordTypeTrackingCAA)
-	assert.Equal(t, resp.Records[2].Record, "TrackingCAA")
 	assert.Equal(t, resp.Records[2].Name, "")
 	assert.Equal(t, resp.Records[2].Value, "0 issue \"amazon.com\"")
 	assert.Equal(t, resp.Records[2].Type, "CAA")
