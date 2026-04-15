@@ -262,6 +262,14 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 					"type": "CNAME",
 					"ttl": "Auto",
 					"status": "not_started"
+				},
+				{
+					"record": "TrackingCAA",
+					"name": "",
+					"value": "0 issue \"amazon.com\"",
+					"type": "CAA",
+					"ttl": "Auto",
+					"status": "not_started"
 				}
 			]
 		}`)
@@ -280,12 +288,17 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 	assert.True(t, resp.OpenTracking)
 	assert.True(t, resp.ClickTracking)
 	assert.Equal(t, resp.TrackingSubdomain, "links")
-	assert.Equal(t, len(resp.Records), 2)
+	assert.Equal(t, len(resp.Records), 3)
 	assert.Equal(t, resp.Records[1].Record, "Tracking")
 	assert.Equal(t, resp.Records[1].Name, "links.example.com")
 	assert.Equal(t, resp.Records[1].Value, "links1.resend-dns.com")
 	assert.Equal(t, resp.Records[1].Type, "CNAME")
 	assert.Equal(t, resp.Records[1].Priority, json.Number(""))
+	assert.Equal(t, resp.Records[2].Record, "TrackingCAA")
+	assert.Equal(t, resp.Records[2].Name, "")
+	assert.Equal(t, resp.Records[2].Value, "0 issue \"amazon.com\"")
+	assert.Equal(t, resp.Records[2].Type, "CAA")
+	assert.Equal(t, resp.Records[2].Ttl, "Auto")
 }
 
 func TestGetDomainWithTrackingFields(t *testing.T) {
@@ -319,6 +332,14 @@ func TestGetDomainWithTrackingFields(t *testing.T) {
 					"type": "CNAME",
 					"ttl": "Auto",
 					"status": "not_started"
+				},
+				{
+					"record": "TrackingCAA",
+					"name": "",
+					"value": "0 issue \"amazon.com\"",
+					"type": "CAA",
+					"ttl": "Auto",
+					"status": "verified"
 				}
 			]
 		}`)
@@ -332,6 +353,10 @@ func TestGetDomainWithTrackingFields(t *testing.T) {
 	assert.True(t, domain.OpenTracking)
 	assert.True(t, domain.ClickTracking)
 	assert.Equal(t, domain.TrackingSubdomain, "links")
+	assert.Equal(t, len(domain.Records), 3)
+	assert.Equal(t, domain.Records[2].Record, "TrackingCAA")
+	assert.Equal(t, domain.Records[2].Type, "CAA")
+	assert.Equal(t, domain.Records[2].Value, "0 issue \"amazon.com\"")
 }
 
 func TestUpdateDomainWithTrackingSubdomain(t *testing.T) {
