@@ -92,7 +92,7 @@ func TestCreateDomain(t *testing.T) {
 	assert.NotNil(t, resp.Records)
 	assert.Equal(t, len(resp.Records), 5)
 
-	assert.Equal(t, resp.Records[0].Record, "SPF")
+	assert.Equal(t, resp.Records[0].Record, RecordTypeSPF)
 	assert.Equal(t, resp.Records[0].Name, "bounces")
 	assert.Equal(t, resp.Records[0].Type, "MX")
 	assert.Equal(t, resp.Records[0].Ttl, "Auto")
@@ -162,7 +162,7 @@ func TestListDomains(t *testing.T) {
 	assert.Equal(t, domains.Data[0].Status, "not_started")
 	assert.Equal(t, domains.Data[0].CreatedAt, "2023-04-26T20:21:26.347412+00:00")
 	assert.Equal(t, domains.Data[0].Region, "us-east-1")
-	assert.Equal(t, domains.Data[0].Records[0].Record, "SPF")
+	assert.Equal(t, domains.Data[0].Records[0].Record, RecordTypeSPF)
 }
 
 func TestRemoveDomain(t *testing.T) {
@@ -222,7 +222,7 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.Status, "not_started")
 	assert.Equal(t, domain.CreatedAt, "2023-04-26T20:21:26.347412+00:00")
 	assert.Equal(t, domain.Region, "us-east-1")
-	assert.Equal(t, domain.Records[0].Record, "SPF")
+	assert.Equal(t, domain.Records[0].Record, RecordTypeSPF)
 	assert.Equal(t, domain.Records[0].Name, "bounces")
 }
 
@@ -262,6 +262,14 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 					"type": "CNAME",
 					"ttl": "Auto",
 					"status": "not_started"
+				},
+				{
+					"record": "TrackingCAA",
+					"name": "",
+					"value": "0 issue \"amazon.com\"",
+					"type": "CAA",
+					"ttl": "Auto",
+					"status": "not_started"
 				}
 			]
 		}`)
@@ -280,12 +288,18 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 	assert.True(t, resp.OpenTracking)
 	assert.True(t, resp.ClickTracking)
 	assert.Equal(t, resp.TrackingSubdomain, "links")
-	assert.Equal(t, len(resp.Records), 2)
-	assert.Equal(t, resp.Records[1].Record, "Tracking")
+	assert.Equal(t, len(resp.Records), 3)
+	assert.Equal(t, resp.Records[1].Record, RecordTypeTracking)
 	assert.Equal(t, resp.Records[1].Name, "links.example.com")
 	assert.Equal(t, resp.Records[1].Value, "links1.resend-dns.com")
 	assert.Equal(t, resp.Records[1].Type, "CNAME")
 	assert.Equal(t, resp.Records[1].Priority, json.Number(""))
+	assert.Equal(t, resp.Records[2].Record, RecordTypeTrackingCAA)
+	assert.Equal(t, resp.Records[2].Record, "TrackingCAA")
+	assert.Equal(t, resp.Records[2].Name, "")
+	assert.Equal(t, resp.Records[2].Value, "0 issue \"amazon.com\"")
+	assert.Equal(t, resp.Records[2].Type, "CAA")
+	assert.Equal(t, resp.Records[2].Ttl, "Auto")
 }
 
 func TestGetDomainWithTrackingFields(t *testing.T) {
@@ -319,6 +333,14 @@ func TestGetDomainWithTrackingFields(t *testing.T) {
 					"type": "CNAME",
 					"ttl": "Auto",
 					"status": "not_started"
+				},
+				{
+					"record": "TrackingCAA",
+					"name": "",
+					"value": "0 issue \"amazon.com\"",
+					"type": "CAA",
+					"ttl": "Auto",
+					"status": "verified"
 				}
 			]
 		}`)
@@ -332,6 +354,10 @@ func TestGetDomainWithTrackingFields(t *testing.T) {
 	assert.True(t, domain.OpenTracking)
 	assert.True(t, domain.ClickTracking)
 	assert.Equal(t, domain.TrackingSubdomain, "links")
+	assert.Equal(t, len(domain.Records), 3)
+	assert.Equal(t, domain.Records[2].Record, RecordTypeTrackingCAA)
+	assert.Equal(t, domain.Records[2].Type, "CAA")
+	assert.Equal(t, domain.Records[2].Value, "0 issue \"amazon.com\"")
 }
 
 func TestUpdateDomainWithTrackingSubdomain(t *testing.T) {

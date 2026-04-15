@@ -14,6 +14,15 @@ const (
 	Opportunistic TlsOption = "opportunistic"
 )
 
+type RecordType = string
+
+const (
+	RecordTypeSPF         RecordType = "SPF"
+	RecordTypeDKIM        RecordType = "DKIM"
+	RecordTypeTracking    RecordType = "Tracking"
+	RecordTypeTrackingCAA RecordType = "TrackingCAA"
+)
+
 type DomainsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
@@ -81,7 +90,7 @@ type Domain struct {
 }
 
 type Record struct {
-	Record   string      `json:"record"`
+	Record   RecordType  `json:"record"`
 	Name     string      `json:"name"`
 	Type     string      `json:"type"`
 	Ttl      string      `json:"ttl"`
