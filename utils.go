@@ -14,6 +14,12 @@ func BytesToIntArray(a []byte) []int {
 	return res
 }
 
+// Bool returns a pointer to the given bool value.
+// Use this to set *bool fields on request structs.
+func Bool(v bool) *bool {
+	return &v
+}
+
 func getEnv(key, df string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value

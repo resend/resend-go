@@ -48,8 +48,8 @@ type CreateDomainRequest struct {
 	Region            string `json:"region,omitempty"`
 	CustomReturnPath  string `json:"custom_return_path,omitempty"`
 	TrackingSubdomain string `json:"tracking_subdomain,omitempty"`
-	OpenTracking      bool   `json:"open_tracking,omitempty"`
-	ClickTracking     bool   `json:"click_tracking,omitempty"`
+	OpenTracking      *bool  `json:"open_tracking,omitempty"`
+	ClickTracking     *bool  `json:"click_tracking,omitempty"`
 }
 
 type CreateDomainResponse struct {
@@ -76,6 +76,39 @@ type UpdateDomainRequest struct {
 	ClickTracking     bool      `json:"click_tracking,omitempty"`
 	Tls               TlsOption `json:"tls,omitempty"`
 	TrackingSubdomain string    `json:"tracking_subdomain,omitempty"`
+	openTrackingSet   bool      `json:"-"`
+	clickTrackingSet  bool      `json:"-"`
+}
+
+// SetOpenTracking explicitly sets the open_tracking field, allowing false to be sent.
+// Setting OpenTracking directly on the struct does not send false due to omitempty.
+func (r *UpdateDomainRequest) SetOpenTracking(val bool) {
+	r.OpenTracking = val
+	r.openTrackingSet = true
+}
+
+// SetClickTracking explicitly sets the click_tracking field, allowing false to be sent.
+// Setting ClickTracking directly on the struct does not send false due to omitempty.
+func (r *UpdateDomainRequest) SetClickTracking(val bool) {
+	r.ClickTracking = val
+	r.clickTrackingSet = true
+}
+
+func (r UpdateDomainRequest) MarshalJSON() ([]byte, error) {
+	aux := make(map[string]any)
+	if r.openTrackingSet || r.OpenTracking {
+		aux["open_tracking"] = r.OpenTracking
+	}
+	if r.clickTrackingSet || r.ClickTracking {
+		aux["click_tracking"] = r.ClickTracking
+	}
+	if r.Tls != "" {
+		aux["tls"] = r.Tls
+	}
+	if r.TrackingSubdomain != "" {
+		aux["tracking_subdomain"] = r.TrackingSubdomain
+	}
+	return json.Marshal(aux)
 }
 
 type Domain struct {

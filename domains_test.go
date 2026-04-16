@@ -279,8 +279,8 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 		Name:              "example.com",
 		Region:            "us-east-1",
 		TrackingSubdomain: "links",
-		OpenTracking:      true,
-		ClickTracking:     true,
+		OpenTracking:      Bool(true),
+		ClickTracking:     Bool(true),
 	}
 	resp, err := client.Domains.Create(req)
 	if err != nil {
@@ -379,6 +379,42 @@ func TestUpdateDomainWithTrackingSubdomain(t *testing.T) {
 	params := &UpdateDomainRequest{
 		TrackingSubdomain: "links",
 	}
+	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
+	if err != nil {
+		t.Errorf("Domains.Update returned error: %v", err)
+	}
+	assert.Equal(t, updated.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+}
+
+func TestUpdateDomainSetTrackingToFalse(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("failed to decode request body: %v", err)
+		}
+		// Both fields must be present and false in the payload
+		openTracking, ok := body["open_tracking"]
+		assert.True(t, ok, "open_tracking should be present in payload")
+		assert.Equal(t, false, openTracking)
+
+		clickTracking, ok := body["click_tracking"]
+		assert.True(t, ok, "click_tracking should be present in payload")
+		assert.Equal(t, false, clickTracking)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"id": "d91cd9bd-1176-453e-8fc1-35364d380206", "object": "domain"}`)
+	})
+
+	params := &UpdateDomainRequest{}
+	params.SetOpenTracking(false)
+	params.SetClickTracking(false)
+
 	updated, err := client.Domains.Update("d91cd9bd-1176-453e-8fc1-35364d380206", params)
 	if err != nil {
 		t.Errorf("Domains.Update returned error: %v", err)
