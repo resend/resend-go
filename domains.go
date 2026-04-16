@@ -48,6 +48,8 @@ type CreateDomainRequest struct {
 	Region            string `json:"region,omitempty"`
 	CustomReturnPath  string `json:"custom_return_path,omitempty"`
 	TrackingSubdomain string `json:"tracking_subdomain,omitempty"`
+	OpenTracking      bool   `json:"open_tracking,omitempty"`
+	ClickTracking     bool   `json:"click_tracking,omitempty"`
 }
 
 type CreateDomainResponse struct {

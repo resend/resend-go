@@ -279,6 +279,8 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 		Name:              "example.com",
 		Region:            "us-east-1",
 		TrackingSubdomain: "links",
+		OpenTracking:      true,
+		ClickTracking:     true,
 	}
 	resp, err := client.Domains.Create(req)
 	if err != nil {
