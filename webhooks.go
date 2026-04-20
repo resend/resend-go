@@ -25,6 +25,7 @@ const (
 	EventEmailClicked         = "email.clicked"
 	EventEmailReceived        = "email.received"
 	EventEmailFailed          = "email.failed"
+	EventEmailSuppressed      = "email.suppressed"
 
 	// Contact events
 	EventContactCreated = "contact.created"
