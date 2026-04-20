@@ -37,10 +37,11 @@ const (
 type DomainRecordStatus = string
 
 const (
-	DomainRecordStatusPending    DomainRecordStatus = "pending"
-	DomainRecordStatusVerified   DomainRecordStatus = "verified"
-	DomainRecordStatusFailed     DomainRecordStatus = "failed"
-	DomainRecordStatusNotStarted DomainRecordStatus = "not_started"
+	DomainRecordStatusPending         DomainRecordStatus = "pending"
+	DomainRecordStatusVerified        DomainRecordStatus = "verified"
+	DomainRecordStatusFailed          DomainRecordStatus = "failed"
+	DomainRecordStatusTemporaryFailed DomainRecordStatus = "temporary_failure"
+	DomainRecordStatusNotStarted      DomainRecordStatus = "not_started"
 )
 
 type DomainsSvc interface {
