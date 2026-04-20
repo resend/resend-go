@@ -23,6 +23,26 @@ const (
 	RecordTypeTrackingCAA RecordType = "TrackingCAA"
 )
 
+type DomainStatus = string
+
+const (
+	DomainStatusPending           DomainStatus = "pending"
+	DomainStatusVerified          DomainStatus = "verified"
+	DomainStatusFailed            DomainStatus = "failed"
+	DomainStatusNotStarted        DomainStatus = "not_started"
+	DomainStatusPartiallyVerified DomainStatus = "partially_verified"
+	DomainStatusPartiallyFailed   DomainStatus = "partially_failed"
+)
+
+type DomainRecordStatus = string
+
+const (
+	DomainRecordStatusPending    DomainRecordStatus = "pending"
+	DomainRecordStatusVerified   DomainRecordStatus = "verified"
+	DomainRecordStatusFailed     DomainRecordStatus = "failed"
+	DomainRecordStatusNotStarted DomainRecordStatus = "not_started"
+)
+
 type DomainsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
