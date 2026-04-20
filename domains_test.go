@@ -226,6 +226,99 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.Records[0].Name, "bounces")
 }
 
+func TestGetDomainPartiallyVerified(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/fd61172c-cafc-40f5-b049-b45947779a29", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "domain",
+			"id": "fd61172c-cafc-40f5-b049-b45947779a29",
+			"name": "resend.com",
+			"status": "partially_verified",
+			"created_at": "2023-06-21T06:10:36.144Z",
+			"region": "us-east-1",
+			"records": [
+				{
+					"record": "DKIM",
+					"name": "resend._domainkey",
+					"value": "p=MIG...",
+					"type": "TXT",
+					"status": "verified",
+					"ttl": "Auto"
+				},
+				{
+					"record": "Tracking",
+					"name": "track.resend.com",
+					"value": "tracking.resend.com",
+					"type": "CNAME",
+					"ttl": "Auto",
+					"status": "pending"
+				}
+			]
+		}`)
+	})
+
+	domain, err := client.Domains.Get("fd61172c-cafc-40f5-b049-b45947779a29")
+	if err != nil {
+		t.Errorf("Domains.Get returned error: %v", err)
+	}
+
+	assert.Equal(t, domain.Status, DomainStatusPartiallyVerified)
+	assert.Equal(t, domain.Records[0].Status, DomainRecordStatusVerified)
+	assert.Equal(t, domain.Records[1].Status, DomainRecordStatusPending)
+}
+
+func TestGetDomainPartiallyFailed(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/fd61172c-cafc-40f5-b049-b45947779a30", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "domain",
+			"id": "fd61172c-cafc-40f5-b049-b45947779a30",
+			"name": "resend.com",
+			"status": "partially_failed",
+			"created_at": "2023-06-21T06:10:36.144Z",
+			"region": "us-east-1",
+			"records": [
+				{
+					"record": "DKIM",
+					"name": "resend._domainkey",
+					"value": "p=MIG...",
+					"type": "TXT",
+					"status": "verified",
+					"ttl": "Auto"
+				},
+				{
+					"record": "Receiving",
+					"name": "resend.com",
+					"value": "inbound-mx.resend.com",
+					"type": "MX",
+					"ttl": "Auto",
+					"status": "failed",
+					"priority": 10
+				}
+			]
+		}`)
+	})
+
+	domain, err := client.Domains.Get("fd61172c-cafc-40f5-b049-b45947779a30")
+	if err != nil {
+		t.Errorf("Domains.Get returned error: %v", err)
+	}
+
+	assert.Equal(t, domain.Status, DomainStatusPartiallyFailed)
+	assert.Equal(t, domain.Records[0].Status, DomainRecordStatusVerified)
+	assert.Equal(t, domain.Records[1].Status, DomainRecordStatusFailed)
+}
+
 func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 	setup()
 	defer teardown()
