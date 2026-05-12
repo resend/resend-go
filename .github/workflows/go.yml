@@ -9,10 +9,14 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 jobs:
 
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         go:
