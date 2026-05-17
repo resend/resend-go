@@ -64,13 +64,19 @@ type DomainsSvcImpl struct {
 	client *Client
 }
 
+type DomainCapabilities struct {
+	Sending   string `json:"sending,omitempty"`
+	Receiving string `json:"receiving,omitempty"`
+}
+
 type CreateDomainRequest struct {
-	Name              string `json:"name"`
-	Region            string `json:"region,omitempty"`
-	CustomReturnPath  string `json:"custom_return_path,omitempty"`
-	TrackingSubdomain string `json:"tracking_subdomain,omitempty"`
-	OpenTracking      *bool  `json:"open_tracking,omitempty"`
-	ClickTracking     *bool  `json:"click_tracking,omitempty"`
+	Name              string              `json:"name"`
+	Region            string              `json:"region,omitempty"`
+	CustomReturnPath  string              `json:"custom_return_path,omitempty"`
+	TrackingSubdomain string              `json:"tracking_subdomain,omitempty"`
+	OpenTracking      *bool               `json:"open_tracking,omitempty"`
+	ClickTracking     *bool               `json:"click_tracking,omitempty"`
+	Capabilities      *DomainCapabilities `json:"capabilities,omitempty"`
 }
 
 type CreateDomainResponse struct {

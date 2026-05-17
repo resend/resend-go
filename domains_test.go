@@ -103,6 +103,87 @@ func TestCreateDomain(t *testing.T) {
 	assert.Equal(t, resp.Records[1].Priority, json.Number(""))
 }
 
+func TestCreateDomainWithCapabilities(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("failed to decode request body: %v", err)
+		}
+		capabilities, ok := body["capabilities"].(map[string]any)
+		assert.True(t, ok, "capabilities should be present in payload as an object")
+		assert.Equal(t, "enabled", capabilities["sending"])
+		assert.Equal(t, "enabled", capabilities["receiving"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprint(w, `{
+			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
+			"name": "example.com",
+			"createdAt": "2023-03-28T17:12:02.059593+00:00",
+			"status": "not_started",
+			"region": "us-east-1",
+			"dnsProvider": "Unidentified"
+		}`)
+	})
+
+	req := &CreateDomainRequest{
+		Name:   "example.com",
+		Region: "us-east-1",
+		Capabilities: &DomainCapabilities{
+			Sending:   "enabled",
+			Receiving: "enabled",
+		},
+	}
+	resp, err := client.Domains.Create(req)
+	if err != nil {
+		t.Errorf("Domains.Create returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "4dd369bc-aa82-4ff3-97de-514ae3000ee0")
+}
+
+func TestCreateDomainWithoutCapabilitiesOmitsKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("failed to decode request body: %v", err)
+		}
+		_, present := body["capabilities"]
+		assert.False(t, present, "capabilities should be omitted when not set")
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		fmt.Fprint(w, `{
+			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
+			"name": "example.com",
+			"createdAt": "2023-03-28T17:12:02.059593+00:00",
+			"status": "not_started",
+			"region": "us-east-1",
+			"dnsProvider": "Unidentified"
+		}`)
+	})
+
+	req := &CreateDomainRequest{
+		Name:   "example.com",
+		Region: "us-east-1",
+	}
+	_, err := client.Domains.Create(req)
+	if err != nil {
+		t.Errorf("Domains.Create returned error: %v", err)
+	}
+}
+
 func TestVerifyDomain(t *testing.T) {
 	setup()
 	defer teardown()
