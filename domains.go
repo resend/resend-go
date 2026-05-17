@@ -64,9 +64,16 @@ type DomainsSvcImpl struct {
 	client *Client
 }
 
+type DomainCapabilityStatus = string
+
+const (
+	DomainCapabilityStatusEnabled  DomainCapabilityStatus = "enabled"
+	DomainCapabilityStatusDisabled DomainCapabilityStatus = "disabled"
+)
+
 type DomainCapabilities struct {
-	Sending   string `json:"sending,omitempty"`
-	Receiving string `json:"receiving,omitempty"`
+	Sending   DomainCapabilityStatus `json:"sending,omitempty"`
+	Receiving DomainCapabilityStatus `json:"receiving,omitempty"`
 }
 
 type CreateDomainRequest struct {

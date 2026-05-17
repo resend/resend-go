@@ -136,8 +136,8 @@ func TestCreateDomainWithCapabilities(t *testing.T) {
 		Name:   "example.com",
 		Region: "us-east-1",
 		Capabilities: &DomainCapabilities{
-			Sending:   "enabled",
-			Receiving: "enabled",
+			Sending:   DomainCapabilityStatusEnabled,
+			Receiving: DomainCapabilityStatusEnabled,
 		},
 	}
 	resp, err := client.Domains.Create(req)
