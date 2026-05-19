@@ -280,7 +280,11 @@ func TestGetEmail(t *testing.T) {
 			"to":["james@bond.com"],
 			"created_at":"2023-04-03T22:13:42.674981+00:00",
 			"subject": "Hello World",
-			"html":"html"
+			"html":"html",
+			"headers": {
+				"Message-ID": "<test-message-id@example.com>",
+				"X-Custom-Header": "value"
+			}
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -294,6 +298,9 @@ func TestGetEmail(t *testing.T) {
 	assert.Equal(t, resp.Html, "html")
 	assert.Equal(t, resp.To[0], "james@bond.com")
 	assert.Equal(t, resp.Subject, "Hello World")
+	assert.Equal(t, 2, len(resp.Headers))
+	assert.Equal(t, "<test-message-id@example.com>", resp.Headers["Message-ID"])
+	assert.Equal(t, "value", resp.Headers["X-Custom-Header"])
 }
 
 func TestCancelScheduledEmail(t *testing.T) {

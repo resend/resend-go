@@ -66,18 +66,19 @@ type UpdateEmailResponse struct {
 
 // Email provides the structure for the response from the Get call.
 type Email struct {
-	Id        string   `json:"id"`
-	Object    string   `json:"object"`
-	To        []string `json:"to"`
-	From      string   `json:"from"`
-	CreatedAt string   `json:"created_at"`
-	Subject   string   `json:"subject"`
-	Html      string   `json:"html"`
-	Text      string   `json:"text"`
-	Bcc       []string `json:"bcc"`
-	Cc        []string `json:"cc"`
-	ReplyTo   []string `json:"reply_to"`
-	LastEvent string   `json:"last_event"`
+	Id        string            `json:"id"`
+	Object    string            `json:"object"`
+	To        []string          `json:"to"`
+	From      string            `json:"from"`
+	CreatedAt string            `json:"created_at"`
+	Subject   string            `json:"subject"`
+	Html      string            `json:"html"`
+	Text      string            `json:"text"`
+	Bcc       []string          `json:"bcc"`
+	Cc        []string          `json:"cc"`
+	ReplyTo   []string          `json:"reply_to"`
+	Headers   map[string]string `json:"headers"`
+	LastEvent string            `json:"last_event"`
 }
 
 // ListEmailsResponse is the response from the List call.
