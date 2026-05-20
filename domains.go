@@ -94,9 +94,10 @@ type CreateDomainResponse struct {
 	Records           []Record `json:"records"`
 	Region            string   `json:"region"`
 	DnsProvider       string   `json:"dnsProvider"`
-	OpenTracking      bool     `json:"open_tracking,omitempty"`
-	ClickTracking     bool     `json:"click_tracking,omitempty"`
-	TrackingSubdomain string   `json:"tracking_subdomain,omitempty"`
+	OpenTracking      bool                `json:"open_tracking,omitempty"`
+	ClickTracking     bool                `json:"click_tracking,omitempty"`
+	TrackingSubdomain string              `json:"tracking_subdomain,omitempty"`
+	Capabilities      *DomainCapabilities `json:"capabilities,omitempty"`
 }
 
 type ListDomainsResponse struct {
@@ -153,9 +154,10 @@ type Domain struct {
 	Status            string   `json:"status,omitempty"`
 	Region            string   `json:"region,omitempty"`
 	Records           []Record `json:"records,omitempty"`
-	OpenTracking      bool     `json:"open_tracking,omitempty"`
-	ClickTracking     bool     `json:"click_tracking,omitempty"`
-	TrackingSubdomain string   `json:"tracking_subdomain,omitempty"`
+	OpenTracking      bool                `json:"open_tracking,omitempty"`
+	ClickTracking     bool                `json:"click_tracking,omitempty"`
+	TrackingSubdomain string              `json:"tracking_subdomain,omitempty"`
+	Capabilities      *DomainCapabilities `json:"capabilities,omitempty"`
 }
 
 type Record struct {
