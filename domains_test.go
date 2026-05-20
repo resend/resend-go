@@ -184,6 +184,38 @@ func TestCreateDomainWithoutCapabilitiesOmitsKey(t *testing.T) {
 	}
 }
 
+func TestCreateDomainResponseDeserializesCapabilities(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{
+			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
+			"name": "example.com",
+			"createdAt": "2023-03-28T17:12:02.059593+00:00",
+			"status": "not_started",
+			"region": "us-east-1",
+			"dnsProvider": "Unidentified",
+			"capabilities": {
+				"sending": "enabled",
+				"receiving": "disabled"
+			}
+		}`)
+	})
+
+	req := &CreateDomainRequest{Name: "example.com"}
+	resp, err := client.Domains.Create(req)
+	if err != nil {
+		t.Errorf("Domains.Create returned error: %v", err)
+	}
+	assert.NotNil(t, resp.Capabilities)
+	assert.Equal(t, DomainCapabilityStatusEnabled, resp.Capabilities.Sending)
+	assert.Equal(t, DomainCapabilityStatusDisabled, resp.Capabilities.Receiving)
+}
+
 func TestVerifyDomain(t *testing.T) {
 	setup()
 	defer teardown()
@@ -305,6 +337,37 @@ func TestGetDomain(t *testing.T) {
 	assert.Equal(t, domain.Region, "us-east-1")
 	assert.Equal(t, domain.Records[0].Record, RecordTypeSPF)
 	assert.Equal(t, domain.Records[0].Name, "bounces")
+}
+
+func TestGetDomainDeserializesCapabilities(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "domain",
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"name": "example.com",
+			"status": "not_started",
+			"created_at": "2023-04-26T20:21:26.347412+00:00",
+			"region": "us-east-1",
+			"capabilities": {
+				"sending": "enabled",
+				"receiving": "enabled"
+			}
+		}`)
+	})
+
+	domain, err := client.Domains.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
+	if err != nil {
+		t.Errorf("Domains.Get returned error: %v", err)
+	}
+	assert.NotNil(t, domain.Capabilities)
+	assert.Equal(t, DomainCapabilityStatusEnabled, domain.Capabilities.Sending)
+	assert.Equal(t, DomainCapabilityStatusEnabled, domain.Capabilities.Receiving)
 }
 
 func TestGetDomainPartiallyVerified(t *testing.T) {
