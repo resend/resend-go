@@ -39,6 +39,7 @@ type SendEmailRequest struct {
 	Headers     map[string]string `json:"headers,omitempty"`
 	ScheduledAt string            `json:"scheduled_at,omitempty"`
 	Template    *EmailTemplate    `json:"template,omitempty"`
+	TopicId     string            `json:"topic_id,omitempty"`
 }
 
 // CancelScheduledEmailResponse is the response from the Cancel call.
