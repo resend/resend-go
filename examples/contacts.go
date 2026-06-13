@@ -159,17 +159,57 @@ func contactsExample() {
 
 	// ====================================
 
+	// Create a global contact with segments and topics (atomic operation)
+	// This demonstrates adding a contact to segments and subscribing to topics in a single request
+	segmentParams := &resend.CreateSegmentRequest{
+		Name: "Premium Users",
+	}
+	segment, err := client.Segments.CreateWithContext(ctx, segmentParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("\nCreated segment with ID: " + segment.Id)
+
+	globalContactParams := &resend.CreateContactRequest{
+		Email:     "premium@example.com",
+		FirstName: "Premium",
+		LastName:  "User",
+		Segments: []resend.ContactSegmentRef{
+			{Id: segment.Id},
+		},
+		Topics: []resend.TopicSubscriptionUpdate{
+			{Id: topic.Id, Subscription: "opt_in"},
+		},
+	}
+	globalContact, err := client.Contacts.CreateWithContext(ctx, globalContactParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Created global contact with segments and topics: %s\n", globalContact.Id)
+
+	// Clean up: remove the segment we created
+	removedSegment, err := client.Segments.RemoveWithContext(ctx, segment.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Segment deleted: %v\n", removedSegment.Deleted)
+
+	// Remove by email
+	removedContact, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
+		Id: "hi@example.com",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nGlobal contact deleted: %v\n", removedContact.Deleted)
+
+	// ====================================
+
 	// Remove by id
 	removed, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
 		AudienceId: audienceId,
 		Id:         contact.Id,
 	})
-
-	// Remove by email
-	// removed, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
-	//   AudienceId: audienceId,
-	//   Id:         "hi@example.com",
-	// })
 	if err != nil {
 		panic(err)
 	}
