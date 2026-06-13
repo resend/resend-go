@@ -48,6 +48,11 @@ type RemoveContactOptions struct {
 	Id         string // Required - can be contact ID or email address
 }
 
+// ContactSegmentRef is a minimal reference to a segment for embedding in CreateContactRequest
+type ContactSegmentRef struct {
+	Id string `json:"id"`
+}
+
 type CreateContactRequest struct {
 	Email        string `json:"email"`
 	AudienceId   string `json:"audience_id,omitempty"` // Deprecated: Optional, use Segments API for contact organization
@@ -59,6 +64,12 @@ type CreateContactRequest struct {
 	// Non-string values (numbers, booleans, etc.) will be rejected by the API with a validation error.
 	// Example: Properties: map[string]any{"tier": "premium", "age": "30", "active": "true"}
 	Properties map[string]any `json:"properties,omitempty"`
+	// Segments is an array of segment IDs to add the contact to (when audience_id is omitted).
+	// This field is only used when AudienceId is not set.
+	Segments []ContactSegmentRef `json:"segments,omitempty"`
+	// Topics is an array of topic subscriptions for the contact (when audience_id is omitted).
+	// This field is only used when AudienceId is not set.
+	Topics []TopicSubscriptionUpdate `json:"topics,omitempty"`
 }
 
 type UpdateContactRequest struct {
