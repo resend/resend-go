@@ -792,3 +792,42 @@ func TestSendEmailWithTemplateComplexVariables(t *testing.T) {
 	}
 	assert.Equal(t, "complex-vars-email-222", resp.Id)
 }
+
+func TestSendEmailWithTopicId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	topicId := "1234567890abcdef"
+
+	mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		// Verify that topic_id is in the request body
+		bodyBytes, err := io.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Contains(t, string(bodyBytes), `"topic_id"`+":"+`"`+topicId+`"`)
+
+		ret := &SendEmailResponse{
+			Id: "topic-email-001",
+		}
+		err = json.NewEncoder(w).Encode(&ret)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	req := &SendEmailRequest{
+		From:    "sender@example.com",
+		To:      []string{"recipient@example.com"},
+		Subject: "Email with Topic",
+		Html:    "<p>This email is sent to a topic subscriber</p>",
+		TopicId: topicId,
+	}
+	resp, err := client.Emails.Send(req)
+	if err != nil {
+		t.Errorf("Emails.Send returned error: %v", err)
+	}
+	assert.Equal(t, "topic-email-001", resp.Id)
+}

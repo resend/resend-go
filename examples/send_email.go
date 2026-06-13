@@ -94,4 +94,24 @@ func sendEmailExample() {
 
 		fmt.Printf("Found %d more emails in next page\n", len(nextPage.Data))
 	}
+
+	// Sending email with a topic_id
+	// The topic_id field allows you to send emails only to contacts who have subscribed to that topic.
+	// - If recipient is a contact and opted-in: email is sent
+	// - If recipient is a contact and opted-out: email is NOT sent (marked as failed)
+	// - If recipient is not a contact: email is sent if topic's default_subscription is "opt_in"
+	fmt.Println("\n--- Sending with Topic ID ---")
+	topicParams := &resend.SendEmailRequest{
+		From:    "onboarding@resend.dev",
+		To:      []string{"delivered@resend.dev"},
+		Subject: "Newsletter for subscribers",
+		Html:    "<p>This is sent only to topic subscribers</p>",
+		TopicId: "1234567890abcdef", // Replace with actual topic ID
+	}
+
+	topicResp, err := client.Emails.SendWithContext(ctx, topicParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Sent email with topic_id: %s\n", topicResp.Id)
 }
