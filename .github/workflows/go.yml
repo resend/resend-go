@@ -20,9 +20,12 @@ jobs:
     strategy:
       matrix:
         go:
-          - "1.23"
-          - "1.22"
           - "1.21"
+          - "1.22"
+          - "1.23"
+          - "1.24"
+          - "1.25"
+          - "1.26"
     name: "Test: go v${{ matrix.go }}"
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
