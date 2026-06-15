@@ -667,3 +667,50 @@ func TestRemoveGlobalContact(t *testing.T) {
 	assert.Equal(t, contactId, deleted.Id)
 	assert.Equal(t, "contact", deleted.Object)
 }
+
+func TestCreateGlobalContactWithSegmentsAndTopics(t *testing.T) {
+	setup()
+	defer teardown()
+
+	segmentId := "seg-123abc"
+	topicId := "top-456def"
+
+	mux.HandleFunc("/contacts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+
+		// Verify that segments and topics are in the request body
+		bodyBytes, err := io.ReadAll(r.Body)
+		assert.NoError(t, err)
+		bodyStr := string(bodyBytes)
+		assert.Contains(t, bodyStr, `"segments"`)
+		assert.Contains(t, bodyStr, segmentId)
+		assert.Contains(t, bodyStr, `"topics"`)
+		assert.Contains(t, bodyStr, topicId)
+		assert.Contains(t, bodyStr, `"opt_in"`)
+
+		fmt.Fprint(w, `{
+			"object": "contact",
+			"id": "seg-contact-001"
+		}`)
+	})
+
+	req := &CreateContactRequest{
+		Email:     "segmented@example.com",
+		FirstName: "Segmented",
+		LastName:  "Contact",
+		Segments: []ContactSegmentRef{
+			{Id: segmentId},
+		},
+		Topics: []TopicSubscriptionUpdate{
+			{Id: topicId, Subscription: "opt_in"},
+		},
+	}
+	resp, err := client.Contacts.Create(req)
+	if err != nil {
+		t.Errorf("Contacts.Create returned error: %v", err)
+	}
+	assert.Equal(t, "contact", resp.Object)
+	assert.Equal(t, "seg-contact-001", resp.Id)
+}
