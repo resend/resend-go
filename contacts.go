@@ -143,6 +143,13 @@ func (s *ContactsSvcImpl) Create(params *CreateContactRequest) (CreateContactRes
 // Global contacts support custom properties while audience-specific contacts do not.
 // https://resend.com/docs/api-reference/contacts/create-contact
 func (s *ContactsSvcImpl) CreateWithContext(ctx context.Context, params *CreateContactRequest) (CreateContactResponse, error) {
+	if params == nil {
+		return CreateContactResponse{}, errors.New("[ERROR]: params cannot be nil")
+	}
+	if params.AudienceId != "" && (len(params.Segments) > 0 || len(params.Topics) > 0) {
+		return CreateContactResponse{}, errors.New("[ERROR]: `audience_id` is deprecated and cannot be used together with `segments` or `topics`.")
+	}
+
 	var path string
 	if params.AudienceId != "" {
 		// Audience-specific contact (legacy path, no properties support)

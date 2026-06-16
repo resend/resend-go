@@ -714,3 +714,39 @@ func TestCreateGlobalContactWithSegmentsAndTopics(t *testing.T) {
 	assert.Equal(t, "contact", resp.Object)
 	assert.Equal(t, "seg-contact-001", resp.Id)
 }
+
+func TestCreateContactNilParamsReturnsError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Contacts.Create(nil)
+	assert.Error(t, err)
+}
+
+func TestCreateContactWithAudienceIdAndSegmentsReturnsError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Contacts.Create(&CreateContactRequest{
+		Email:      "test@example.com",
+		AudienceId: "aud-123",
+		Segments:   []ContactSegmentRef{{Id: "seg-456"}},
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "audience_id")
+	assert.Contains(t, err.Error(), "segments")
+}
+
+func TestCreateContactWithAudienceIdAndTopicsReturnsError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Contacts.Create(&CreateContactRequest{
+		Email:      "test@example.com",
+		AudienceId: "aud-123",
+		Topics:     []TopicSubscriptionUpdate{{Id: "top-456", Subscription: "opt_in"}},
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "audience_id")
+	assert.Contains(t, err.Error(), "topics")
+}

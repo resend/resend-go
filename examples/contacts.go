@@ -194,9 +194,9 @@ func contactsExample() {
 	}
 	fmt.Printf("Segment deleted: %v\n", removedSegment.Deleted)
 
-	// Remove by email
+	// Remove by id
 	removedContact, err := client.Contacts.RemoveWithContext(ctx, &resend.RemoveContactOptions{
-		Id: "hi@example.com",
+		Id: globalContact.Id,
 	})
 	if err != nil {
 		panic(err)
