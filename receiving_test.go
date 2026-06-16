@@ -82,6 +82,46 @@ func TestGetReceivedEmail(t *testing.T) {
 	assert.Equal(t, "2023-04-20T16:23:29.315Z", resp.Raw.ExpiresAt)
 }
 
+func TestGetReceivedEmailWithOptions(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/receiving/8136d3fb-0439-4b09-b939-b8436a3524b6", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "sanitized", r.URL.Query().Get("html_format"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "email",
+			"id": "8136d3fb-0439-4b09-b939-b8436a3524b6",
+			"to": ["delivered@resend.dev"],
+			"from": "Acme <onboarding@resend.dev>",
+			"created_at": "2023-04-03T22:13:42.674981+00:00",
+			"subject": "Hello World",
+			"html": "<p>Congrats on sending your first email!</p>",
+			"text": "Congrats on sending your first email!",
+			"bcc": [],
+			"cc": [],
+			"reply_to": [],
+			"headers": {},
+			"attachments": []
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	htmlFormat := "sanitized"
+	resp, err := client.Emails.Receiving.GetWithOptions(context.Background(), "8136d3fb-0439-4b09-b939-b8436a3524b6", &GetReceivedEmailParams{
+		HtmlFormat: &htmlFormat,
+	})
+	if err != nil {
+		t.Errorf("Emails.Receiving.GetWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, "8136d3fb-0439-4b09-b939-b8436a3524b6", resp.Id)
+	assert.Equal(t, "<p>Congrats on sending your first email!</p>", resp.Html)
+}
+
 func TestGetReceivedEmailWithNullFields(t *testing.T) {
 	setup()
 	defer teardown()

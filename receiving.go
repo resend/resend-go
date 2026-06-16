@@ -3,6 +3,7 @@ package resend
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 // ReceivedEmail provides the structure for the response from the Receiving.Get call.
@@ -60,8 +61,14 @@ type RawEmail struct {
 	ExpiresAt   string `json:"expires_at"`
 }
 
+// GetReceivedEmailParams contains optional query parameters for Receiving.GetWithOptions
+type GetReceivedEmailParams struct {
+	HtmlFormat *string
+}
+
 // ReceivingSvc handles operations for received/inbound emails
 type ReceivingSvc interface {
+	GetWithOptions(ctx context.Context, emailId string, params *GetReceivedEmailParams) (*ReceivedEmail, error)
 	GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error)
 	Get(emailId string) (*ReceivedEmail, error)
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error)
@@ -79,12 +86,17 @@ type ReceivingSvcImpl struct {
 	client *Client
 }
 
-// GetWithContext retrieves a received email with the given emailId
+// GetWithOptions retrieves a received email with the given emailId and optional query parameters
 // https://resend.com/docs/api-reference/emails/retrieve-received-email
-func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error) {
+func (s *ReceivingSvcImpl) GetWithOptions(ctx context.Context, emailId string, params *GetReceivedEmailParams) (*ReceivedEmail, error) {
 	path := "emails/receiving/" + emailId
 
-	// Prepare request
+	if params != nil && params.HtmlFormat != nil {
+		query := url.Values{}
+		query.Set("html_format", *params.HtmlFormat)
+		path += "?" + query.Encode()
+	}
+
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, ErrFailedToCreateReceivingGetRequest
@@ -92,9 +104,7 @@ func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (
 
 	emailResponse := new(ReceivedEmail)
 
-	// Send Request
 	_, err = s.client.Perform(req, emailResponse)
-
 	if err != nil {
 		return nil, err
 	}
@@ -102,10 +112,16 @@ func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (
 	return emailResponse, nil
 }
 
+// GetWithContext retrieves a received email with the given emailId
+// https://resend.com/docs/api-reference/emails/retrieve-received-email
+func (s *ReceivingSvcImpl) GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error) {
+	return s.GetWithOptions(ctx, emailId, nil)
+}
+
 // Get retrieves a received email with the given emailId
 // https://resend.com/docs/api-reference/emails/retrieve-received-email
 func (s *ReceivingSvcImpl) Get(emailId string) (*ReceivedEmail, error) {
-	return s.GetWithContext(context.Background(), emailId)
+	return s.GetWithOptions(context.Background(), emailId, nil)
 }
 
 // ListWithOptions retrieves a list of received emails with pagination options
