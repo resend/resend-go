@@ -53,6 +53,9 @@ type CreateContactImportRequest struct {
 	// Segments is a list of segment IDs to add imported contacts to.
 	// Will be JSON-encoded as [{"id": "..."}] before sending.
 	Segments []string
+	// Topics is a list of topic subscriptions to apply to imported contacts.
+	// Will be JSON-encoded as [{"id": "...", "subscription": "opt_in|opt_out"}] before sending.
+	Topics []TopicSubscriptionUpdate
 }
 
 type CreateContactImportResponse struct {
@@ -126,6 +129,13 @@ func (s *ContactImportsSvcImpl) CreateWithContext(ctx context.Context, params *C
 			return CreateContactImportResponse{}, fmt.Errorf("[ERROR]: Failed to encode segments: %w", err)
 		}
 		fields["segments"] = string(b)
+	}
+	if len(params.Topics) > 0 {
+		b, err := json.Marshal(params.Topics)
+		if err != nil {
+			return CreateContactImportResponse{}, fmt.Errorf("[ERROR]: Failed to encode topics: %w", err)
+		}
+		fields["topics"] = string(b)
 	}
 
 	req, err := s.client.NewMultipartRequest(ctx, "contacts/imports", params.File, filename, fields)
