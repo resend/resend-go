@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version     = "3.8.0"
+	version     = "3.9.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -92,6 +92,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	contactsSvc.Topics = &ContactTopicsSvcImpl{client: c}
 	contactsSvc.Segments = &ContactSegmentsSvcImpl{client: c}
 	contactsSvc.Properties = &ContactPropertiesSvcImpl{client: c}
+	contactsSvc.Imports = &ContactImportsSvcImpl{client: c}
 	c.Contacts = contactsSvc
 
 	c.Batch = &BatchSvcImpl{client: c}

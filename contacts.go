@@ -25,6 +25,7 @@ type ContactsSvcImpl struct {
 	Topics     ContactTopicsSvc
 	Segments   ContactSegmentsSvc
 	Properties ContactPropertiesSvc
+	Imports    ContactImportsSvc
 }
 
 // GetContactOptions contains parameters for retrieving a contact
