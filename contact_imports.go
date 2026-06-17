@@ -37,6 +37,11 @@ type ContactImport struct {
 	Counts    *ContactImportCounts `json:"counts,omitempty"`
 }
 
+// ContactImportSegment represents a segment reference for a contact import.
+type ContactImportSegment struct {
+	Id string `json:"id"`
+}
+
 // CreateContactImportRequest contains params for creating a contact import.
 // File is required; all other fields are optional.
 type CreateContactImportRequest struct {
@@ -50,9 +55,9 @@ type CreateContactImportRequest struct {
 	ColumnMap map[string]any
 	// OnConflict strategy: "upsert" or "skip" (default "skip").
 	OnConflict string
-	// Segments is a list of segment IDs to add imported contacts to.
-	// Will be JSON-encoded as [{"id": "..."}] before sending.
-	Segments []string
+	// Segments is a list of segment objects to add imported contacts to.
+	// Example: []ContactImportSegment{{Id: "60a2ac5e-0774-456e-817d-ebf40f6dba31"}}
+	Segments []ContactImportSegment
 	// Topics is a list of topic subscriptions to apply to imported contacts.
 	// Will be JSON-encoded as [{"id": "...", "subscription": "opt_in|opt_out"}] before sending.
 	Topics []TopicSubscriptionUpdate
@@ -120,11 +125,7 @@ func (s *ContactImportsSvcImpl) CreateWithContext(ctx context.Context, params *C
 		fields["column_map"] = string(b)
 	}
 	if len(params.Segments) > 0 {
-		segs := make([]map[string]string, len(params.Segments))
-		for i, id := range params.Segments {
-			segs[i] = map[string]string{"id": id}
-		}
-		b, err := json.Marshal(segs)
+		b, err := json.Marshal(params.Segments)
 		if err != nil {
 			return CreateContactImportResponse{}, fmt.Errorf("[ERROR]: Failed to encode segments: %w", err)
 		}
