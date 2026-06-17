@@ -57,6 +57,34 @@ func TestCreateContactImportWithOptions(t *testing.T) {
 	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
 }
 
+func TestCreateContactImportWithTopics(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/contacts/imports", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		r.ParseMultipartForm(10 << 20)
+		topicsVal := r.FormValue("topics")
+		assert.Contains(t, topicsVal, `"059ac693-2fc8-4c13-8b27-01350d638a17"`)
+		assert.Contains(t, topicsVal, `"opt_in"`)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{"object":"contact_import","id":"479e3145-dd38-476b-932c-529ceb705947"}`)
+	})
+
+	req := &CreateContactImportRequest{
+		File: []byte("email\nsteve@example.com"),
+		Topics: []TopicSubscriptionUpdate{
+			{Id: "059ac693-2fc8-4c13-8b27-01350d638a17", Subscription: "opt_in"},
+		},
+	}
+	resp, err := client.Contacts.Imports.Create(req)
+	if err != nil {
+		t.Errorf("ContactImports.Create returned error: %v", err)
+	}
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
+}
+
 func TestCreateContactImportMissingFile(t *testing.T) {
 	setup()
 	defer teardown()

@@ -35,6 +35,9 @@ func contactImportsExample() {
 			},
 		},
 		Segments: []string{"78e7a5c6-9a91-4c63-9d1f-3b9c0b5b9ab6"},
+		Topics: []resend.TopicSubscriptionUpdate{
+			{Id: "284edd7e-b042-46dd-b5ee-a8a88a9ec65f", Subscription: "opt_in"},
+		},
 	}
 
 	created, err := client.Contacts.Imports.CreateWithContext(ctx, createParams)
