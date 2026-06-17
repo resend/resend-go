@@ -24,9 +24,9 @@ func contactImportsExample() {
 		Filename:   "contacts.csv",
 		OnConflict: "upsert",
 		ColumnMap: map[string]any{
-			"email":     "Email",
-			"firstName": "First Name",
-			"lastName":  "Last Name",
+			"email":      "Email",
+			"first_name": "First Name",
+			"last_name":  "Last Name",
 			"properties": map[string]any{
 				"plan": map[string]any{
 					"column": "Plan",
