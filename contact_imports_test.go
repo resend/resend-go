@@ -48,7 +48,7 @@ func TestCreateContactImportWithOptions(t *testing.T) {
 		File:       []byte("email\nsteve@example.com"),
 		OnConflict: "upsert",
 		ColumnMap:  map[string]any{"email": "Email"},
-		Segments:   []string{"seg-123"},
+		Segments:   []ContactImportSegment{{Id: "seg-123"}},
 	}
 	resp, err := client.Contacts.Imports.Create(req)
 	if err != nil {
