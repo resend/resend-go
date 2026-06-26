@@ -18,6 +18,7 @@ type ReceivedEmail struct {
 	Bcc         []string             `json:"bcc"`
 	Cc          []string             `json:"cc"`
 	ReplyTo     []string             `json:"reply_to"`
+	ReceivedFor []string             `json:"received_for"`
 	Headers     map[string]string    `json:"headers"`
 	MessageId   string               `json:"message_id"`
 	Attachments []ReceivedAttachment `json:"attachments"`
