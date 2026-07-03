@@ -53,7 +53,7 @@ type Client struct {
 	Emails   *EmailsSvcImpl
 	Batch    BatchSvc
 	ApiKeys  ApiKeysSvc
-	Domains  DomainsSvc
+	Domains  *DomainsSvcImpl
 	Segments SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
 	Audiences         AudiencesSvc
@@ -97,7 +97,9 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 
 	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
-	c.Domains = &DomainsSvcImpl{client: c}
+	domainsSvc := &DomainsSvcImpl{client: c}
+	domainsSvc.Claims = &DomainClaimsSvcImpl{client: c}
+	c.Domains = domainsSvc
 	segmentsSvc := &SegmentsSvcImpl{client: c}
 	c.Segments = segmentsSvc
 	// Audiences is a deprecated alias for Segments for backward compatibility
