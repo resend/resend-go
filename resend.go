@@ -50,11 +50,12 @@ type Client struct {
 	headers map[string]string
 
 	// Services
-	Emails   *EmailsSvcImpl
-	Batch    BatchSvc
-	ApiKeys  ApiKeysSvc
-	Domains  *DomainsSvcImpl
-	Segments SegmentsSvc
+	Emails       *EmailsSvcImpl
+	Batch        BatchSvc
+	ApiKeys      ApiKeysSvc
+	Domains      DomainsSvc
+	DomainClaims DomainClaimsSvc
+	Segments     SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
 	Audiences         AudiencesSvc
 	Contacts          *ContactsSvcImpl
@@ -97,9 +98,8 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 
 	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
-	domainsSvc := &DomainsSvcImpl{client: c}
-	domainsSvc.Claims = &DomainClaimsSvcImpl{client: c}
-	c.Domains = domainsSvc
+	c.Domains = &DomainsSvcImpl{client: c}
+	c.DomainClaims = &DomainClaimsSvcImpl{client: c}
 	segmentsSvc := &SegmentsSvcImpl{client: c}
 	c.Segments = segmentsSvc
 	// Audiences is a deprecated alias for Segments for backward compatibility

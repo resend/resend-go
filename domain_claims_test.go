@@ -42,9 +42,9 @@ func TestCreateDomainClaim(t *testing.T) {
 		Name:   "example.com",
 		Region: "us-east-1",
 	}
-	resp, err := client.Domains.Claims.Create(req)
+	resp, err := client.DomainClaims.Create(req)
 	if err != nil {
-		t.Errorf("Domains.Claims.Create returned error: %v", err)
+		t.Errorf("DomainClaims.Create returned error: %v", err)
 	}
 
 	assert.Equal(t, "domain_claim", resp.Object)
@@ -98,9 +98,9 @@ func TestCreateDomainClaimSendsAllOptions(t *testing.T) {
 		ClickTracking:     Bool(false),
 		TrackingSubdomain: "links",
 	}
-	_, err := client.Domains.Claims.Create(req)
+	_, err := client.DomainClaims.Create(req)
 	if err != nil {
-		t.Errorf("Domains.Claims.Create returned error: %v", err)
+		t.Errorf("DomainClaims.Create returned error: %v", err)
 	}
 }
 
@@ -127,9 +127,9 @@ func TestGetDomainClaim(t *testing.T) {
 		}`)
 	})
 
-	resp, err := client.Domains.Claims.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
+	resp, err := client.DomainClaims.Get("d91cd9bd-1176-453e-8fc1-35364d380206")
 	if err != nil {
-		t.Errorf("Domains.Claims.Get returned error: %v", err)
+		t.Errorf("DomainClaims.Get returned error: %v", err)
 	}
 
 	assert.Equal(t, "dacf4072-4119-4d88-932f-6c6126d3a9d1", resp.Id)
@@ -156,9 +156,9 @@ func TestVerifyDomainClaim(t *testing.T) {
 		}`)
 	})
 
-	resp, err := client.Domains.Claims.Verify("d91cd9bd-1176-453e-8fc1-35364d380206")
+	resp, err := client.DomainClaims.Verify("d91cd9bd-1176-453e-8fc1-35364d380206")
 	if err != nil {
-		t.Errorf("Domains.Claims.Verify returned error: %v", err)
+		t.Errorf("DomainClaims.Verify returned error: %v", err)
 	}
 
 	assert.Equal(t, "dacf4072-4119-4d88-932f-6c6126d3a9d1", resp.Id)

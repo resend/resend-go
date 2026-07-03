@@ -81,7 +81,7 @@ func (s *DomainClaimsSvcImpl) CreateWithContext(ctx context.Context, params *Cre
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
-		return DomainClaim{}, errors.New("[ERROR]: Failed to create Domains.Claims.Create request")
+		return DomainClaim{}, errors.New("[ERROR]: Failed to create DomainClaims.Create request")
 	}
 
 	resp := new(DomainClaim)
@@ -106,7 +106,7 @@ func (s *DomainClaimsSvcImpl) GetWithContext(ctx context.Context, domainId strin
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return DomainClaim{}, errors.New("[ERROR]: Failed to create Domains.Claims.Get request")
+		return DomainClaim{}, errors.New("[ERROR]: Failed to create DomainClaims.Get request")
 	}
 
 	resp := new(DomainClaim)
@@ -132,7 +132,7 @@ func (s *DomainClaimsSvcImpl) VerifyWithContext(ctx context.Context, domainId st
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
-		return DomainClaim{}, errors.New("[ERROR]: Failed to create Domains.Claims.Verify request")
+		return DomainClaim{}, errors.New("[ERROR]: Failed to create DomainClaims.Verify request")
 	}
 
 	resp := new(DomainClaim)

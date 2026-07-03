@@ -62,7 +62,6 @@ type DomainsSvc interface {
 
 type DomainsSvcImpl struct {
 	client *Client
-	Claims DomainClaimsSvc
 }
 
 type DomainCapabilityStatus = string

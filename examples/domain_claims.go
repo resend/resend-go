@@ -20,7 +20,7 @@ func domainClaimsExample() {
 		Region: "us-east-1",
 	}
 
-	claim, err := client.Domains.Claims.CreateWithContext(ctx, claimParams)
+	claim, err := client.DomainClaims.CreateWithContext(ctx, claimParams)
 	if err != nil {
 		panic(err)
 	}
@@ -31,14 +31,14 @@ func domainClaimsExample() {
 	}
 
 	// Get: poll the claim until the TXT record has been added and verification can run.
-	retrievedClaim, err := client.Domains.Claims.GetWithContext(ctx, claim.DomainId)
+	retrievedClaim, err := client.DomainClaims.GetWithContext(ctx, claim.DomainId)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Retrieved domain claim: %v\n", retrievedClaim)
 
 	// Verify: trigger asynchronous DNS verification and ownership transfer.
-	verifiedClaim, err := client.Domains.Claims.VerifyWithContext(ctx, claim.DomainId)
+	verifiedClaim, err := client.DomainClaims.VerifyWithContext(ctx, claim.DomainId)
 	if err != nil {
 		panic(err)
 	}
