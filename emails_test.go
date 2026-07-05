@@ -660,7 +660,7 @@ func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 		// Verify overridden fields
 		assert.Equal(t, "custom-sender@example.com", req.From)
 		assert.Equal(t, "Custom Subject Line", req.Subject)
-		assert.Equal(t, "reply@example.com", req.ReplyTo)
+		assert.Equal(t, []string{"reply@example.com"}, req.ReplyTo)
 		assert.Equal(t, []string{"bcc@example.com"}, req.Bcc)
 		assert.Equal(t, 1, len(req.Tags))
 		assert.Equal(t, "campaign", req.Tags[0].Name)
@@ -680,7 +680,7 @@ func TestSendEmailWithTemplateAndOverrides(t *testing.T) {
 		To:      []string{"subscriber@example.com"},
 		Subject: "Custom Subject Line",
 		Bcc:     []string{"bcc@example.com"},
-		ReplyTo: "reply@example.com",
+		ReplyTo: []string{"reply@example.com"},
 		Tags: []Tag{
 			{Name: "campaign", Value: "2024-q1"},
 		},

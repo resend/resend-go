@@ -31,7 +31,7 @@ type SendEmailRequest struct {
 	Subject     string            `json:"subject"`
 	Bcc         []string          `json:"bcc,omitempty"`
 	Cc          []string          `json:"cc,omitempty"`
-	ReplyTo     string            `json:"reply_to,omitempty"`
+	ReplyTo     []string          `json:"reply_to,omitempty"`
 	Html        string            `json:"html,omitempty"`
 	Text        string            `json:"text,omitempty"`
 	Tags        []Tag             `json:"tags,omitempty"`
