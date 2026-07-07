@@ -22,7 +22,7 @@ func sendEmailExample() {
 		Subject: "Hello from Golang",
 		Cc:      []string{"cc@example.com"},
 		Bcc:     []string{"ccc@example.com"},
-		ReplyTo: "to@example.com",
+		ReplyTo: []string{"to@example.com"},
 	}
 
 	sent, err := client.Emails.SendWithContext(ctx, params)
