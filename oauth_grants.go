@@ -52,18 +52,14 @@ type OAuthGrantsSvcImpl struct {
 func (s *OAuthGrantsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListOAuthGrantsResponse, error) {
 	path := "oauth/grants" + buildPaginationQuery(options)
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return ListOAuthGrantsResponse{}, ErrFailedToCreateOAuthGrantsListRequest
 	}
 
-	// Build response recipient obj
 	grantsResp := new(ListOAuthGrantsResponse)
 
-	// Send Request
 	_, err = s.client.Perform(req, grantsResp)
-
 	if err != nil {
 		return ListOAuthGrantsResponse{}, err
 	}
@@ -87,18 +83,14 @@ func (s *OAuthGrantsSvcImpl) List() (ListOAuthGrantsResponse, error) {
 func (s *OAuthGrantsSvcImpl) RevokeWithContext(ctx context.Context, oauthGrantId string) (RevokeOAuthGrantResponse, error) {
 	path := "oauth/grants/" + oauthGrantId
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return RevokeOAuthGrantResponse{}, ErrFailedToCreateOAuthGrantsRevokeRequest
 	}
 
-	// Build response recipient obj
 	grantResp := new(RevokeOAuthGrantResponse)
 
-	// Send Request
 	_, err = s.client.Perform(req, grantResp)
-
 	if err != nil {
 		return RevokeOAuthGrantResponse{}, err
 	}
