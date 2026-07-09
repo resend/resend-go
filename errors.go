@@ -125,3 +125,9 @@ var (
 	ErrFailedToCreateEventRemoveRequest = errors.New("[ERROR]: Failed to create Events.Remove request")
 	ErrFailedToCreateEventSendRequest   = errors.New("[ERROR]: Failed to create Events.Send request")
 )
+
+// OAuthGrantsSvc errors
+var (
+	ErrFailedToCreateOAuthGrantsListRequest   = errors.New("[ERROR]: Failed to create OAuthGrants.List request")
+	ErrFailedToCreateOAuthGrantsRevokeRequest = errors.New("[ERROR]: Failed to create OAuthGrants.Revoke request")
+)
