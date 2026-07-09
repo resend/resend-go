@@ -106,7 +106,7 @@ func sendEmailWithTemplateExample() {
 		To:      []string{"delivered@resend.dev"},
 		Subject: "Custom Subject Override", // Override template's Subject
 		Bcc:     []string{"bcc@example.com"},
-		ReplyTo: []string{"noreply@resend.dev"},
+		ReplyTo: "noreply@resend.dev",
 		Template: &resend.EmailTemplate{
 			Id: template.Id,
 			Variables: map[string]any{
