@@ -14,7 +14,6 @@ func oauthGrantsExample() {
 
 	client := resend.NewClient(apiKey)
 
-	// List OAuth grants
 	grants, err := client.OAuthGrants.ListWithContext(ctx)
 	if err != nil {
 		panic(err)
@@ -25,7 +24,6 @@ func oauthGrantsExample() {
 		return
 	}
 
-	// Revoke the first grant
 	revoked, err := client.OAuthGrants.RevokeWithContext(ctx, grants.Data[0].Id)
 	if err != nil {
 		panic(err)

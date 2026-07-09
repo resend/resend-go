@@ -5,13 +5,11 @@ import (
 	"net/http"
 )
 
-// OAuthGrantClient represents the OAuth client that a grant was issued to.
 type OAuthGrantClient struct {
 	Name    string  `json:"name"`
 	LogoUri *string `json:"logo_uri"`
 }
 
-// OAuthGrant represents an OAuth grant.
 type OAuthGrant struct {
 	Id            string           `json:"id"`
 	ClientId      string           `json:"client_id"`
@@ -47,8 +45,6 @@ type OAuthGrantsSvcImpl struct {
 	client *Client
 }
 
-// ListWithOptions lists all of the team's OAuth grants with pagination options
-// https://resend.com/docs/api-reference/oauth/list-grants
 func (s *OAuthGrantsSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListOAuthGrantsResponse, error) {
 	path := "oauth/grants" + buildPaginationQuery(options)
 
@@ -67,19 +63,14 @@ func (s *OAuthGrantsSvcImpl) ListWithOptions(ctx context.Context, options *ListO
 	return *grantsResp, nil
 }
 
-// ListWithContext lists all of the team's OAuth grants
-// https://resend.com/docs/api-reference/oauth/list-grants
 func (s *OAuthGrantsSvcImpl) ListWithContext(ctx context.Context) (ListOAuthGrantsResponse, error) {
 	return s.ListWithOptions(ctx, nil)
 }
 
-// List lists all of the team's OAuth grants
 func (s *OAuthGrantsSvcImpl) List() (ListOAuthGrantsResponse, error) {
 	return s.ListWithContext(context.Background())
 }
 
-// RevokeWithContext revokes a given OAuth grant by id
-// https://resend.com/docs/api-reference/oauth/revoke-grant
 func (s *OAuthGrantsSvcImpl) RevokeWithContext(ctx context.Context, oauthGrantId string) (RevokeOAuthGrantResponse, error) {
 	path := "oauth/grants/" + oauthGrantId
 
@@ -98,7 +89,6 @@ func (s *OAuthGrantsSvcImpl) RevokeWithContext(ctx context.Context, oauthGrantId
 	return *grantResp, nil
 }
 
-// Revoke revokes a given OAuth grant by id
 func (s *OAuthGrantsSvcImpl) Revoke(oauthGrantId string) (RevokeOAuthGrantResponse, error) {
 	return s.RevokeWithContext(context.Background(), oauthGrantId)
 }
