@@ -101,6 +101,36 @@ func TestRevokeOAuthGrant(t *testing.T) {
 	}
 	assert.Equal(t, resp.Object, "oauth_grant")
 	assert.Equal(t, resp.Id, "650e8400-e29b-41d4-a716-446655440001")
-	assert.Equal(t, resp.RevokedAt, "2026-04-08T00:11:13.110Z")
-	assert.Equal(t, resp.RevokedReason, "revoked_from_api")
+	assert.NotNil(t, resp.RevokedAt)
+	assert.Equal(t, *resp.RevokedAt, "2026-04-08T00:11:13.110Z")
+	assert.NotNil(t, resp.RevokedReason)
+	assert.Equal(t, *resp.RevokedReason, "revoked_from_api")
+}
+
+func TestRevokeOAuthGrantNullFields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/oauth/grants/650e8400-e29b-41d4-a716-446655440001", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodDelete)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "oauth_grant",
+			"id": "650e8400-e29b-41d4-a716-446655440001",
+			"revoked_at": null,
+			"revoked_reason": null
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.OAuthGrants.Revoke("650e8400-e29b-41d4-a716-446655440001")
+	if err != nil {
+		t.Errorf("OAuthGrants.Revoke returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "650e8400-e29b-41d4-a716-446655440001")
+	assert.Nil(t, resp.RevokedAt)
+	assert.Nil(t, resp.RevokedReason)
 }

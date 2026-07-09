@@ -30,5 +30,9 @@ func oauthGrantsExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Revoked OAuth grant %s (reason: %s)\n", revoked.Id, revoked.RevokedReason)
+	reason := "unknown"
+	if revoked.RevokedReason != nil {
+		reason = *revoked.RevokedReason
+	}
+	fmt.Printf("Revoked OAuth grant %s (reason: %s)\n", revoked.Id, reason)
 }

@@ -29,10 +29,10 @@ type ListOAuthGrantsResponse struct {
 }
 
 type RevokeOAuthGrantResponse struct {
-	Object        string `json:"object"`
-	Id            string `json:"id"`
-	RevokedAt     string `json:"revoked_at"`
-	RevokedReason string `json:"revoked_reason"`
+	Object        string  `json:"object"`
+	Id            string  `json:"id"`
+	RevokedAt     *string `json:"revoked_at"`
+	RevokedReason *string `json:"revoked_reason"`
 }
 
 type OAuthGrantsSvc interface {
