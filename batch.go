@@ -26,6 +26,13 @@ func (b BatchValidationMode) String() string {
 	return string(b)
 }
 
+// BatchSendEmailRequest is the request object for each email in a Batch.Send call.
+//
+// Each email in a batch supports scheduled_at, tags, and attachments.
+//
+// See https://resend.com/docs/api-reference/emails/send-batch-emails
+type BatchSendEmailRequest = SendEmailRequest
+
 // BatchSendEmailOptions is the additional options struct for the Batch.SendEmail call.
 type BatchSendEmailOptions struct {
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
@@ -61,9 +68,9 @@ type BatchEmailResponse struct {
 }
 
 type BatchSvc interface {
-	Send([]*SendEmailRequest) (*BatchEmailResponse, error)
-	SendWithContext(ctx context.Context, params []*SendEmailRequest) (*BatchEmailResponse, error)
-	SendWithOptions(ctx context.Context, params []*SendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error)
+	Send([]*BatchSendEmailRequest) (*BatchEmailResponse, error)
+	SendWithContext(ctx context.Context, params []*BatchSendEmailRequest) (*BatchEmailResponse, error)
+	SendWithOptions(ctx context.Context, params []*BatchSendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error)
 }
 
 type BatchSvcImpl struct {
@@ -72,12 +79,12 @@ type BatchSvcImpl struct {
 
 // Send send a batch of emails
 // https://resend.com/docs/api-reference/emails/send-batch-emails
-func (s *BatchSvcImpl) Send(params []*SendEmailRequest) (*BatchEmailResponse, error) {
+func (s *BatchSvcImpl) Send(params []*BatchSendEmailRequest) (*BatchEmailResponse, error) {
 	return s.SendWithContext(context.Background(), params)
 }
 
 // SendWithContext is the same as Send but accepts a ctx as argument
-func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailRequest) (*BatchEmailResponse, error) {
+func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*BatchSendEmailRequest) (*BatchEmailResponse, error) {
 	path := "emails/batch"
 
 	// Prepare request
@@ -100,7 +107,7 @@ func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailR
 }
 
 // SendWithOptions is the same as Send but accepts a ctx and options as arguments
-func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error) {
+func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*BatchSendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error) {
 	// Validate BatchValidation field if provided
 	if options != nil && options.BatchValidation != "" {
 		if !options.BatchValidation.IsValid() {

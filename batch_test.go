@@ -1,8 +1,10 @@
 package resend
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"testing"
 
@@ -264,4 +266,59 @@ func TestBatchSendWithInvalidValidationMode(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 	assert.Contains(t, err.Error(), "BatchValidation must be either BatchValidationStrict or BatchValidationPermissive")
+}
+
+func TestBatchSendEmailWithTagsScheduledAtAndAttachments(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		content, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("failed to read request body: %v", err)
+		}
+
+		assert.True(t, bytes.Contains(content, []byte(`"scheduled_at":"2024-09-05T11:52:01.858Z"`)))
+		assert.True(t, bytes.Contains(content, []byte(`"tags":[{"name":"category","value":"confirm_email"}]`)))
+		assert.True(t, bytes.Contains(content, []byte(`"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt","content_type":"text/plain"}]`)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := &BatchEmailResponse{
+			Data: []SendEmailResponse{
+				{Id: "batch-scheduled-1"},
+			},
+		}
+		if err := json.NewEncoder(w).Encode(&ret); err != nil {
+			panic(err)
+		}
+	})
+
+	req := []*BatchSendEmailRequest{
+		{
+			From:        "onboarding@resend.dev",
+			To:          []string{"delivered@resend.dev"},
+			Subject:     "Scheduled batch email",
+			Html:        "<p>Hello</p>",
+			ScheduledAt: "2024-09-05T11:52:01.858Z",
+			Tags: []Tag{
+				{Name: "category", Value: "confirm_email"},
+			},
+			Attachments: []*Attachment{
+				{
+					Content:     []byte("hello"),
+					Filename:    "hello.txt",
+					ContentType: "text/plain",
+				},
+			},
+		},
+	}
+
+	resp, err := client.Batch.Send(req)
+	if err != nil {
+		t.Errorf("Batch.Send returned error: %v", err)
+	}
+	assert.Equal(t, "batch-scheduled-1", resp.Data[0].Id)
 }
