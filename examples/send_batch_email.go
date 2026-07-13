@@ -16,7 +16,7 @@ func sendBatchEmails() {
 	client := resend.NewClient(apiKey)
 
 	// Batch Send
-	var batchEmails = []*resend.SendEmailRequest{
+	var batchEmails = []*resend.BatchSendEmailRequest{
 		{
 			To:      []string{"delivered@resend.dev"},
 			From:    "onboarding@resend.dev",
@@ -52,7 +52,7 @@ func sendBatchEmails() {
 
 	// Send with permissive validation mode
 	// This allows partial success - valid emails will be sent even if some are invalid
-	batchEmailsWithErrors := []*resend.SendEmailRequest{
+	batchEmailsWithErrors := []*resend.BatchSendEmailRequest{
 		{
 			To:      []string{"delivered@resend.dev"},
 			From:    "onboarding@resend.dev",

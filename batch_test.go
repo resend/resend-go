@@ -32,7 +32,7 @@ func TestBatchSendEmail(t *testing.T) {
 		}
 	})
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{
 			To: []string{"d@e.com"},
 		},
@@ -76,7 +76,7 @@ func TestBatchSendEmailWithErrors(t *testing.T) {
 		}
 	})
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{To: []string{"valid1@example.com"}},
 		{To: []string{"valid2@example.com"}},
 		{To: []string{}},                // Missing 'to' field
@@ -127,7 +127,7 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 		}
 	})
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{
 			To: []string{"d@e.com"},
 		},
@@ -178,7 +178,7 @@ func TestBatchSendWithValidationMode(t *testing.T) {
 		}
 	})
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{To: []string{"valid@example.com"}},
 		{To: []string{"invalid"}},
 	}
@@ -228,7 +228,7 @@ func TestBatchSendWithStrictValidation(t *testing.T) {
 		}
 	})
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{To: []string{"test1@example.com"}},
 		{To: []string{"test2@example.com"}},
 	}
@@ -251,7 +251,7 @@ func TestBatchSendWithInvalidValidationMode(t *testing.T) {
 	defer teardown()
 	ctx := context.Background()
 
-	req := []*SendEmailRequest{
+	req := []*BatchSendEmailRequest{
 		{To: []string{"test@example.com"}},
 	}
 
@@ -268,7 +268,7 @@ func TestBatchSendWithInvalidValidationMode(t *testing.T) {
 	assert.Contains(t, err.Error(), "BatchValidation must be either BatchValidationStrict or BatchValidationPermissive")
 }
 
-func TestBatchSendEmailWithTagsScheduledAtAndAttachments(t *testing.T) {
+func TestBatchSendEmailWithTags(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -279,16 +279,16 @@ func TestBatchSendEmailWithTagsScheduledAtAndAttachments(t *testing.T) {
 			t.Errorf("failed to read request body: %v", err)
 		}
 
-		assert.True(t, bytes.Contains(content, []byte(`"scheduled_at":"2024-09-05T11:52:01.858Z"`)))
 		assert.True(t, bytes.Contains(content, []byte(`"tags":[{"name":"category","value":"confirm_email"}]`)))
-		assert.True(t, bytes.Contains(content, []byte(`"attachments":[{"content":[104,101,108,108,111],"filename":"hello.txt","content_type":"text/plain"}]`)))
+		assert.False(t, bytes.Contains(content, []byte(`"attachments"`)))
+		assert.False(t, bytes.Contains(content, []byte(`"scheduled_at"`)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
 		ret := &BatchEmailResponse{
 			Data: []SendEmailResponse{
-				{Id: "batch-scheduled-1"},
+				{Id: "batch-tagged-1"},
 			},
 		}
 		if err := json.NewEncoder(w).Encode(&ret); err != nil {
@@ -298,20 +298,12 @@ func TestBatchSendEmailWithTagsScheduledAtAndAttachments(t *testing.T) {
 
 	req := []*BatchSendEmailRequest{
 		{
-			From:        "onboarding@resend.dev",
-			To:          []string{"delivered@resend.dev"},
-			Subject:     "Scheduled batch email",
-			Html:        "<p>Hello</p>",
-			ScheduledAt: "2024-09-05T11:52:01.858Z",
+			From:    "onboarding@resend.dev",
+			To:      []string{"delivered@resend.dev"},
+			Subject: "Tagged batch email",
+			Html:    "<p>Hello</p>",
 			Tags: []Tag{
 				{Name: "category", Value: "confirm_email"},
-			},
-			Attachments: []*Attachment{
-				{
-					Content:     []byte("hello"),
-					Filename:    "hello.txt",
-					ContentType: "text/plain",
-				},
 			},
 		},
 	}
@@ -320,5 +312,5 @@ func TestBatchSendEmailWithTagsScheduledAtAndAttachments(t *testing.T) {
 	if err != nil {
 		t.Errorf("Batch.Send returned error: %v", err)
 	}
-	assert.Equal(t, "batch-scheduled-1", resp.Data[0].Id)
+	assert.Equal(t, "batch-tagged-1", resp.Data[0].Id)
 }
