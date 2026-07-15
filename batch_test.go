@@ -280,8 +280,6 @@ func TestBatchSendEmailWithTags(t *testing.T) {
 		}
 
 		assert.True(t, bytes.Contains(content, []byte(`"tags":[{"name":"category","value":"confirm_email"}]`)))
-		assert.False(t, bytes.Contains(content, []byte(`"attachments"`)))
-		assert.False(t, bytes.Contains(content, []byte(`"scheduled_at"`)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

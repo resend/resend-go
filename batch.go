@@ -28,8 +28,7 @@ func (b BatchValidationMode) String() string {
 
 // BatchSendEmailRequest is the request object for each email in a Batch.Send call.
 //
-// Tags are supported per email. Attachments and scheduled_at are not supported
-// by the batch API; use SendEmailRequest with Emails.Send for those features.
+// Tags are supported per email.
 //
 // See https://resend.com/docs/api-reference/emails/send-batch-emails
 type BatchSendEmailRequest struct {
