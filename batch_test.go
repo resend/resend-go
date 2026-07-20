@@ -127,6 +127,12 @@ func TestBatchSendEmailWithTagsAndScheduledAt(t *testing.T) {
 		tags1, ok := body[1]["tags"].([]any)
 		assert.True(t, ok)
 		assert.Len(t, tags1, 2)
+		tag1a := tags1[0].(map[string]any)
+		assert.Equal(t, "category", tag1a["name"])
+		assert.Equal(t, "confirm", tag1a["value"])
+		tag1b := tags1[1].(map[string]any)
+		assert.Equal(t, "env", tag1b["name"])
+		assert.Equal(t, "prod", tag1b["value"])
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
