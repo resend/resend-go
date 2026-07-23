@@ -276,6 +276,7 @@ func TestGetEmail(t *testing.T) {
 		ret := `
 		{
 			"id":"49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
+			"message_id":"<111-222-333@email.example.com>",
 			"from":"from@example.com",
 			"to":["james@bond.com"],
 			"created_at":"2023-04-03T22:13:42.674981+00:00",
@@ -290,6 +291,7 @@ func TestGetEmail(t *testing.T) {
 		t.Errorf("Emails.Get returned error: %v", err)
 	}
 	assert.Equal(t, resp.Id, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794")
+	assert.Equal(t, resp.MessageId, "<111-222-333@email.example.com>")
 	assert.Equal(t, resp.From, "from@example.com")
 	assert.Equal(t, resp.Html, "html")
 	assert.Equal(t, resp.To[0], "james@bond.com")
@@ -365,6 +367,7 @@ func TestListEmails(t *testing.T) {
 				{
 					Id:        "1",
 					Object:    "email",
+					MessageId: "<111-222-333@email.example.com>",
 					To:        []string{"recipient@example.com"},
 					From:      "sender@example.com",
 					CreatedAt: "2024-01-01T00:00:00Z",
@@ -376,6 +379,7 @@ func TestListEmails(t *testing.T) {
 				{
 					Id:        "2",
 					Object:    "email",
+					MessageId: "<111-222-333@email.example.com>",
 					To:        []string{"recipient2@example.com"},
 					From:      "sender@example.com",
 					CreatedAt: "2024-01-02T00:00:00Z",
@@ -401,6 +405,7 @@ func TestListEmails(t *testing.T) {
 	assert.Equal(t, true, resp.HasMore)
 	assert.Equal(t, 2, len(resp.Data))
 	assert.Equal(t, "1", resp.Data[0].Id)
+	assert.Equal(t, "<111-222-333@email.example.com>", resp.Data[0].MessageId)
 	assert.Equal(t, "Test Email 1", resp.Data[0].Subject)
 	assert.Equal(t, "2", resp.Data[1].Id)
 	assert.Equal(t, "Test Email 2", resp.Data[1].Subject)

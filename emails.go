@@ -69,6 +69,7 @@ type UpdateEmailResponse struct {
 type Email struct {
 	Id        string   `json:"id"`
 	Object    string   `json:"object"`
+	MessageId string   `json:"message_id"`
 	To        []string `json:"to"`
 	From      string   `json:"from"`
 	CreatedAt string   `json:"created_at"`

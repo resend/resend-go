@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	version     = "3.9.2"
+	version     = "3.10.1"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -67,6 +67,7 @@ type Client struct {
 	Logs              LogsSvc
 	Automations       AutomationsSvc
 	Events            EventsSvc
+	OAuthGrants       OAuthGrantsSvc
 }
 
 // NewClient is the default client constructor
@@ -112,6 +113,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Logs = &LogsSvcImpl{client: c}
 	c.Automations = &AutomationsSvcImpl{client: c}
 	c.Events = &EventsSvcImpl{client: c}
+	c.OAuthGrants = &OAuthGrantsSvcImpl{client: c}
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
