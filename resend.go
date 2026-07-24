@@ -68,6 +68,7 @@ type Client struct {
 	Automations       AutomationsSvc
 	Events            EventsSvc
 	OAuthGrants       OAuthGrantsSvc
+	Suppressions      *SuppressionsSvcImpl
 }
 
 // NewClient is the default client constructor
@@ -96,6 +97,10 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	contactsSvc.Properties = &ContactPropertiesSvcImpl{client: c}
 	contactsSvc.Imports = &ContactImportsSvcImpl{client: c}
 	c.Contacts = contactsSvc
+
+	suppressionsSvc := &SuppressionsSvcImpl{client: c}
+	suppressionsSvc.Batch = &SuppressionsBatchSvcImpl{client: c}
+	c.Suppressions = suppressionsSvc
 
 	c.Batch = &BatchSvcImpl{client: c}
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
