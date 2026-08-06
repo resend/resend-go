@@ -135,7 +135,7 @@ func TestContactSegmentsListWithContactId(t *testing.T) {
 					"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
 					"name": "Test Segment",
 					"object": "segment",
-					"created_at": "2023-01-01T00:00:00.000Z"
+					"created_at": "2023-01-01 00:00:00+00"
 				}
 			],
 			"has_more": false

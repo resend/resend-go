@@ -50,8 +50,8 @@ func TestGetAutomation(t *testing.T) {
 			"id": "aut_123",
 			"name": "Welcome Flow",
 			"status": "enabled",
-			"created_at": "2026-04-01T00:00:00Z",
-			"updated_at": "2026-04-01T00:00:00Z",
+			"created_at": "2026-04-01 00:00:00+00",
+			"updated_at": "2026-04-01 00:00:00+00",
 			"steps": [
 				{"key": "trigger_1", "type": "trigger", "config": {"event_name": "user.created"}},
 				{"key": "send_1", "type": "send_email", "config": {"template": {"id": "tpl_abc"}}}
@@ -89,8 +89,8 @@ func TestListAutomations(t *testing.T) {
 			"object": "list",
 			"has_more": false,
 			"data": [
-				{"id": "aut_123", "name": "Welcome Flow", "status": "enabled", "created_at": "2026-04-01T00:00:00Z", "updated_at": "2026-04-01T00:00:00Z"},
-				{"id": "aut_456", "name": "Onboarding", "status": "disabled", "created_at": "2026-04-02T00:00:00Z", "updated_at": "2026-04-02T00:00:00Z"}
+				{"id": "aut_123", "name": "Welcome Flow", "status": "enabled", "created_at": "2026-04-01 00:00:00+00", "updated_at": "2026-04-01 00:00:00+00"},
+				{"id": "aut_456", "name": "Onboarding", "status": "disabled", "created_at": "2026-04-02 00:00:00+00", "updated_at": "2026-04-02 00:00:00+00"}
 			]
 		}`)
 	})
@@ -123,7 +123,7 @@ func TestListAutomationsWithOptions(t *testing.T) {
 			"object": "list",
 			"has_more": true,
 			"data": [
-				{"id": "aut_123", "name": "Welcome Flow", "status": "enabled", "created_at": "2026-04-01T00:00:00Z", "updated_at": "2026-04-01T00:00:00Z"}
+				{"id": "aut_123", "name": "Welcome Flow", "status": "enabled", "created_at": "2026-04-01 00:00:00+00", "updated_at": "2026-04-01 00:00:00+00"}
 			]
 		}`)
 	})
@@ -215,8 +215,8 @@ func TestListAutomationRuns(t *testing.T) {
 			"object": "list",
 			"has_more": false,
 			"data": [
-				{"id": "run_1", "status": "completed", "started_at": "2026-04-01T00:00:00Z", "completed_at": "2026-04-01T00:01:00Z", "created_at": "2026-04-01T00:00:00Z"},
-				{"id": "run_2", "status": "running", "started_at": "2026-04-02T00:00:00Z", "completed_at": null, "created_at": "2026-04-02T00:00:00Z"}
+				{"id": "run_1", "status": "completed", "started_at": "2026-04-01 00:00:00+00", "completed_at": "2026-04-01 00:01:00+00", "created_at": "2026-04-01 00:00:00+00"},
+				{"id": "run_2", "status": "running", "started_at": "2026-04-02 00:00:00+00", "completed_at": null, "created_at": "2026-04-02 00:00:00+00"}
 			]
 		}`)
 	})
@@ -251,7 +251,7 @@ func TestListAutomationRunsWithOptions(t *testing.T) {
 			"object": "list",
 			"has_more": false,
 			"data": [
-				{"id": "run_1", "status": "completed", "started_at": "2026-04-01T00:00:00Z", "completed_at": "2026-04-01T00:01:00Z", "created_at": "2026-04-01T00:00:00Z"}
+				{"id": "run_1", "status": "completed", "started_at": "2026-04-01 00:00:00+00", "completed_at": "2026-04-01 00:01:00+00", "created_at": "2026-04-01 00:00:00+00"}
 			]
 		}`)
 	})
@@ -323,8 +323,8 @@ func TestGetAutomationStepResponseKeys(t *testing.T) {
 			"id": "aut_456",
 			"name": "Onboarding Flow",
 			"status": "disabled",
-			"created_at": "2026-04-10T00:00:00Z",
-			"updated_at": "2026-04-10T00:00:00Z",
+			"created_at": "2026-04-10 00:00:00+00",
+			"updated_at": "2026-04-10 00:00:00+00",
 			"steps": [
 				{"key": "trigger_1", "type": "trigger", "config": {"event_name": "user.created"}},
 				{"key": "delay_1", "type": "delay", "config": {"duration": "30 minutes"}},
@@ -378,12 +378,12 @@ func TestGetAutomationRun(t *testing.T) {
 			"object": "automation_run",
 			"id": "run_1",
 			"status": "completed",
-			"started_at": "2026-04-01T00:00:00Z",
-			"completed_at": "2026-04-01T00:01:00Z",
-			"created_at": "2026-04-01T00:00:00Z",
+			"started_at": "2026-04-01 00:00:00+00",
+			"completed_at": "2026-04-01 00:01:00+00",
+			"created_at": "2026-04-01 00:00:00+00",
 			"steps": [
-				{"key": "trigger_1", "type": "trigger", "status": "completed", "started_at": "2026-04-01T00:00:00Z", "completed_at": "2026-04-01T00:00:01Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:00Z"},
-				{"key": "send_1", "type": "send_email", "status": "completed", "started_at": "2026-04-01T00:00:01Z", "completed_at": "2026-04-01T00:01:00Z", "output": null, "error": null, "created_at": "2026-04-01T00:00:01Z"}
+				{"key": "trigger_1", "type": "trigger", "status": "completed", "started_at": "2026-04-01 00:00:00+00", "completed_at": "2026-04-01 00:00:01+00", "output": null, "error": null, "created_at": "2026-04-01 00:00:00+00"},
+				{"key": "send_1", "type": "send_email", "status": "completed", "started_at": "2026-04-01 00:00:01+00", "completed_at": "2026-04-01 00:01:00+00", "output": null, "error": null, "created_at": "2026-04-01 00:00:01+00"}
 			]
 		}`)
 	})

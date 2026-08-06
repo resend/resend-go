@@ -67,7 +67,7 @@ func TestGetEvent(t *testing.T) {
 			"id": "evt_123",
 			"name": "user.created",
 			"schema": {"plan": "string", "age": "number"},
-			"created_at": "2026-04-01T00:00:00Z",
+			"created_at": "2026-04-01 00:00:00+00",
 			"updated_at": null
 		}`)
 	})
@@ -97,8 +97,8 @@ func TestGetEventByName(t *testing.T) {
 			"id": "evt_123",
 			"name": "user.created",
 			"schema": null,
-			"created_at": "2026-04-01T00:00:00Z",
-			"updated_at": "2026-04-02T00:00:00Z"
+			"created_at": "2026-04-01 00:00:00+00",
+			"updated_at": "2026-04-02 00:00:00+00"
 		}`)
 	})
 
@@ -123,8 +123,8 @@ func TestListEvents(t *testing.T) {
 			"object": "list",
 			"has_more": false,
 			"data": [
-				{"id": "evt_123", "name": "user.created", "schema": {"plan": "string"}, "created_at": "2026-04-01T00:00:00Z", "updated_at": null},
-				{"id": "evt_456", "name": "order.placed", "schema": null, "created_at": "2026-04-02T00:00:00Z", "updated_at": null}
+				{"id": "evt_123", "name": "user.created", "schema": {"plan": "string"}, "created_at": "2026-04-01 00:00:00+00", "updated_at": null},
+				{"id": "evt_456", "name": "order.placed", "schema": null, "created_at": "2026-04-02 00:00:00+00", "updated_at": null}
 			]
 		}`)
 	})
@@ -155,7 +155,7 @@ func TestListEventsWithOptions(t *testing.T) {
 			"object": "list",
 			"has_more": true,
 			"data": [
-				{"id": "evt_123", "name": "user.created", "schema": null, "created_at": "2026-04-01T00:00:00Z", "updated_at": null}
+				{"id": "evt_123", "name": "user.created", "schema": null, "created_at": "2026-04-01 00:00:00+00", "updated_at": null}
 			]
 		}`)
 	})

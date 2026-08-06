@@ -310,10 +310,10 @@ func TestGetTemplate(t *testing.T) {
 			"id": "34a080c9-b17d-4187-ad80-5af20266e535",
 			"alias": "reset-password",
 			"name": "reset-password",
-			"created_at": "2023-10-06T23:47:56.678Z",
-			"updated_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
+			"updated_at": "2023-10-06 23:47:56.678+00",
 			"status": "published",
-			"published_at": "2023-10-06T23:47:56.678Z",
+			"published_at": "2023-10-06 23:47:56.678+00",
 			"from": "John Doe <john.doe@example.com>",
 			"subject": "Hello, world!",
 			"reply_to": null,
@@ -325,8 +325,8 @@ func TestGetTemplate(t *testing.T) {
 					"key": "user_name",
 					"type": "string",
 					"fallback_value": "John Doe",
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z"
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00"
 				}
 			]
 		}`
@@ -342,9 +342,9 @@ func TestGetTemplate(t *testing.T) {
 	assert.Equal(t, "reset-password", resp.Alias)
 	assert.Equal(t, "reset-password", resp.Name)
 	assert.Equal(t, "published", resp.Status)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.CreatedAt)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.UpdatedAt)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.PublishedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.CreatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.UpdatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.PublishedAt)
 	assert.Equal(t, "John Doe <john.doe@example.com>", resp.From)
 	assert.Equal(t, "Hello, world!", resp.Subject)
 	assert.Nil(t, resp.ReplyTo)
@@ -355,8 +355,8 @@ func TestGetTemplate(t *testing.T) {
 	assert.Equal(t, "user_name", resp.Variables[0].Key)
 	assert.Equal(t, VariableTypeString, resp.Variables[0].Type)
 	assert.Equal(t, "John Doe", resp.Variables[0].FallbackValue)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.Variables[0].CreatedAt)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.Variables[0].UpdatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.Variables[0].CreatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.Variables[0].UpdatedAt)
 }
 
 func TestGetTemplateByAlias(t *testing.T) {
@@ -376,8 +376,8 @@ func TestGetTemplateByAlias(t *testing.T) {
 			"id": "template-id-123",
 			"alias": "welcome-email",
 			"name": "Welcome Email",
-			"created_at": "2023-10-06T23:47:56.678Z",
-			"updated_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
+			"updated_at": "2023-10-06 23:47:56.678+00",
 			"status": "draft",
 			"published_at": "",
 			"from": "support@example.com",
@@ -423,10 +423,10 @@ func TestGetTemplateWithContext(t *testing.T) {
 			"id": "context-test-id",
 			"alias": "",
 			"name": "Context Test",
-			"created_at": "2023-10-06T23:47:56.678Z",
-			"updated_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
+			"updated_at": "2023-10-06 23:47:56.678+00",
 			"status": "published",
-			"published_at": "2023-10-06T23:47:56.678Z",
+			"published_at": "2023-10-06 23:47:56.678+00",
 			"from": "",
 			"subject": "",
 			"reply_to": null,
@@ -470,17 +470,17 @@ func TestListTemplates(t *testing.T) {
 					"name": "reset-password",
 					"status": "draft",
 					"published_at": null,
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00",
 					"alias": "reset-password"
 				},
 				{
 					"id": "b7f9c2e1-1234-4abc-9def-567890abcdef",
 					"name": "welcome-message",
 					"status": "published",
-					"published_at": "2023-10-06T23:47:56.678Z",
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z",
+					"published_at": "2023-10-06 23:47:56.678+00",
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00",
 					"alias": "welcome-message"
 				}
 			],
@@ -508,7 +508,7 @@ func TestListTemplates(t *testing.T) {
 	assert.Equal(t, "welcome-message", resp.Data[1].Name)
 	assert.Equal(t, "published", resp.Data[1].Status)
 	assert.NotNil(t, resp.Data[1].PublishedAt)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", *resp.Data[1].PublishedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", *resp.Data[1].PublishedAt)
 }
 
 func TestListTemplatesWithAfter(t *testing.T) {
@@ -533,9 +533,9 @@ func TestListTemplatesWithAfter(t *testing.T) {
 					"id": "next-template-id",
 					"name": "next-template",
 					"status": "published",
-					"published_at": "2023-10-07T23:47:56.678Z",
-					"created_at": "2023-10-07T23:47:56.678Z",
-					"updated_at": "2023-10-07T23:47:56.678Z",
+					"published_at": "2023-10-07 23:47:56.678+00",
+					"created_at": "2023-10-07 23:47:56.678+00",
+					"updated_at": "2023-10-07 23:47:56.678+00",
 					"alias": "next-template"
 				}
 			],
@@ -582,8 +582,8 @@ func TestListTemplatesWithBefore(t *testing.T) {
 					"name": "previous-template",
 					"status": "draft",
 					"published_at": null,
-					"created_at": "2023-10-05T23:47:56.678Z",
-					"updated_at": "2023-10-05T23:47:56.678Z",
+					"created_at": "2023-10-05 23:47:56.678+00",
+					"updated_at": "2023-10-05 23:47:56.678+00",
 					"alias": "previous-template"
 				}
 			],
@@ -624,9 +624,9 @@ func TestListTemplatesWithContext(t *testing.T) {
 					"id": "context-template-id",
 					"name": "context-template",
 					"status": "published",
-					"published_at": "2023-10-06T23:47:56.678Z",
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z",
+					"published_at": "2023-10-06 23:47:56.678+00",
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00",
 					"alias": "context-template"
 				}
 			],
@@ -669,9 +669,9 @@ func TestListTemplatesWithoutOptions(t *testing.T) {
 					"id": "template-1",
 					"name": "template-1",
 					"status": "published",
-					"published_at": "2023-10-06T23:47:56.678Z",
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z",
+					"published_at": "2023-10-06 23:47:56.678+00",
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00",
 					"alias": "template-1"
 				},
 				{
@@ -679,8 +679,8 @@ func TestListTemplatesWithoutOptions(t *testing.T) {
 					"name": "template-2",
 					"status": "draft",
 					"published_at": null,
-					"created_at": "2023-10-06T23:47:56.678Z",
-					"updated_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06 23:47:56.678+00",
+					"updated_at": "2023-10-06 23:47:56.678+00",
 					"alias": "template-2"
 				}
 			],
@@ -715,10 +715,10 @@ func TestGetTemplateWithMultipleReplyTo(t *testing.T) {
 			"id": "multi-reply-to-id",
 			"alias": "",
 			"name": "Multi Reply To",
-			"created_at": "2023-10-06T23:47:56.678Z",
-			"updated_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
+			"updated_at": "2023-10-06 23:47:56.678+00",
 			"status": "published",
-			"published_at": "2023-10-06T23:47:56.678Z",
+			"published_at": "2023-10-06 23:47:56.678+00",
 			"from": "",
 			"subject": "",
 			"reply_to": ["support@example.com", "help@example.com"],

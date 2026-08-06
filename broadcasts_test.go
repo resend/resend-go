@@ -190,7 +190,7 @@ func TestGetBroadcast(t *testing.T) {
 			"reply_to": null,
 			"preview_text": "Check out our latest announcements",
 			"status": "draft",
-			"created_at": "2024-12-01T19:32:22.980Z",
+			"created_at": "2024-12-01 19:32:22.98+00",
 			"scheduled_at": null,
 			"sent_at": null,
 			"html": "<h1>Hello world</h1>",
@@ -213,7 +213,7 @@ func TestGetBroadcast(t *testing.T) {
 	assert.Equal(t, b.Subject, "hello world")
 	assert.Equal(t, b.PreviewText, "Check out our latest announcements")
 	assert.Equal(t, b.Status, "draft")
-	assert.Equal(t, b.CreatedAt, "2024-12-01T19:32:22.980Z")
+	assert.Equal(t, b.CreatedAt, "2024-12-01 19:32:22.98+00")
 }
 
 func TestGetBroadcastValidations(t *testing.T) {
@@ -315,7 +315,7 @@ func TestListBroadcasts(t *testing.T) {
 						"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794",
 						"audience_id": "78261eea-8f8b-4381-83c6-79fa7120f1cf",
 						"status": "draft",
-						"created_at": "2024-11-01T15:13:31.723Z",
+						"created_at": "2024-11-01 15:13:31.723+00",
 						"scheduled_at": null,
 						"sent_at": null
 					},
@@ -323,9 +323,9 @@ func TestListBroadcasts(t *testing.T) {
 						"id": "559ac32e-9ef5-46fb-82a1-b76b840c0f7b",
 						"audience_id": "78261eea-8f8b-4381-83c6-79fa7120f1cf",
 						"status": "sent",
-						"created_at": "2024-12-01T19:32:22.980Z",
-						"scheduled_at": "2024-12-02T19:32:22.980Z",
-						"sent_at": "2024-12-02T19:32:22.980Z"
+						"created_at": "2024-12-01 19:32:22.98+00",
+						"scheduled_at": "2024-12-02 19:32:22.98+00",
+						"sent_at": "2024-12-02 19:32:22.98+00"
 					}
 				]
 		}`

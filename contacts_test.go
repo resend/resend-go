@@ -61,7 +61,7 @@ func TestListContacts(t *testing.T) {
 					"email": "steve.wozniak@gmail.com",
 					"first_name": "Steve",
 					"last_name": "Wozniak",
-					"created_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06 23:47:56.678+00",
 					"unsubscribed": false
 				}
 			]
@@ -81,7 +81,7 @@ func TestListContacts(t *testing.T) {
 	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
 	assert.Equal(t, contacts.Data[0].FirstName, "Steve")
 	assert.Equal(t, contacts.Data[0].LastName, "Wozniak")
-	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06T23:47:56.678Z")
+	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contacts.Data[0].Unsubscribed, false)
 }
 
@@ -105,7 +105,7 @@ func TestListContactsByAudienceIdFallback(t *testing.T) {
 					"email": "steve.wozniak@gmail.com",
 					"first_name": "Steve",
 					"last_name": "Wozniak",
-					"created_at": "2023-10-06T23:47:56.678Z",
+					"created_at": "2023-10-06 23:47:56.678+00",
 					"unsubscribed": false
 				}
 			]
@@ -173,7 +173,7 @@ func TestGetContact(t *testing.T) {
 			"email": "steve.wozniak@gmail.com",
 			"first_name": "Steve",
 			"last_name": "Wozniak",
-			"created_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
 			"unsubscribed": false
 		}`
 
@@ -189,7 +189,7 @@ func TestGetContact(t *testing.T) {
 	assert.Equal(t, contact.Object, "contact")
 	assert.Equal(t, contact.FirstName, "Steve")
 	assert.Equal(t, contact.LastName, "Wozniak")
-	assert.Equal(t, contact.CreatedAt, "2023-10-06T23:47:56.678Z")
+	assert.Equal(t, contact.CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contact.Unsubscribed, false)
 }
 
@@ -212,7 +212,7 @@ func TestGetContactByEmail(t *testing.T) {
 			"email": "steve.wozniak@gmail.com",
 			"first_name": "Steve",
 			"last_name": "Wozniak",
-			"created_at": "2023-10-06T23:47:56.678Z",
+			"created_at": "2023-10-06 23:47:56.678+00",
 			"unsubscribed": false
 		}`
 
@@ -229,7 +229,7 @@ func TestGetContactByEmail(t *testing.T) {
 	assert.Equal(t, contact.FirstName, "Steve")
 	assert.Equal(t, contact.LastName, "Wozniak")
 	assert.Equal(t, contact.Email, contactEmail)
-	assert.Equal(t, contact.CreatedAt, "2023-10-06T23:47:56.678Z")
+	assert.Equal(t, contact.CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contact.Unsubscribed, false)
 }
 
@@ -449,7 +449,7 @@ func TestUpdateContactAudienceIdMissing(t *testing.T) {
 				"email": "test@example.com",
 				"first_name": "Updated First Name",
 				"last_name": "Test",
-				"created_at": "2023-04-26T20:21:26.347412+00:00",
+				"created_at": "2023-04-26 20:21:26.347412+00",
 				"unsubscribed": false
 			},
 			"error": {}
@@ -521,7 +521,7 @@ func TestListGlobalContacts(t *testing.T) {
 					"email": "global@example.com",
 					"first_name": "Global",
 					"last_name": "Contact",
-					"created_at": "2023-10-06T22:59:55.977Z",
+					"created_at": "2023-10-06 22:59:55.977+00",
 					"unsubscribed": false,
 					"properties": {
 						"tier": "premium",
@@ -565,7 +565,7 @@ func TestGetGlobalContact(t *testing.T) {
 			"email": "global@example.com",
 			"first_name": "Global",
 			"last_name": "Contact",
-			"created_at": "2023-10-06T22:59:55.977Z",
+			"created_at": "2023-10-06 22:59:55.977+00",
 			"unsubscribed": false,
 			"properties": {
 				"tier": "premium"
@@ -605,7 +605,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 				"email": "updated@example.com",
 				"first_name": "Updated",
 				"last_name": "Name",
-				"created_at": "2023-04-26T20:21:26.347412+00:00",
+				"created_at": "2023-04-26 20:21:26.347412+00",
 				"unsubscribed": false,
 				"properties": {
 					"tier": "enterprise"

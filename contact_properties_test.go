@@ -85,7 +85,7 @@ func TestListContactProperties(t *testing.T) {
 					"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 					"key": "age",
 					"object": "contact_property",
-					"created_at": "2025-10-22T15:30:00.000Z",
+					"created_at": "2025-10-22 15:30:00+00",
 					"type": "number",
 					"fallback_value": 0
 				},
@@ -93,7 +93,7 @@ func TestListContactProperties(t *testing.T) {
 					"id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
 					"key": "country",
 					"object": "contact_property",
-					"created_at": "2025-10-22T15:31:00.000Z",
+					"created_at": "2025-10-22 15:31:00+00",
 					"type": "string",
 					"fallback_value": "US"
 				}
@@ -119,7 +119,7 @@ func TestListContactProperties(t *testing.T) {
 	assert.Equal(t, "contact_property", properties.Data[0].Object)
 	assert.Equal(t, "number", properties.Data[0].Type)
 	assert.Equal(t, float64(0), properties.Data[0].FallbackValue)
-	assert.Equal(t, "2025-10-22T15:30:00.000Z", properties.Data[0].CreatedAt)
+	assert.Equal(t, "2025-10-22 15:30:00+00", properties.Data[0].CreatedAt)
 
 	// Check second property
 	assert.Equal(t, "b2c3d4e5-f6a7-8901-bcde-f12345678901", properties.Data[1].Id)
@@ -144,7 +144,7 @@ func TestGetContactProperty(t *testing.T) {
 			"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
 			"key": "age",
 			"object": "contact_property",
-			"created_at": "2025-10-22T15:30:00.000Z",
+			"created_at": "2025-10-22 15:30:00+00",
 			"type": "number",
 			"fallback_value": 0
 		}`
@@ -162,7 +162,7 @@ func TestGetContactProperty(t *testing.T) {
 	assert.Equal(t, "contact_property", property.Object)
 	assert.Equal(t, "number", property.Type)
 	assert.Equal(t, float64(0), property.FallbackValue)
-	assert.Equal(t, "2025-10-22T15:30:00.000Z", property.CreatedAt)
+	assert.Equal(t, "2025-10-22 15:30:00+00", property.CreatedAt)
 }
 
 func TestGetContactPropertyIdMissing(t *testing.T) {
