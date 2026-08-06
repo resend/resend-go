@@ -25,7 +25,7 @@ func TestGetReceivedEmail(t *testing.T) {
 			"id": "8136d3fb-0439-4b09-b939-b8436a3524b6",
 			"to": ["delivered@resend.dev"],
 			"from": "Acme <onboarding@resend.dev>",
-			"created_at": "2023-04-03T22:13:42.674981+00:00",
+			"created_at": "2023-04-03 22:13:42.674981+00",
 			"subject": "Hello World",
 			"message_id": "<test-message-id@example.com>",
 			"html": "Congrats on sending your <strong>first email</strong>!",
@@ -38,7 +38,7 @@ func TestGetReceivedEmail(t *testing.T) {
 			},
 			"raw": {
 				"download_url": "https://cdn.example.com/just-a-test-url",
-				"expires_at": "2023-04-20T16:23:29.315Z"
+				"expires_at": "2023-04-20 16:23:29.315+00"
 			},
 			"attachments": [
 				{
@@ -79,7 +79,7 @@ func TestGetReceivedEmail(t *testing.T) {
 	assert.Equal(t, "inline", resp.Attachments[0].ContentDisposition)
 	assert.Equal(t, "img001", resp.Attachments[0].ContentId)
 	assert.Equal(t, "https://cdn.example.com/just-a-test-url", resp.Raw.DownloadUrl)
-	assert.Equal(t, "2023-04-20T16:23:29.315Z", resp.Raw.ExpiresAt)
+	assert.Equal(t, "2023-04-20 16:23:29.315+00", resp.Raw.ExpiresAt)
 }
 
 func TestGetReceivedEmailWithOptions(t *testing.T) {
@@ -98,7 +98,7 @@ func TestGetReceivedEmailWithOptions(t *testing.T) {
 			"id": "8136d3fb-0439-4b09-b939-b8436a3524b6",
 			"to": ["delivered@resend.dev"],
 			"from": "Acme <onboarding@resend.dev>",
-			"created_at": "2023-04-03T22:13:42.674981+00:00",
+			"created_at": "2023-04-03 22:13:42.674981+00",
 			"subject": "Hello World",
 			"html": "<p>Congrats on sending your first email!</p>",
 			"text": "Congrats on sending your first email!",
@@ -137,7 +137,7 @@ func TestGetReceivedEmailWithNullFields(t *testing.T) {
 			"id": "null-fields-id",
 			"to": ["delivered@resend.dev"],
 			"from": "sender@example.com",
-			"created_at": "2023-04-03T22:13:42.674981+00:00",
+			"created_at": "2023-04-03 22:13:42.674981+00",
 			"subject": "Test Subject",
 			"html": "",
 			"text": "",
@@ -181,7 +181,7 @@ func TestListReceivedEmails(t *testing.T) {
 					Id:        "1",
 					To:        []string{"recipient@example.com"},
 					From:      "sender@example.com",
-					CreatedAt: "2024-01-01T00:00:00Z",
+					CreatedAt: "2024-01-01 00:00:00+00",
 					Subject:   "Test Email 1",
 					Bcc:       []string{},
 					Cc:        []string{"cc@example.com"},
@@ -200,7 +200,7 @@ func TestListReceivedEmails(t *testing.T) {
 					Id:          "2",
 					To:          []string{"recipient2@example.com"},
 					From:        "sender2@example.com",
-					CreatedAt:   "2024-01-02T00:00:00Z",
+					CreatedAt:   "2024-01-02 00:00:00+00",
 					Subject:     "Test Email 2",
 					Bcc:         []string{},
 					Cc:          []string{},
@@ -255,7 +255,7 @@ func TestListReceivedEmailsWithParameters(t *testing.T) {
 					Id:          "1",
 					To:          []string{"recipient@example.com"},
 					From:        "sender@example.com",
-					CreatedAt:   "2024-01-01T00:00:00Z",
+					CreatedAt:   "2024-01-01 00:00:00+00",
 					Subject:     "Test Email 1",
 					Bcc:         []string{},
 					Cc:          []string{},
@@ -338,7 +338,7 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 			"content_disposition": "inline",
 			"content_id": "img001",
 			"download_url": "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
-			"expires_at": "2025-10-17T14:29:41.521Z"
+			"expires_at": "2025-10-17 14:29:41.521+00"
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -353,7 +353,7 @@ func TestGetReceivedEmailAttachment(t *testing.T) {
 	assert.Equal(t, "inline", resp.ContentDisposition)
 	assert.Equal(t, "img001", resp.ContentId)
 	assert.Equal(t, "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123", resp.DownloadUrl)
-	assert.Equal(t, "2025-10-17T14:29:41.521Z", resp.ExpiresAt)
+	assert.Equal(t, "2025-10-17 14:29:41.521+00", resp.ExpiresAt)
 }
 
 func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
@@ -377,7 +377,7 @@ func TestGetReceivedEmailAttachmentWithContext(t *testing.T) {
 			"content_disposition": "attachment",
 			"content_id": "doc001",
 			"download_url": "https://inbound-cdn.resend.com/test-email-id/attachments/test-attachment-id",
-			"expires_at": "2025-10-18T12:00:00.000Z"
+			"expires_at": "2025-10-18 12:00:00+00"
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -418,7 +418,7 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 					ContentDisposition: "inline",
 					ContentId:          "img001",
 					DownloadUrl:        "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/2a0c9ce0-3112-4728-976e-47ddcd16a318?some-params=example&signature=sig-123",
-					ExpiresAt:          "2025-10-17T14:29:41.521Z",
+					ExpiresAt:          "2025-10-17 14:29:41.521+00",
 				},
 				{
 					Id:                 "3b1d0df1-4223-5839-a87f-58eedd17b429",
@@ -427,7 +427,7 @@ func TestListReceivedEmailAttachments(t *testing.T) {
 					ContentDisposition: "attachment",
 					ContentId:          "doc001",
 					DownloadUrl:        "https://inbound-cdn.resend.com/4ef9a417-02e9-4d39-ad75-9611e0fcc33c/attachments/3b1d0df1-4223-5839-a87f-58eedd17b429?some-params=example&signature=sig-456",
-					ExpiresAt:          "2025-10-17T14:29:41.521Z",
+					ExpiresAt:          "2025-10-17 14:29:41.521+00",
 				},
 			},
 		}
@@ -483,7 +483,7 @@ func TestListReceivedEmailAttachmentsWithParameters(t *testing.T) {
 					ContentDisposition: "attachment",
 					ContentId:          "img1",
 					DownloadUrl:        "https://example.com/file1.jpg",
-					ExpiresAt:          "2025-10-18T12:00:00.000Z",
+					ExpiresAt:          "2025-10-18 12:00:00+00",
 				},
 			},
 		}
@@ -565,7 +565,7 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 					ContentDisposition: "attachment",
 					ContentId:          "txt1",
 					DownloadUrl:        "https://example.com/context-test.txt",
-					ExpiresAt:          "2025-10-18T12:00:00.000Z",
+					ExpiresAt:          "2025-10-18 12:00:00+00",
 				},
 			},
 		}

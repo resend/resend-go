@@ -55,7 +55,7 @@ func TestListSegments(t *testing.T) {
 			  {
 					"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
 					"name": "Registered Users",
-					"created_at": "2023-04-26T20:21:26.347412+00:00"
+					"created_at": "2023-04-26 20:21:26.347412+00"
 			  }
 			]
 		}`
@@ -72,7 +72,7 @@ func TestListSegments(t *testing.T) {
 	assert.Equal(t, segments.Object, "list")
 	assert.Equal(t, segments.Data[0].Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.Equal(t, segments.Data[0].Name, "Registered Users")
-	assert.Equal(t, segments.Data[0].CreatedAt, "2023-04-26T20:21:26.347412+00:00")
+	assert.Equal(t, segments.Data[0].CreatedAt, "2023-04-26 20:21:26.347412+00")
 }
 
 func TestRemoveSegment(t *testing.T) {
@@ -117,7 +117,7 @@ func TestGetSegment(t *testing.T) {
 			"object": "segment",
 			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
 			"name": "Registered Users",
-			"created_at": "2023-10-06T22:59:55.977Z"
+			"created_at": "2023-10-06 22:59:55.977+00"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -131,5 +131,5 @@ func TestGetSegment(t *testing.T) {
 	assert.Equal(t, segment.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.Equal(t, segment.Object, "segment")
 	assert.Equal(t, segment.Name, "Registered Users")
-	assert.Equal(t, segment.CreatedAt, "2023-10-06T22:59:55.977Z")
+	assert.Equal(t, segment.CreatedAt, "2023-10-06 22:59:55.977+00")
 }

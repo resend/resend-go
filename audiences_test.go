@@ -58,7 +58,7 @@ func TestListAudiences(t *testing.T) {
 			  {
 					"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
 					"name": "Registered Users",
-					"created_at": "2023-04-26T20:21:26.347412+00:00"
+					"created_at": "2023-04-26 20:21:26.347412+00"
 			  }
 			]
 		}`
@@ -75,7 +75,7 @@ func TestListAudiences(t *testing.T) {
 	assert.Equal(t, audiences.Object, "list")
 	assert.Equal(t, audiences.Data[0].Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.Equal(t, audiences.Data[0].Name, "Registered Users")
-	assert.Equal(t, audiences.Data[0].CreatedAt, "2023-04-26T20:21:26.347412+00:00")
+	assert.Equal(t, audiences.Data[0].CreatedAt, "2023-04-26 20:21:26.347412+00")
 }
 
 func TestRemoveAudience(t *testing.T) {
@@ -120,7 +120,7 @@ func TestGetAudience(t *testing.T) {
 			"object": "segment",
 			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
 			"name": "Registered Users",
-			"created_at": "2023-10-06T22:59:55.977Z"
+			"created_at": "2023-10-06 22:59:55.977+00"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -134,5 +134,5 @@ func TestGetAudience(t *testing.T) {
 	assert.Equal(t, audience.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.Equal(t, audience.Object, "segment")
 	assert.Equal(t, audience.Name, "Registered Users")
-	assert.Equal(t, audience.CreatedAt, "2023-10-06T22:59:55.977Z")
+	assert.Equal(t, audience.CreatedAt, "2023-10-06 22:59:55.977+00")
 }

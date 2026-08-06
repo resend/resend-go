@@ -98,14 +98,14 @@ func TestListSuppressions(t *testing.T) {
 					"email": "steve.wozniak@gmail.com",
 					"origin": "bounce",
 					"source_id": "479e3145-dd38-476b-932c-529ceb705947",
-					"created_at": "2023-10-06T23:47:56.678Z"
+					"created_at": "2023-10-06 23:47:56.678+00"
 				},
 				{
 					"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
 					"email": "steve.jobs@gmail.com",
 					"origin": "manual",
 					"source_id": null,
-					"created_at": "2023-10-07T10:12:31.001Z"
+					"created_at": "2023-10-07 10:12:31.001+00"
 				}
 			]
 		}`)
@@ -125,7 +125,7 @@ func TestListSuppressions(t *testing.T) {
 	assert.Equal(t, SuppressionOriginBounce, resp.Data[0].Origin)
 	assert.NotNil(t, resp.Data[0].SourceId)
 	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", *resp.Data[0].SourceId)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.Data[0].CreatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.Data[0].CreatedAt)
 
 	assert.Equal(t, SuppressionOriginManual, resp.Data[1].Origin)
 	assert.Nil(t, resp.Data[1].SourceId)
@@ -183,7 +183,7 @@ func TestListSuppressionsWithContext(t *testing.T) {
 					"email": "steve.wozniak@gmail.com",
 					"origin": "bounce",
 					"source_id": "479e3145-dd38-476b-932c-529ceb705947",
-					"created_at": "2023-10-06T23:47:56.678Z"
+					"created_at": "2023-10-06 23:47:56.678+00"
 				}
 			]
 		}`)
@@ -230,7 +230,7 @@ func TestGetSuppression(t *testing.T) {
 			"email": "steve.wozniak@gmail.com",
 			"origin": "complaint",
 			"source_id": "479e3145-dd38-476b-932c-529ceb705947",
-			"created_at": "2023-10-06T23:47:56.678Z"
+			"created_at": "2023-10-06 23:47:56.678+00"
 		}`)
 	})
 
@@ -245,7 +245,7 @@ func TestGetSuppression(t *testing.T) {
 	assert.Equal(t, SuppressionOriginComplaint, resp.Origin)
 	assert.NotNil(t, resp.SourceId)
 	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", *resp.SourceId)
-	assert.Equal(t, "2023-10-06T23:47:56.678Z", resp.CreatedAt)
+	assert.Equal(t, "2023-10-06 23:47:56.678+00", resp.CreatedAt)
 }
 
 func TestGetSuppressionWithContext(t *testing.T) {
@@ -263,7 +263,7 @@ func TestGetSuppressionWithContext(t *testing.T) {
 			"email": "steve.wozniak@gmail.com",
 			"origin": "complaint",
 			"source_id": "479e3145-dd38-476b-932c-529ceb705947",
-			"created_at": "2023-10-06T23:47:56.678Z"
+			"created_at": "2023-10-06 23:47:56.678+00"
 		}`)
 	})
 
@@ -295,7 +295,7 @@ func TestGetSuppressionByEmail(t *testing.T) {
 			"email": "steve.wozniak+news@gmail.com",
 			"origin": "manual",
 			"source_id": null,
-			"created_at": "2023-10-06T23:47:56.678Z"
+			"created_at": "2023-10-06 23:47:56.678+00"
 		}`)
 	})
 
@@ -328,7 +328,7 @@ func TestGetSuppressionEscapesReservedPathCharacters(t *testing.T) {
 			"email": "steve/woz iak@gmail.com",
 			"origin": "manual",
 			"source_id": null,
-			"created_at": "2023-10-06T23:47:56.678Z"
+			"created_at": "2023-10-06 23:47:56.678+00"
 		}`)
 	})
 

@@ -164,7 +164,7 @@ func TestGetTopic(t *testing.T) {
 			"name": "Weekly Newsletter",
 			"description": "Weekly newsletter for our subscribers",
 			"default_subscription": "opt_in",
-			"created_at": "2023-04-08T00:11:13.110779+00:00"
+			"created_at": "2023-04-08 00:11:13.110779+00"
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -177,7 +177,7 @@ func TestGetTopic(t *testing.T) {
 	assert.Equal(t, "Weekly Newsletter", resp.Name)
 	assert.Equal(t, "Weekly newsletter for our subscribers", resp.Description)
 	assert.Equal(t, DefaultSubscriptionOptIn, resp.DefaultSubscription)
-	assert.Equal(t, "2023-04-08T00:11:13.110779+00:00", resp.CreatedAt)
+	assert.Equal(t, "2023-04-08 00:11:13.110779+00", resp.CreatedAt)
 }
 
 func TestGetTopicWithOptOut(t *testing.T) {
@@ -197,7 +197,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 			"name": "Product Updates",
 			"description": "",
 			"default_subscription": "opt_out",
-			"created_at": "2023-04-08T00:11:13.110779+00:00"
+			"created_at": "2023-04-08 00:11:13.110779+00"
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -210,7 +210,7 @@ func TestGetTopicWithOptOut(t *testing.T) {
 	assert.Equal(t, "Product Updates", resp.Name)
 	assert.Equal(t, "", resp.Description)
 	assert.Equal(t, DefaultSubscriptionOptOut, resp.DefaultSubscription)
-	assert.Equal(t, "2023-04-08T00:11:13.110779+00:00", resp.CreatedAt)
+	assert.Equal(t, "2023-04-08 00:11:13.110779+00", resp.CreatedAt)
 }
 
 func TestGetTopicWithContext(t *testing.T) {
@@ -230,7 +230,7 @@ func TestGetTopicWithContext(t *testing.T) {
 			"name": "Context Topic",
 			"description": "Test topic with context",
 			"default_subscription": "opt_in",
-			"created_at": "2023-04-08T00:11:13.110779+00:00"
+			"created_at": "2023-04-08 00:11:13.110779+00"
 		}`
 		fmt.Fprintf(w, ret)
 	})
@@ -244,7 +244,7 @@ func TestGetTopicWithContext(t *testing.T) {
 	assert.Equal(t, "Context Topic", resp.Name)
 	assert.Equal(t, "Test topic with context", resp.Description)
 	assert.Equal(t, DefaultSubscriptionOptIn, resp.DefaultSubscription)
-	assert.Equal(t, "2023-04-08T00:11:13.110779+00:00", resp.CreatedAt)
+	assert.Equal(t, "2023-04-08 00:11:13.110779+00", resp.CreatedAt)
 }
 
 func TestListTopics(t *testing.T) {
@@ -270,14 +270,14 @@ func TestListTopics(t *testing.T) {
 					"name": "Weekly Newsletter",
 					"description": "Weekly newsletter for our subscribers",
 					"default_subscription": "opt_in",
-					"created_at": "2023-04-08T00:11:13.110779+00:00"
+					"created_at": "2023-04-08 00:11:13.110779+00"
 				},
 				{
 					"id": "topic-2-id",
 					"name": "Product Updates",
 					"description": "",
 					"default_subscription": "opt_out",
-					"created_at": "2023-04-09T00:11:13.110779+00:00"
+					"created_at": "2023-04-09 00:11:13.110779+00"
 				}
 			]
 		}`
@@ -327,7 +327,7 @@ func TestListTopicsWithAfter(t *testing.T) {
 					"name": "Next Topic",
 					"description": "Next topic description",
 					"default_subscription": "opt_in",
-					"created_at": "2023-04-10T00:11:13.110779+00:00"
+					"created_at": "2023-04-10 00:11:13.110779+00"
 				}
 			]
 		}`
@@ -373,7 +373,7 @@ func TestListTopicsWithBefore(t *testing.T) {
 					"name": "Previous Topic",
 					"description": "Previous topic description",
 					"default_subscription": "opt_out",
-					"created_at": "2023-04-07T00:11:13.110779+00:00"
+					"created_at": "2023-04-07 00:11:13.110779+00"
 				}
 			]
 		}`
@@ -414,7 +414,7 @@ func TestListTopicsWithContext(t *testing.T) {
 					"name": "Context Topic",
 					"description": "Context topic description",
 					"default_subscription": "opt_in",
-					"created_at": "2023-04-08T00:11:13.110779+00:00"
+					"created_at": "2023-04-08 00:11:13.110779+00"
 				}
 			]
 		}`
@@ -457,14 +457,14 @@ func TestListTopicsWithoutOptions(t *testing.T) {
 					"name": "Topic 1",
 					"description": "First topic",
 					"default_subscription": "opt_in",
-					"created_at": "2023-04-08T00:11:13.110779+00:00"
+					"created_at": "2023-04-08 00:11:13.110779+00"
 				},
 				{
 					"id": "topic-2-id",
 					"name": "Topic 2",
 					"description": "Second topic",
 					"default_subscription": "opt_out",
-					"created_at": "2023-04-09T00:11:13.110779+00:00"
+					"created_at": "2023-04-09 00:11:13.110779+00"
 				}
 			]
 		}`
