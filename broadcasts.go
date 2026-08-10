@@ -57,6 +57,11 @@ type SendBroadcastResponse struct {
 	Id string `json:"id"`
 }
 
+type CancelBroadcastResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
+}
+
 type RemoveBroadcastResponse struct {
 	Object  string `json:"object"`
 	Id      string `json:"id"`
@@ -103,6 +108,9 @@ type BroadcastsSvc interface {
 
 	SendWithContext(ctx context.Context, params *SendBroadcastRequest) (SendBroadcastResponse, error)
 	Send(params *SendBroadcastRequest) (SendBroadcastResponse, error)
+
+	CancelWithContext(ctx context.Context, broadcastId string) (CancelBroadcastResponse, error)
+	Cancel(broadcastId string) (CancelBroadcastResponse, error)
 
 	RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error)
 	Remove(broadcastId string) (RemoveBroadcastResponse, error)
@@ -249,6 +257,35 @@ func (s *BroadcastsSvcImpl) SendWithContext(ctx context.Context, params *SendBro
 // Send sends broadcasts to your audience.
 func (s *BroadcastsSvcImpl) Send(params *SendBroadcastRequest) (SendBroadcastResponse, error) {
 	return s.SendWithContext(context.Background(), params)
+}
+
+func (s *BroadcastsSvcImpl) CancelWithContext(ctx context.Context, broadcastId string) (CancelBroadcastResponse, error) {
+	if broadcastId == "" {
+		return CancelBroadcastResponse{}, errors.New("[ERROR]: broadcastId cannot be empty")
+	}
+
+	path := "broadcasts/" + broadcastId + "/cancel"
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return CancelBroadcastResponse{}, ErrFailedToCreateBroadcastCancelRequest
+	}
+
+	resp := new(CancelBroadcastResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, resp)
+
+	if err != nil {
+		return CancelBroadcastResponse{}, err
+	}
+
+	return *resp, nil
+}
+
+func (s *BroadcastsSvcImpl) Cancel(broadcastId string) (CancelBroadcastResponse, error) {
+	return s.CancelWithContext(context.Background(), broadcastId)
 }
 
 // RemoveWithContext removes a given broadcast by id

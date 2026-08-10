@@ -51,6 +51,7 @@ var (
 	ErrFailedToCreateBroadcastUpdateRequest = errors.New("[ERROR]: Failed to create Broadcasts.Update request")
 	ErrFailedToCreateBroadcastSendRequest   = errors.New("[ERROR]: Failed to create Broadcasts.Send request")
 	ErrFailedToCreateBroadcastCreateRequest = errors.New("[ERROR]: Failed to create Broadcasts.Create request")
+	ErrFailedToCreateBroadcastCancelRequest = errors.New("[ERROR]: Failed to create Broadcasts.Cancel request")
 )
 
 // ApiKeySvc errors
