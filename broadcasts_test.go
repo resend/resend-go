@@ -299,6 +299,32 @@ func TestRemoveBroadcast(t *testing.T) {
 	assert.Equal(t, deleted.Object, "broadcast")
 }
 
+func TestCancelBroadcast(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/b6d24b8e-af0b-4c3c-be0c-359bbd97381e/cancel", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusOK)
+
+		var ret any
+		ret = `
+		{
+			"object": "broadcast",
+			"id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	canceled, err := client.Broadcasts.Cancel("b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
+	if err != nil {
+		t.Errorf("Broadcasts.Cancel returned error: %v", err)
+	}
+	assert.Equal(t, canceled.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
+	assert.Equal(t, canceled.Object, "broadcast")
+}
+
 func TestListBroadcasts(t *testing.T) {
 	setup()
 	defer teardown()
