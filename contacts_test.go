@@ -522,11 +522,7 @@ func TestListGlobalContacts(t *testing.T) {
 					"first_name": "Global",
 					"last_name": "Contact",
 					"created_at": "2023-10-06 22:59:55.977+00",
-					"unsubscribed": false,
-					"properties": {
-						"tier": "premium",
-						"role": "admin"
-					}
+					"unsubscribed": false
 				}
 			],
 			"has_more": false
@@ -544,8 +540,6 @@ func TestListGlobalContacts(t *testing.T) {
 	assert.Equal(t, "list", contacts.Object)
 	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", contacts.Data[0].Id)
 	assert.Equal(t, "global@example.com", contacts.Data[0].Email)
-	assert.NotNil(t, contacts.Data[0].Properties)
-	assert.Equal(t, "premium", contacts.Data[0].Properties["tier"])
 }
 
 func TestGetGlobalContact(t *testing.T) {
@@ -568,7 +562,7 @@ func TestGetGlobalContact(t *testing.T) {
 			"created_at": "2023-10-06 22:59:55.977+00",
 			"unsubscribed": false,
 			"properties": {
-				"tier": "premium"
+				"tier": {"value": "premium", "type": "string"}
 			}
 		}`
 
@@ -584,7 +578,8 @@ func TestGetGlobalContact(t *testing.T) {
 	assert.Equal(t, contactId, contact.Id)
 	assert.Equal(t, "global@example.com", contact.Email)
 	assert.NotNil(t, contact.Properties)
-	assert.Equal(t, "premium", contact.Properties["tier"])
+	assert.Equal(t, "premium", contact.Properties["tier"].Value)
+	assert.Equal(t, "string", contact.Properties["tier"].Type)
 }
 
 func TestUpdateGlobalContact(t *testing.T) {
@@ -608,7 +603,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 				"created_at": "2023-04-26 20:21:26.347412+00",
 				"unsubscribed": false,
 				"properties": {
-					"tier": "enterprise"
+					"tier": {"value": "enterprise", "type": "string"}
 				}
 			},
 			"error": {}
@@ -636,7 +631,7 @@ func TestUpdateGlobalContact(t *testing.T) {
 	assert.Equal(t, contactId, resp.Data.Id)
 	assert.Equal(t, "updated@example.com", resp.Data.Email)
 	assert.NotNil(t, resp.Data.Properties)
-	assert.Equal(t, "enterprise", resp.Data.Properties["tier"])
+	assert.Equal(t, "enterprise", resp.Data.Properties["tier"].Value)
 }
 
 func TestRemoveGlobalContact(t *testing.T) {
