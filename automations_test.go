@@ -183,6 +183,25 @@ func TestRemoveAutomation(t *testing.T) {
 	assert.Equal(t, true, resp.Deleted)
 }
 
+func TestDuplicateAutomation(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/automations/aut_123/duplicate", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"object":"automation","id":"aut_456"}`)
+	})
+
+	resp, err := client.Automations.Duplicate("aut_123")
+	if err != nil {
+		t.Fatalf("Automations.Duplicate returned error: %v", err)
+	}
+	assert.Equal(t, "automation", resp.Object)
+	assert.Equal(t, "aut_456", resp.Id)
+}
+
 func TestStopAutomation(t *testing.T) {
 	setup()
 	defer teardown()
