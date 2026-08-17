@@ -79,8 +79,10 @@ func TestListContacts(t *testing.T) {
 
 	assert.Equal(t, len(contacts.Data), 1)
 	assert.Equal(t, contacts.Data[0].Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
-	assert.Equal(t, contacts.Data[0].FirstName, "Steve")
-	assert.Equal(t, contacts.Data[0].LastName, "Wozniak")
+	assert.NotNil(t, contacts.Data[0].FirstName)
+	assert.Equal(t, *contacts.Data[0].FirstName, "Steve")
+	assert.NotNil(t, contacts.Data[0].LastName)
+	assert.Equal(t, *contacts.Data[0].LastName, "Wozniak")
 	assert.Equal(t, contacts.Data[0].CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contacts.Data[0].Unsubscribed, false)
 }
@@ -187,10 +189,47 @@ func TestGetContact(t *testing.T) {
 
 	assert.Equal(t, contact.Id, contactId)
 	assert.Equal(t, contact.Object, "contact")
-	assert.Equal(t, contact.FirstName, "Steve")
-	assert.Equal(t, contact.LastName, "Wozniak")
+	assert.NotNil(t, contact.FirstName)
+	assert.Equal(t, *contact.FirstName, "Steve")
+	assert.NotNil(t, contact.LastName)
+	assert.Equal(t, *contact.LastName, "Wozniak")
 	assert.Equal(t, contact.CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contact.Unsubscribed, false)
+}
+
+func TestGetContactWithNullNames(t *testing.T) {
+	setup()
+	defer teardown()
+
+	audienceId := "709d076c-2bb1-4be6-94ed-3f8f32622db6"
+	contactId := "e169aa45-1ecf-4183-9955-b1499d5701d3"
+
+	mux.HandleFunc("/audiences/"+audienceId+"/contacts/"+contactId, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "contact",
+			"id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+			"email": "steve.wozniak@gmail.com",
+			"first_name": null,
+			"last_name": null,
+			"created_at": "2023-10-06 23:47:56.678+00",
+			"unsubscribed": false
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	contact, err := client.Contacts.Get(&GetContactOptions{AudienceId: audienceId, Id: contactId})
+	if err != nil {
+		t.Errorf("Contacts.Get returned error: %v", err)
+	}
+
+	assert.Nil(t, contact.FirstName)
+	assert.Nil(t, contact.LastName)
 }
 
 func TestGetContactByEmail(t *testing.T) {
@@ -226,8 +265,10 @@ func TestGetContactByEmail(t *testing.T) {
 
 	assert.Equal(t, contact.Id, "e169aa45-1ecf-4183-9955-b1499d5701d3")
 	assert.Equal(t, contact.Object, "contact")
-	assert.Equal(t, contact.FirstName, "Steve")
-	assert.Equal(t, contact.LastName, "Wozniak")
+	assert.NotNil(t, contact.FirstName)
+	assert.Equal(t, *contact.FirstName, "Steve")
+	assert.NotNil(t, contact.LastName)
+	assert.Equal(t, *contact.LastName, "Wozniak")
 	assert.Equal(t, contact.Email, contactEmail)
 	assert.Equal(t, contact.CreatedAt, "2023-10-06 23:47:56.678+00")
 	assert.Equal(t, contact.Unsubscribed, false)
@@ -467,7 +508,8 @@ func TestUpdateContactAudienceIdMissing(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, "123123123", resp.Data.Id)
-	assert.Equal(t, "Updated First Name", resp.Data.FirstName)
+	assert.NotNil(t, resp.Data.FirstName)
+	assert.Equal(t, "Updated First Name", *resp.Data.FirstName)
 }
 
 // Global Contacts Tests
