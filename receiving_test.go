@@ -33,6 +33,7 @@ func TestGetReceivedEmail(t *testing.T) {
 			"bcc": [],
 			"cc": ["cc@example.com"],
 			"reply_to": ["reply@example.com"],
+			"received_for": ["forwarded@example.com"],
 			"headers": {
 				"X-Custom-Header": "value"
 			},
@@ -69,6 +70,8 @@ func TestGetReceivedEmail(t *testing.T) {
 	assert.Equal(t, "cc@example.com", resp.Cc[0])
 	assert.Equal(t, 1, len(resp.ReplyTo))
 	assert.Equal(t, "reply@example.com", resp.ReplyTo[0])
+	assert.Equal(t, 1, len(resp.ReceivedFor))
+	assert.Equal(t, "forwarded@example.com", resp.ReceivedFor[0])
 	assert.Equal(t, 1, len(resp.Headers))
 	assert.Equal(t, "value", resp.Headers["X-Custom-Header"])
 	assert.Equal(t, "<test-message-id@example.com>", resp.MessageId)
