@@ -66,9 +66,9 @@ type AutomationConnection struct {
 }
 
 type CreateAutomationRequest struct {
-	Name        string           `json:"name"`
-	Status      AutomationStatus `json:"status,omitempty"`
-	Steps       []AutomationStep `json:"steps"`
+	Name        string                 `json:"name"`
+	Status      AutomationStatus       `json:"status,omitempty"`
+	Steps       []AutomationStep       `json:"steps"`
 	Connections []AutomationConnection `json:"connections"`
 }
 
@@ -78,9 +78,9 @@ type CreateAutomationResponse struct {
 }
 
 type UpdateAutomationRequest struct {
-	Name        string           `json:"name,omitempty"`
-	Status      AutomationStatus `json:"status,omitempty"`
-	Steps       []AutomationStep `json:"steps,omitempty"`
+	Name        string                 `json:"name,omitempty"`
+	Status      AutomationStatus       `json:"status,omitempty"`
+	Steps       []AutomationStep       `json:"steps,omitempty"`
 	Connections []AutomationConnection `json:"connections,omitempty"`
 }
 
@@ -93,6 +93,11 @@ type DeleteAutomationResponse struct {
 	Object  string `json:"object"`
 	Id      string `json:"id"`
 	Deleted bool   `json:"deleted"`
+}
+
+type DuplicateAutomationResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
 }
 
 type StopAutomationResponse struct {
@@ -123,7 +128,7 @@ type Automation struct {
 	CreatedAt   string                   `json:"created_at"`
 	UpdatedAt   string                   `json:"updated_at"`
 	Steps       []AutomationStepResponse `json:"steps"`
-	Connections []AutomationConnection         `json:"connections"`
+	Connections []AutomationConnection   `json:"connections"`
 }
 
 type AutomationRunListItem struct {
@@ -189,6 +194,8 @@ type AutomationsSvc interface {
 	Update(automationId string, params *UpdateAutomationRequest) (UpdateAutomationResponse, error)
 	RemoveWithContext(ctx context.Context, automationId string) (DeleteAutomationResponse, error)
 	Remove(automationId string) (DeleteAutomationResponse, error)
+	DuplicateWithContext(ctx context.Context, automationId string) (DuplicateAutomationResponse, error)
+	Duplicate(automationId string) (DuplicateAutomationResponse, error)
 	StopWithContext(ctx context.Context, automationId string) (StopAutomationResponse, error)
 	Stop(automationId string) (StopAutomationResponse, error)
 	ListRunsWithContext(ctx context.Context, automationId string, options *ListAutomationRunsOptions) (ListAutomationRunsResponse, error)
@@ -373,6 +380,30 @@ func (s *AutomationsSvcImpl) RemoveWithContext(ctx context.Context, automationId
 // Remove deletes an Automation by ID
 func (s *AutomationsSvcImpl) Remove(automationId string) (DeleteAutomationResponse, error) {
 	return s.RemoveWithContext(context.Background(), automationId)
+}
+
+// DuplicateWithContext duplicates an Automation by ID
+// https://resend.com/docs/api-reference/automations/duplicate-automation
+func (s *AutomationsSvcImpl) DuplicateWithContext(ctx context.Context, automationId string) (DuplicateAutomationResponse, error) {
+	path := "automations/" + automationId + "/duplicate"
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return DuplicateAutomationResponse{}, ErrFailedToCreateAutomationDuplicateRequest
+	}
+
+	resp := new(DuplicateAutomationResponse)
+	_, err = s.client.Perform(req, resp)
+	if err != nil {
+		return DuplicateAutomationResponse{}, err
+	}
+
+	return *resp, nil
+}
+
+// Duplicate duplicates an Automation by ID
+func (s *AutomationsSvcImpl) Duplicate(automationId string) (DuplicateAutomationResponse, error) {
+	return s.DuplicateWithContext(context.Background(), automationId)
 }
 
 // StopWithContext stops a running Automation by ID
