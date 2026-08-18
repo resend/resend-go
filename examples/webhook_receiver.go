@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/resend/resend-go/v3"
+	"github.com/resend/resend-go/v4"
 )
 
 // Demonstrates how to receive and verify webhooks
