@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -93,4 +94,65 @@ func TestRemoveApiKey(t *testing.T) {
 		t.Errorf("ApiKeys.Remove returned error: %v", err)
 	}
 	assert.True(t, deleted)
+}
+
+func TestUpdateApiKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	apiKeyId := "dacf4072-4119-4d88-932f-6202748ac7c8"
+
+	mux.HandleFunc(fmt.Sprintf("/api-keys/%s", apiKeyId), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "api_key",
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	req := &UpdateApiKeyRequest{
+		Name: "renamed api key",
+	}
+	resp, err := client.ApiKeys.Update(apiKeyId, req)
+	if err != nil {
+		t.Errorf("ApiKeys.Update returned error: %v", err)
+	}
+	assert.Equal(t, "api_key", resp.Object)
+	assert.Equal(t, apiKeyId, resp.Id)
+}
+
+func TestUpdateApiKeyWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	apiKeyId := "dacf4072-4119-4d88-932f-6202748ac7c8"
+
+	mux.HandleFunc(fmt.Sprintf("/api-keys/%s", apiKeyId), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "api_key",
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	req := &UpdateApiKeyRequest{
+		Name: "renamed api key",
+	}
+	resp, err := client.ApiKeys.UpdateWithContext(ctx, apiKeyId, req)
+	if err != nil {
+		t.Errorf("ApiKeys.UpdateWithContext returned error: %v", err)
+	}
+	assert.Equal(t, "api_key", resp.Object)
+	assert.Equal(t, apiKeyId, resp.Id)
 }
