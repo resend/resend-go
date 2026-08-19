@@ -48,6 +48,18 @@ type CancelScheduledEmailResponse struct {
 	Object string `json:"object"`
 }
 
+// ShareEmailRequest is the request object for the Share call.
+type ShareEmailRequest struct {
+	ExpiresIn string `json:"expires_in,omitempty"`
+}
+
+// ShareEmailResponse is the response from the Share call.
+type ShareEmailResponse struct {
+	Id     string `json:"id"`
+	Object string `json:"object"`
+	Url    string `json:"url"`
+}
+
 // SendEmailResponse is the response from the Send call.
 type SendEmailResponse struct {
 	Id string `json:"id"`
@@ -171,6 +183,8 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 type EmailsSvc interface {
 	CancelWithContext(ctx context.Context, emailId string) (*CancelScheduledEmailResponse, error)
 	Cancel(emailId string) (*CancelScheduledEmailResponse, error)
+	ShareWithContext(ctx context.Context, emailId string, params *ShareEmailRequest) (*ShareEmailResponse, error)
+	Share(emailId string, params *ShareEmailRequest) (*ShareEmailResponse, error)
 	UpdateWithContext(ctx context.Context, params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	Update(params *UpdateEmailRequest) (*UpdateEmailResponse, error)
 	SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error)
@@ -220,6 +234,37 @@ func (s *EmailsSvcImpl) CancelWithContext(ctx context.Context, emailId string) (
 	resp := new(CancelScheduledEmailResponse)
 
 	// Send Request
+	_, err = s.client.Perform(req, resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+// Share creates a shareable link for a sent or received email by ID
+// https://resend.com/docs/api-reference/emails/share-email
+func (s *EmailsSvcImpl) Share(emailId string, params *ShareEmailRequest) (*ShareEmailResponse, error) {
+	return s.ShareWithContext(context.Background(), emailId, params)
+}
+
+// ShareWithContext creates a shareable link for a sent or received email by ID
+// https://resend.com/docs/api-reference/emails/share-email
+func (s *EmailsSvcImpl) ShareWithContext(ctx context.Context, emailId string, params *ShareEmailRequest) (*ShareEmailResponse, error) {
+	path := "emails/" + emailId + "/share"
+
+	var body any
+	if params != nil {
+		body = params
+	}
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, body)
+	if err != nil {
+		return nil, ErrFailedToCreateEmailsShareRequest
+	}
+
+	resp := new(ShareEmailResponse)
 	_, err = s.client.Perform(req, resp)
 
 	if err != nil {
