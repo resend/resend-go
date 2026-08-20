@@ -22,6 +22,15 @@ type ListApiKeysResponse struct {
 	HasMore bool     `json:"has_more"`
 }
 
+type UpdateApiKeyRequest struct {
+	Name string `json:"name"`
+}
+
+type UpdateApiKeyResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
+}
+
 type ApiKey struct {
 	Id         string  `json:"id"`
 	Name       string  `json:"name"`
@@ -37,6 +46,8 @@ type ApiKeysSvc interface {
 	List() (ListApiKeysResponse, error)
 	RemoveWithContext(ctx context.Context, apiKeyId string) (bool, error)
 	Remove(apiKeyId string) (bool, error)
+	UpdateWithContext(ctx context.Context, apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error)
+	Update(apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error)
 }
 
 type ApiKeysSvcImpl struct {
@@ -131,4 +142,26 @@ func (s *ApiKeysSvcImpl) RemoveWithContext(ctx context.Context, apiKeyId string)
 // Remove deletes a given api key by id
 func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
 	return s.RemoveWithContext(context.Background(), apiKeyId)
+}
+
+// https://resend.com/docs/api-reference/api-keys/update-api-key
+func (s *ApiKeysSvcImpl) UpdateWithContext(ctx context.Context, apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error) {
+	path := "api-keys/" + apiKeyId
+
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return UpdateApiKeyResponse{}, ErrFailedToCreateApiKeysUpdateRequest
+	}
+
+	apiKeysResp := new(UpdateApiKeyResponse)
+	_, err = s.client.Perform(req, apiKeysResp)
+	if err != nil {
+		return UpdateApiKeyResponse{}, err
+	}
+
+	return *apiKeysResp, nil
+}
+
+func (s *ApiKeysSvcImpl) Update(apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error) {
+	return s.UpdateWithContext(context.Background(), apiKeyId, params)
 }

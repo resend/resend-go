@@ -59,6 +59,7 @@ var (
 	ErrFailedToCreateApiKeysCreateRequest = errors.New("[ERROR]: Failed to create ApiKeys.Create request")
 	ErrFailedToCreateApiKeysListRequest   = errors.New("[ERROR]: Failed to create ApiKeys.List request")
 	ErrFailedToCreateApiKeysRemoveRequest = errors.New("[ERROR]: Failed to create ApiKeys.Remove request")
+	ErrFailedToCreateApiKeysUpdateRequest = errors.New("[ERROR]: Failed to create ApiKeys.Update request")
 )
 
 // EmailsSvc errors

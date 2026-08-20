@@ -33,6 +33,16 @@ func apiKeysExample() {
 	}
 	fmt.Printf("You have %d api keys in your project\n", len(apiKeys.Data))
 
+	// Update
+	updateParams := &resend.UpdateApiKeyRequest{
+		Name: "nicer api key",
+	}
+	updateResp, err := client.ApiKeys.UpdateWithContext(ctx, resp.Id, updateParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Updated API Key id: " + updateResp.Id)
+
 	// Delete
 	_, err = client.ApiKeys.RemoveWithContext(ctx, resp.Id)
 	if err != nil {
