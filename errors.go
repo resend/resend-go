@@ -70,6 +70,7 @@ var (
 	ErrFailedToCreateEmailsListRequest            = errors.New("[ERROR]: Failed to create ListEmails request")
 	ErrFailedToCreateEmailsGetAttachmentRequest   = errors.New("[ERROR]: Failed to create Emails.GetAttachment request")
 	ErrFailedToCreateEmailsListAttachmentsRequest = errors.New("[ERROR]: Failed to create Emails.ListAttachments request")
+	ErrFailedToCreateEmailsShareRequest           = errors.New("[ERROR]: Failed to create Emails.Share request")
 )
 
 // TemplatesSvc errors

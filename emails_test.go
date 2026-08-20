@@ -323,6 +323,154 @@ func TestCancelScheduledEmail(t *testing.T) {
 	assert.Equal(t, resp.Object, "email")
 }
 
+func TestShareEmailDefaultExpiresIn(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/share", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		content, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("failed to read request body: %v", err)
+		}
+		if len(content) != 0 {
+			t.Errorf("expected an empty request body when params is nil, got: %s", string(content))
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
+			"object": "email",
+			"url": "https://resend.com/share/dacf4072-4119-4d88-932f-6202748ac7c8"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Emails.Share("dacf4072-4119-4d88-932f-6202748ac7c8", nil)
+	if err != nil {
+		t.Errorf("Emails.Share returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
+	assert.Equal(t, resp.Object, "email")
+	assert.Equal(t, resp.Url, "https://resend.com/share/dacf4072-4119-4d88-932f-6202748ac7c8")
+}
+
+func TestShareEmailWithCustomExpiresIn(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/share", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		var req ShareEmailRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("failed to decode request body: %v", err)
+		}
+		assert.Equal(t, "1h 30m", req.ExpiresIn)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
+			"object": "email",
+			"url": "https://resend.com/share/dacf4072-4119-4d88-932f-6202748ac7c8"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Emails.Share("dacf4072-4119-4d88-932f-6202748ac7c8", &ShareEmailRequest{
+		ExpiresIn: "1h 30m",
+	})
+	if err != nil {
+		t.Errorf("Emails.Share returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
+	assert.Equal(t, resp.Object, "email")
+	assert.Equal(t, resp.Url, "https://resend.com/share/dacf4072-4119-4d88-932f-6202748ac7c8")
+}
+
+func TestShareEmailWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/share", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"id": "dacf4072-4119-4d88-932f-6202748ac7c8",
+			"object": "email",
+			"url": "https://resend.com/share/dacf4072-4119-4d88-932f-6202748ac7c8"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Emails.ShareWithContext(ctx, "dacf4072-4119-4d88-932f-6202748ac7c8", nil)
+	if err != nil {
+		t.Errorf("Emails.ShareWithContext returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "dacf4072-4119-4d88-932f-6202748ac7c8")
+}
+
+func TestShareEmailMalformedExpiresInReturnsError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/dacf4072-4119-4d88-932f-6202748ac7c8/share", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		ret := `
+		{
+			"statusCode": 422,
+			"name": "validation_error",
+			"message": "expires_in must not exceed 48 hours"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Emails.Share("dacf4072-4119-4d88-932f-6202748ac7c8", &ShareEmailRequest{
+		ExpiresIn: "72h",
+	})
+	assert.Nil(t, resp)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "expires_in must not exceed 48 hours")
+}
+
+func TestShareEmailNotFound(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/00000000-0000-0000-0000-000000000000/share", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+
+		ret := `
+		{
+			"statusCode": 404,
+			"name": "not_found",
+			"message": "Email not found"
+		}`
+		fmt.Fprintf(w, ret)
+	})
+
+	resp, err := client.Emails.Share("00000000-0000-0000-0000-000000000000", nil)
+	assert.Nil(t, resp)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Email not found")
+}
+
 func TestSendEmailWithOptions(t *testing.T) {
 	ctx := context.TODO()
 	client := NewClient("123")
