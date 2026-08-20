@@ -144,23 +144,17 @@ func (s *ApiKeysSvcImpl) Remove(apiKeyId string) (bool, error) {
 	return s.RemoveWithContext(context.Background(), apiKeyId)
 }
 
-// UpdateWithContext updates a given api key by id based on the given params
 // https://resend.com/docs/api-reference/api-keys/update-api-key
 func (s *ApiKeysSvcImpl) UpdateWithContext(ctx context.Context, apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error) {
 	path := "api-keys/" + apiKeyId
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
 		return UpdateApiKeyResponse{}, ErrFailedToCreateApiKeysUpdateRequest
 	}
 
-	// Build response recipient obj
 	apiKeysResp := new(UpdateApiKeyResponse)
-
-	// Send Request
 	_, err = s.client.Perform(req, apiKeysResp)
-
 	if err != nil {
 		return UpdateApiKeyResponse{}, err
 	}
@@ -168,7 +162,6 @@ func (s *ApiKeysSvcImpl) UpdateWithContext(ctx context.Context, apiKeyId string,
 	return *apiKeysResp, nil
 }
 
-// Update updates a given api key by id
 func (s *ApiKeysSvcImpl) Update(apiKeyId string, params *UpdateApiKeyRequest) (UpdateApiKeyResponse, error) {
 	return s.UpdateWithContext(context.Background(), apiKeyId, params)
 }
