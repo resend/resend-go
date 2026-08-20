@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resend/resend-go/v3"
+	"github.com/resend/resend-go/v4"
 )
 
 func globalContactsExample() {
@@ -67,7 +67,15 @@ func globalContactsExample() {
 	}
 	fmt.Printf("Found %d global contacts\n", len(contacts.Data))
 	for _, contact := range contacts.Data {
-		fmt.Printf("  - %s %s (%s)\n", contact.FirstName, contact.LastName, contact.Email)
+		firstName := ""
+		if contact.FirstName != nil {
+			firstName = *contact.FirstName
+		}
+		lastName := ""
+		if contact.LastName != nil {
+			lastName = *contact.LastName
+		}
+		fmt.Printf("  - %s %s (%s)\n", firstName, lastName, contact.Email)
 		if contact.Properties != nil {
 			fmt.Printf("    Properties: %+v\n", contact.Properties)
 		}

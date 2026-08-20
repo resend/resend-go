@@ -124,8 +124,8 @@ type Contact struct {
 	Id           string         `json:"id"`
 	Email        string         `json:"email"`
 	Object       string         `json:"object"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
+	FirstName    *string        `json:"first_name"`
+	LastName     *string        `json:"last_name"`
 	CreatedAt    string         `json:"created_at"`
 	Unsubscribed bool           `json:"unsubscribed"`
 	Properties   map[string]any `json:"properties,omitempty"` // Custom properties for global contacts (currently API only returns string values)
