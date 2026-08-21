@@ -48,10 +48,11 @@ func (e *RateLimitError) Is(target error) bool {
 
 // BroadcastsSvc errors
 var (
-	ErrFailedToCreateBroadcastUpdateRequest = errors.New("[ERROR]: Failed to create Broadcasts.Update request")
-	ErrFailedToCreateBroadcastSendRequest   = errors.New("[ERROR]: Failed to create Broadcasts.Send request")
-	ErrFailedToCreateBroadcastCreateRequest = errors.New("[ERROR]: Failed to create Broadcasts.Create request")
-	ErrFailedToCreateBroadcastCancelRequest = errors.New("[ERROR]: Failed to create Broadcasts.Cancel request")
+	ErrFailedToCreateBroadcastUpdateRequest     = errors.New("[ERROR]: Failed to create Broadcasts.Update request")
+	ErrFailedToCreateBroadcastSendRequest       = errors.New("[ERROR]: Failed to create Broadcasts.Send request")
+	ErrFailedToCreateBroadcastCreateRequest     = errors.New("[ERROR]: Failed to create Broadcasts.Create request")
+	ErrFailedToCreateBroadcastCancelRequest     = errors.New("[ERROR]: Failed to create Broadcasts.Cancel request")
+	ErrFailedToCreateBroadcastRecipientsRequest = errors.New("[ERROR]: Failed to create Broadcasts.Recipients request")
 )
 
 // ApiKeySvc errors

@@ -91,6 +91,18 @@ func broadcastExamples() {
 		fmt.Println("Text: " + b.Text)
 	}
 
+	// List Broadcast Recipients
+	recipientsResponse, err := client.Broadcasts.RecipientsWithContext(ctx, broadcast.Id, &resend.ListBroadcastRecipientsOptions{
+		Type: resend.BroadcastRecipientEventTypeDelivered,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, recipient := range recipientsResponse.Data {
+		fmt.Println("Recipient email: " + recipient.Email)
+	}
+
 	// Remove Broadcast (Only Draft Broadcasts can be deleted)
 	removeResponse, err := client.Broadcasts.RemoveWithContext(ctx, broadcast.Id)
 	if err != nil {
