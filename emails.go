@@ -3,6 +3,7 @@ package resend
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -216,6 +217,25 @@ type MetricsOptions struct {
 	// BroadcastId restricts results to these broadcast IDs (max 100). Cannot
 	// be combined with MetricsDimensionEmail or EmailId.
 	BroadcastId []string
+}
+
+// metricsHasDimension reports whether dimensions includes the given dimension.
+func metricsHasDimension(dimensions []MetricsDimension, dimension MetricsDimension) bool {
+	for _, d := range dimensions {
+		if d == dimension {
+			return true
+		}
+	}
+	return false
+}
+
+// metricsInvolvesEmailAndBroadcast reports whether options combines the
+// `email` dimension/EmailId with the `broadcast` dimension/BroadcastId,
+// which the Metrics endpoint rejects.
+func metricsInvolvesEmailAndBroadcast(options *MetricsOptions) bool {
+	involvesEmail := len(options.EmailId) > 0 || metricsHasDimension(options.Dimensions, MetricsDimensionEmail)
+	involvesBroadcast := len(options.BroadcastId) > 0 || metricsHasDimension(options.Dimensions, MetricsDimensionBroadcast)
+	return involvesEmail && involvesBroadcast
 }
 
 // buildMetricsQuery constructs query parameters for the Metrics call
@@ -689,6 +709,10 @@ func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsRes
 // This is a beta endpoint and its shape may change ahead of GA.
 // https://resend.com/docs/api-reference/emails/metrics
 func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error) {
+	if options != nil && metricsInvolvesEmailAndBroadcast(options) {
+		return nil, errors.New("[ERROR]: The `email` dimension/EmailId cannot be combined with the `broadcast` dimension/BroadcastId.")
+	}
+
 	path := "emails/metrics" + buildMetricsQuery(options)
 
 	// Prepare request

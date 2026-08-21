@@ -1378,6 +1378,40 @@ func TestEmailsMetricsWithMultipleBroadcastIdFilter(t *testing.T) {
 	}
 }
 
+func TestEmailsMetricsRejectsEmailAndBroadcastCombinations(t *testing.T) {
+	setup()
+	defer teardown()
+
+	const wantErr = "[ERROR]: The `email` dimension/EmailId cannot be combined with the `broadcast` dimension/BroadcastId."
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionEmail, MetricsDimensionBroadcast},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionBroadcast},
+		EmailId:    []string{"4dd369bc-aa82-4ff3-97de-514ae3000ee0"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions:  []MetricsDimension{MetricsDimensionEmail},
+		BroadcastId: []string{"5a5a3b1e-3b1a-4b1a-8b1a-3b1a4b1a8b1a"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		EmailId:     []string{"4dd369bc-aa82-4ff3-97de-514ae3000ee0"},
+		BroadcastId: []string{"5a5a3b1e-3b1a-4b1a-8b1a-3b1a4b1a8b1a"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+}
+
 func TestEmailsMetricsWithMetricsGranularityAndTimezone(t *testing.T) {
 	setup()
 	defer teardown()
