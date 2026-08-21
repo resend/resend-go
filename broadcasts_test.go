@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -367,4 +368,96 @@ func TestListBroadcasts(t *testing.T) {
 	assert.Equal(t, len(broadcasts.Data), 2)
 	assert.Equal(t, broadcasts.Object, "list")
 
+}
+
+func TestBroadcastsClickedLinks(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/clicked-links", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjA",
+					"url": "https://resend.com/pricing",
+					"clicks": 42,
+					"unique_clicks": 30
+				},
+				{
+					"id": "b2Zmc2V0OjE",
+					"url": "https://resend.com/docs",
+					"clicks": 17,
+					"unique_clicks": 15
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	clickedLinks, err := client.Broadcasts.ClickedLinks("559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
+	if err != nil {
+		t.Errorf("Broadcasts.ClickedLinks returned error: %v", err)
+	}
+
+	assert.Equal(t, clickedLinks.Object, "list")
+	assert.Equal(t, len(clickedLinks.Data), 2)
+	assert.Equal(t, clickedLinks.Data[0].Url, "https://resend.com/pricing")
+	assert.Equal(t, clickedLinks.Data[0].Clicks, 42)
+	assert.Equal(t, clickedLinks.Data[0].UniqueClicks, 30)
+}
+
+func TestBroadcastsClickedLinksWithOptions(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/clicked-links", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, r.URL.Query().Get("limit"), "1")
+		assert.Equal(t, r.URL.Query().Get("after"), "cursor-value")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": true,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjA",
+					"url": "https://resend.com/pricing",
+					"clicks": 42,
+					"unique_clicks": 30
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	limit := 1
+	after := "cursor-value"
+	clickedLinks, err := client.Broadcasts.ClickedLinksWithOptions(context.Background(), "559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListOptions{
+		Limit: &limit,
+		After: &after,
+	})
+	if err != nil {
+		t.Errorf("Broadcasts.ClickedLinksWithOptions returned error: %v", err)
+	}
+
+	assert.Equal(t, clickedLinks.HasMore, true)
+	assert.Equal(t, len(clickedLinks.Data), 1)
+}
+
+func TestBroadcastsClickedLinksValidations(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Broadcasts.ClickedLinks("")
+	assert.NotNil(t, err)
 }
