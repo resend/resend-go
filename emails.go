@@ -416,7 +416,7 @@ type EmailsSvc interface {
 	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)
 	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)
 
-	// Metrics is a beta endpoint.
+	// Metrics methods
 	MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error)
 	MetricsWithContext(ctx context.Context) (*MetricsResponse, error)
 	Metrics() (*MetricsResponse, error)
@@ -705,8 +705,6 @@ func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsRes
 }
 
 // MetricsWithOptions retrieves email metrics with the given options.
-//
-// This is a beta endpoint and its shape may change ahead of GA.
 // https://resend.com/docs/api-reference/emails/metrics
 func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error) {
 	if options != nil && metricsInvolvesEmailAndBroadcast(options) {
@@ -734,16 +732,12 @@ func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *Metrics
 }
 
 // MetricsWithContext retrieves email metrics.
-//
-// This is a beta endpoint and its shape may change ahead of GA.
 // https://resend.com/docs/api-reference/emails/metrics
 func (s *EmailsSvcImpl) MetricsWithContext(ctx context.Context) (*MetricsResponse, error) {
 	return s.MetricsWithOptions(ctx, nil)
 }
 
 // Metrics retrieves email metrics.
-//
-// This is a beta endpoint and its shape may change ahead of GA.
 // https://resend.com/docs/api-reference/emails/metrics
 func (s *EmailsSvcImpl) Metrics() (*MetricsResponse, error) {
 	return s.MetricsWithContext(context.Background())
