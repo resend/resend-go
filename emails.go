@@ -3,7 +3,10 @@ package resend
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 type SendEmailOptions struct {
@@ -128,6 +131,212 @@ type ListEmailAttachmentsResponse struct {
 	Data    []EmailAttachment `json:"data"`
 }
 
+// MetricName identifies a metric that can be requested from the Metrics call.
+type MetricName = string
+
+const (
+	MetricReceived            MetricName = "received"
+	MetricDelivered           MetricName = "delivered"
+	MetricComplained          MetricName = "complained"
+	MetricSuppressed          MetricName = "suppressed"
+	MetricBounced             MetricName = "bounced"
+	MetricBouncedTransient    MetricName = "bounced_transient"
+	MetricBouncedPermanent    MetricName = "bounced_permanent"
+	MetricBouncedUndetermined MetricName = "bounced_undetermined"
+	MetricOpened              MetricName = "opened"
+	MetricClicked             MetricName = "clicked"
+	MetricUnsubscribed        MetricName = "unsubscribed"
+	MetricDeliveryDelayed     MetricName = "delivery_delayed"
+	MetricFailed              MetricName = "failed"
+	MetricSent                MetricName = "sent"
+	MetricUniqueOpened        MetricName = "unique_opened"
+	MetricUniqueClicked       MetricName = "unique_clicked"
+	MetricDeliveryRate        MetricName = "delivery_rate"
+	MetricOpenRate            MetricName = "open_rate"
+	MetricClickRate           MetricName = "click_rate"
+	MetricBounceRate          MetricName = "bounce_rate"
+	MetricComplaintRate       MetricName = "complaint_rate"
+	MetricUnsubscribeRate     MetricName = "unsubscribe_rate"
+)
+
+// MetricsDimension identifies a dimension to group metrics by in the Metrics call.
+type MetricsDimension = string
+
+const (
+	MetricsDimensionPeriod    MetricsDimension = "period"
+	MetricsDimensionDomain    MetricsDimension = "domain"
+	MetricsDimensionEmail     MetricsDimension = "email"
+	MetricsDimensionBroadcast MetricsDimension = "broadcast"
+)
+
+// MetricsGranularity is the bucket size used for the `period` dimension.
+type MetricsGranularity = string
+
+const (
+	MetricsGranularityHourly  MetricsGranularity = "hourly"
+	MetricsGranularityDaily   MetricsGranularity = "daily"
+	MetricsGranularityWeekly  MetricsGranularity = "weekly"
+	MetricsGranularityMonthly MetricsGranularity = "monthly"
+)
+
+// MetricsOptions contains the optional query parameters for the Metrics call.
+//
+// See also https://resend.com/docs/api-reference/emails/metrics
+type MetricsOptions struct {
+	// StartDate filters metrics to on/after this ISO 8601 date or datetime.
+	// Defaults server-side to 6 days before EndDate.
+	StartDate *string
+
+	// EndDate filters metrics to on/before this ISO 8601 date or datetime.
+	// Defaults server-side to now.
+	EndDate *string
+
+	// Timezone is an IANA timezone identifier, e.g. "America/New_York".
+	// Defaults server-side to "UTC".
+	Timezone *string
+
+	// Granularity is the bucket size used when the `period` dimension is
+	// requested. Defaults server-side to MetricsGranularityDaily.
+	Granularity *MetricsGranularity
+
+	// Metrics selects which metrics to compute. Defaults server-side to all
+	// metrics.
+	Metrics []MetricName
+
+	// Dimensions selects which dimensions to group results by. Defaults
+	// server-side to none, in which case the response only contains Totals.
+	Dimensions []MetricsDimension
+
+	// DomainId restricts results to these sending domain IDs (max 100).
+	DomainId []string
+
+	// EmailId restricts results to these email IDs (max 100). Cannot be
+	// combined with MetricsDimensionBroadcast or BroadcastId.
+	EmailId []string
+
+	// BroadcastId restricts results to these broadcast IDs (max 100). Cannot
+	// be combined with MetricsDimensionEmail or EmailId.
+	BroadcastId []string
+}
+
+// metricsHasDimension reports whether dimensions includes the given dimension.
+func metricsHasDimension(dimensions []MetricsDimension, dimension MetricsDimension) bool {
+	for _, d := range dimensions {
+		if d == dimension {
+			return true
+		}
+	}
+	return false
+}
+
+// metricsInvolvesEmailAndBroadcast reports whether options combines the
+// `email` dimension/EmailId with the `broadcast` dimension/BroadcastId,
+// which the Metrics endpoint rejects.
+func metricsInvolvesEmailAndBroadcast(options *MetricsOptions) bool {
+	involvesEmail := len(options.EmailId) > 0 || metricsHasDimension(options.Dimensions, MetricsDimensionEmail)
+	involvesBroadcast := len(options.BroadcastId) > 0 || metricsHasDimension(options.Dimensions, MetricsDimensionBroadcast)
+	return involvesEmail && involvesBroadcast
+}
+
+// buildMetricsQuery constructs query parameters for the Metrics call
+func buildMetricsQuery(options *MetricsOptions) string {
+	if options == nil {
+		return ""
+	}
+
+	query := make(url.Values)
+	if options.StartDate != nil {
+		query.Set("start_date", *options.StartDate)
+	}
+	if options.EndDate != nil {
+		query.Set("end_date", *options.EndDate)
+	}
+	if options.Timezone != nil {
+		query.Set("timezone", *options.Timezone)
+	}
+	if options.Granularity != nil {
+		query.Set("granularity", *options.Granularity)
+	}
+	if len(options.Metrics) > 0 {
+		query.Set("metrics", strings.Join(options.Metrics, ","))
+	}
+	if len(options.Dimensions) > 0 {
+		query.Set("dimensions", strings.Join(options.Dimensions, ","))
+	}
+	if len(options.DomainId) > 0 {
+		query.Set("domain_id", strings.Join(options.DomainId, ","))
+	}
+	if len(options.EmailId) > 0 {
+		query.Set("email_id", strings.Join(options.EmailId, ","))
+	}
+	if len(options.BroadcastId) > 0 {
+		query.Set("broadcast_id", strings.Join(options.BroadcastId, ","))
+	}
+
+	if len(query) > 0 {
+		return "?" + query.Encode()
+	}
+	return ""
+}
+
+// MetricsDataPoint is a single row in MetricsResponse.Data. Which fields are
+// populated depends on the requested dimensions and metrics: dimension key
+// fields are set only when that dimension was requested, and metric fields
+// are set only when that metric was requested.
+type MetricsDataPoint struct {
+	// Period is set when MetricsDimensionPeriod is requested.
+	Period *string `json:"period,omitempty"`
+
+	// DomainId and DomainName are set when MetricsDimensionDomain is requested.
+	DomainId   *string `json:"domain_id,omitempty"`
+	DomainName *string `json:"domain_name,omitempty"`
+
+	// EmailId is set when MetricsDimensionEmail is requested.
+	EmailId *string `json:"email_id,omitempty"`
+
+	// BroadcastId and BroadcastName are set when MetricsDimensionBroadcast is requested.
+	BroadcastId   *string `json:"broadcast_id,omitempty"`
+	BroadcastName *string `json:"broadcast_name,omitempty"`
+
+	Received            *int64   `json:"received,omitempty"`
+	Delivered           *int64   `json:"delivered,omitempty"`
+	Complained          *int64   `json:"complained,omitempty"`
+	Suppressed          *int64   `json:"suppressed,omitempty"`
+	Bounced             *int64   `json:"bounced,omitempty"`
+	BouncedTransient    *int64   `json:"bounced_transient,omitempty"`
+	BouncedPermanent    *int64   `json:"bounced_permanent,omitempty"`
+	BouncedUndetermined *int64   `json:"bounced_undetermined,omitempty"`
+	Opened              *int64   `json:"opened,omitempty"`
+	Clicked             *int64   `json:"clicked,omitempty"`
+	Unsubscribed        *int64   `json:"unsubscribed,omitempty"`
+	DeliveryDelayed     *int64   `json:"delivery_delayed,omitempty"`
+	Failed              *int64   `json:"failed,omitempty"`
+	Sent                *int64   `json:"sent,omitempty"`
+	UniqueOpened        *int64   `json:"unique_opened,omitempty"`
+	UniqueClicked       *int64   `json:"unique_clicked,omitempty"`
+	DeliveryRate        *float64 `json:"delivery_rate,omitempty"`
+	OpenRate            *float64 `json:"open_rate,omitempty"`
+	ClickRate           *float64 `json:"click_rate,omitempty"`
+	BounceRate          *float64 `json:"bounce_rate,omitempty"`
+	ComplaintRate       *float64 `json:"complaint_rate,omitempty"`
+	UnsubscribeRate     *float64 `json:"unsubscribe_rate,omitempty"`
+}
+
+// MetricsResponse is the response from the Metrics call.
+//
+// See also https://resend.com/docs/api-reference/emails/metrics
+type MetricsResponse struct {
+	Object      string             `json:"object"`
+	StartDate   string             `json:"start_date"`
+	EndDate     string             `json:"end_date"`
+	Metrics     []string           `json:"metrics"`
+	Dimensions  []string           `json:"dimensions"`
+	Granularity string             `json:"granularity"`
+	Totals      map[string]float64 `json:"totals"`
+	// Data is omitted from the response when no dimensions were requested.
+	Data []MetricsDataPoint `json:"data,omitempty"`
+}
+
 // Attachment is the public struct used for adding attachments to emails
 type Attachment struct {
 	// Content is the binary content of the attachment to use when a Path
@@ -206,6 +415,11 @@ type EmailsSvc interface {
 	ListAttachmentsWithOptions(ctx context.Context, emailId string, options *ListOptions) (ListEmailAttachmentsResponse, error)
 	ListAttachmentsWithContext(ctx context.Context, emailId string) (ListEmailAttachmentsResponse, error)
 	ListAttachments(emailId string) (ListEmailAttachmentsResponse, error)
+
+	// Metrics methods
+	MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error)
+	MetricsWithContext(ctx context.Context) (*MetricsResponse, error)
+	Metrics() (*MetricsResponse, error)
 }
 
 type EmailsSvcImpl struct {
@@ -488,4 +702,43 @@ func (s *EmailsSvcImpl) ListAttachmentsWithContext(ctx context.Context, emailId 
 // https://resend.com/docs/api-reference/attachments/list-sent-email-attachments
 func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsResponse, error) {
 	return s.ListAttachmentsWithContext(context.Background(), emailId)
+}
+
+// MetricsWithOptions retrieves email metrics with the given options.
+// https://resend.com/docs/api-reference/emails/metrics
+func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error) {
+	if options != nil && metricsInvolvesEmailAndBroadcast(options) {
+		return nil, errors.New("[ERROR]: The `email` dimension/EmailId cannot be combined with the `broadcast` dimension/BroadcastId.")
+	}
+
+	path := "emails/metrics" + buildMetricsQuery(options)
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, ErrFailedToCreateEmailsMetricsRequest
+	}
+
+	// Build response recipient obj
+	metricsResponse := new(MetricsResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, metricsResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return metricsResponse, nil
+}
+
+// MetricsWithContext retrieves email metrics.
+// https://resend.com/docs/api-reference/emails/metrics
+func (s *EmailsSvcImpl) MetricsWithContext(ctx context.Context) (*MetricsResponse, error) {
+	return s.MetricsWithOptions(ctx, nil)
+}
+
+// Metrics retrieves email metrics.
+// https://resend.com/docs/api-reference/emails/metrics
+func (s *EmailsSvcImpl) Metrics() (*MetricsResponse, error) {
+	return s.MetricsWithContext(context.Background())
 }

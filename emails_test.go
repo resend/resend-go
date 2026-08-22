@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -983,4 +984,474 @@ func TestSendEmailWithTopicId(t *testing.T) {
 		t.Errorf("Emails.Send returned error: %v", err)
 	}
 	assert.Equal(t, "topic-email-001", resp.Id)
+}
+
+func TestEmailsMetrics(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "", r.URL.RawQuery)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered", "opened"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 100, "opened": 40}
+		}`)
+	})
+
+	resp, err := client.Emails.Metrics()
+	if err != nil {
+		t.Fatalf("Emails.Metrics returned error: %v", err)
+	}
+	assert.Equal(t, "metrics", resp.Object)
+	assert.Equal(t, "2026-07-01T00:00:00.000Z", resp.StartDate)
+	assert.Equal(t, "2026-07-08T00:00:00.000Z", resp.EndDate)
+	assert.Equal(t, []string{"delivered", "opened"}, resp.Metrics)
+	assert.Equal(t, "daily", resp.Granularity)
+	assert.Equal(t, float64(100), resp.Totals["delivered"])
+	assert.Equal(t, float64(40), resp.Totals["opened"])
+	assert.Nil(t, resp.Data)
+}
+
+func TestEmailsMetricsWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 5}
+		}`)
+	})
+
+	resp, err := client.Emails.MetricsWithContext(context.Background())
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithContext returned error: %v", err)
+	}
+	assert.Equal(t, float64(5), resp.Totals["delivered"])
+}
+
+func TestEmailsMetricsWithPeriodDimension(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "period", r.URL.Query().Get("dimensions"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": ["period"],
+			"granularity": "daily",
+			"totals": {"delivered": 10},
+			"data": [
+				{"period": "2026-07-01", "delivered": 10}
+			]
+		}`)
+	})
+
+	resp, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionPeriod},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, 1, len(resp.Data))
+	assert.NotNil(t, resp.Data[0].Period)
+	assert.Equal(t, "2026-07-01", *resp.Data[0].Period)
+	assert.NotNil(t, resp.Data[0].Delivered)
+	assert.Equal(t, int64(10), *resp.Data[0].Delivered)
+}
+
+func TestEmailsMetricsWithDomainDimension(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "domain", r.URL.Query().Get("dimensions"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": ["domain"],
+			"granularity": "daily",
+			"totals": {"delivered": 10},
+			"data": [
+				{"domain_id": "d1a2b3c4-0000-4000-8000-000000000001", "domain_name": "example.com", "delivered": 10}
+			]
+		}`)
+	})
+
+	resp, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionDomain},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, 1, len(resp.Data))
+	assert.NotNil(t, resp.Data[0].DomainId)
+	assert.Equal(t, "d1a2b3c4-0000-4000-8000-000000000001", *resp.Data[0].DomainId)
+	assert.NotNil(t, resp.Data[0].DomainName)
+	assert.Equal(t, "example.com", *resp.Data[0].DomainName)
+}
+
+func TestEmailsMetricsWithEmailDimension(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "email", r.URL.Query().Get("dimensions"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": ["email"],
+			"granularity": "daily",
+			"totals": {"delivered": 1},
+			"data": [
+				{"email_id": "e1a2b3c4-0000-4000-8000-000000000002", "delivered": 1}
+			]
+		}`)
+	})
+
+	resp, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionEmail},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, 1, len(resp.Data))
+	assert.NotNil(t, resp.Data[0].EmailId)
+	assert.Equal(t, "e1a2b3c4-0000-4000-8000-000000000002", *resp.Data[0].EmailId)
+}
+
+func TestEmailsMetricsWithBroadcastDimension(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "broadcast", r.URL.Query().Get("dimensions"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered", "opened"],
+			"dimensions": ["broadcast"],
+			"granularity": "daily",
+			"totals": {"delivered": 10, "opened": 4},
+			"data": [
+				{"broadcast_id": "b1a2b3c4-0000-4000-8000-000000000003", "broadcast_name": "July Newsletter", "delivered": 10, "opened": 4}
+			]
+		}`)
+	})
+
+	resp, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionBroadcast},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, 1, len(resp.Data))
+	assert.NotNil(t, resp.Data[0].BroadcastId)
+	assert.Equal(t, "b1a2b3c4-0000-4000-8000-000000000003", *resp.Data[0].BroadcastId)
+	assert.NotNil(t, resp.Data[0].BroadcastName)
+	assert.Equal(t, "July Newsletter", *resp.Data[0].BroadcastName)
+	assert.Equal(t, int64(4), *resp.Data[0].Opened)
+}
+
+func TestEmailsMetricsWithSingleDomainIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	domainId := "d1a2b3c4-0000-4000-8000-000000000001"
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, domainId, r.URL.Query().Get("domain_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 3}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		DomainId: []string{domainId},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsWithMultipleDomainIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	domainIds := []string{
+		"d1a2b3c4-0000-4000-8000-000000000001",
+		"d1a2b3c4-0000-4000-8000-000000000002",
+	}
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, strings.Join(domainIds, ","), r.URL.Query().Get("domain_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 6}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		DomainId: domainIds,
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsWithSingleEmailIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	emailId := "e1a2b3c4-0000-4000-8000-000000000001"
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, emailId, r.URL.Query().Get("email_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 1}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		EmailId: []string{emailId},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsWithMultipleEmailIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	emailIds := []string{
+		"e1a2b3c4-0000-4000-8000-000000000001",
+		"e1a2b3c4-0000-4000-8000-000000000002",
+	}
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, strings.Join(emailIds, ","), r.URL.Query().Get("email_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 2}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		EmailId: emailIds,
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsWithSingleBroadcastIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	broadcastId := "b1a2b3c4-0000-4000-8000-000000000001"
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, broadcastId, r.URL.Query().Get("broadcast_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 12}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		BroadcastId: []string{broadcastId},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsWithMultipleBroadcastIdFilter(t *testing.T) {
+	setup()
+	defer teardown()
+
+	broadcastIds := []string{
+		"b1a2b3c4-0000-4000-8000-000000000001",
+		"b1a2b3c4-0000-4000-8000-000000000002",
+	}
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, strings.Join(broadcastIds, ","), r.URL.Query().Get("broadcast_id"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered"],
+			"dimensions": [],
+			"granularity": "daily",
+			"totals": {"delivered": 20}
+		}`)
+	})
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		BroadcastId: broadcastIds,
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+}
+
+func TestEmailsMetricsRejectsEmailAndBroadcastCombinations(t *testing.T) {
+	setup()
+	defer teardown()
+
+	const wantErr = "[ERROR]: The `email` dimension/EmailId cannot be combined with the `broadcast` dimension/BroadcastId."
+
+	_, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionEmail, MetricsDimensionBroadcast},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions: []MetricsDimension{MetricsDimensionBroadcast},
+		EmailId:    []string{"4dd369bc-aa82-4ff3-97de-514ae3000ee0"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		Dimensions:  []MetricsDimension{MetricsDimensionEmail},
+		BroadcastId: []string{"5a5a3b1e-3b1a-4b1a-8b1a-3b1a4b1a8b1a"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+
+	_, err = client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		EmailId:     []string{"4dd369bc-aa82-4ff3-97de-514ae3000ee0"},
+		BroadcastId: []string{"5a5a3b1e-3b1a-4b1a-8b1a-3b1a4b1a8b1a"},
+	})
+	assert.Error(t, err)
+	assert.Equal(t, wantErr, err.Error())
+}
+
+func TestEmailsMetricsWithMetricsGranularityAndTimezone(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/metrics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		query := r.URL.Query()
+		assert.Equal(t, "delivered,opened,clicked", query.Get("metrics"))
+		assert.Equal(t, "hourly", query.Get("granularity"))
+		assert.Equal(t, "America/New_York", query.Get("timezone"))
+		assert.Equal(t, "2026-07-01", query.Get("start_date"))
+		assert.Equal(t, "2026-07-08", query.Get("end_date"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "metrics",
+			"start_date": "2026-07-01T00:00:00.000Z",
+			"end_date": "2026-07-08T00:00:00.000Z",
+			"metrics": ["delivered", "opened", "clicked"],
+			"dimensions": [],
+			"granularity": "hourly",
+			"totals": {"delivered": 10, "opened": 4, "clicked": 2}
+		}`)
+	})
+
+	startDate := "2026-07-01"
+	endDate := "2026-07-08"
+	timezone := "America/New_York"
+	granularity := MetricsGranularityHourly
+
+	resp, err := client.Emails.MetricsWithOptions(context.Background(), &MetricsOptions{
+		StartDate:   &startDate,
+		EndDate:     &endDate,
+		Timezone:    &timezone,
+		Granularity: &granularity,
+		Metrics:     []MetricName{MetricDelivered, MetricOpened, MetricClicked},
+	})
+	if err != nil {
+		t.Fatalf("Emails.MetricsWithOptions returned error: %v", err)
+	}
+	assert.Equal(t, "hourly", resp.Granularity)
+	assert.Equal(t, []string{"delivered", "opened", "clicked"}, resp.Metrics)
 }
