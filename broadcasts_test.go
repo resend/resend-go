@@ -460,4 +460,7 @@ func TestBroadcastsClickedLinksValidations(t *testing.T) {
 
 	_, err := client.Broadcasts.ClickedLinks("")
 	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: broadcastId cannot be empty")
+	}
 }
