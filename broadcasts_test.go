@@ -368,3 +368,232 @@ func TestListBroadcasts(t *testing.T) {
 	assert.Equal(t, broadcasts.Object, "list")
 
 }
+
+func TestBroadcastRecipients(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/recipients", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "sent", r.URL.Query().Get("type"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjA",
+					"contact_id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"email": "carter@example.com"
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	resp, err := client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListBroadcastRecipientsOptions{
+		Type: BroadcastRecipientEventTypeSent,
+	})
+	if err != nil {
+		t.Errorf("Broadcasts.Recipients returned error: %v", err)
+	}
+
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Equal(t, "b2Zmc2V0OjA", resp.Data[0].Id)
+	assert.Equal(t, "carter@example.com", resp.Data[0].Email)
+	assert.NotNil(t, resp.Data[0].ContactId)
+	assert.Equal(t, "e169aa45-1ecf-4183-9955-b1499d5701d3", *resp.Data[0].ContactId)
+	assert.Equal(t, 0, resp.Data[0].Count)
+	assert.Equal(t, "", resp.Data[0].BounceType)
+	assert.Nil(t, resp.Data[0].ClickedLinks)
+}
+
+func TestBroadcastRecipientsWithFilters(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/recipients", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		q := r.URL.Query()
+		assert.Equal(t, "opened", q.Get("type"))
+		assert.Equal(t, "carter", q.Get("email"))
+		assert.Equal(t, "10", q.Get("limit"))
+		assert.Equal(t, "b2Zmc2V0OjA", q.Get("after"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": true,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjE",
+					"contact_id": null,
+					"email": "carter@example.com",
+					"count": 3
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	limit := 10
+	after := "b2Zmc2V0OjA"
+	resp, err := client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListBroadcastRecipientsOptions{
+		Type:  BroadcastRecipientEventTypeOpened,
+		Email: "carter",
+		Limit: &limit,
+		After: &after,
+	})
+	if err != nil {
+		t.Errorf("Broadcasts.Recipients returned error: %v", err)
+	}
+
+	assert.True(t, resp.HasMore)
+	assert.Equal(t, 1, len(resp.Data))
+	assert.Nil(t, resp.Data[0].ContactId)
+	assert.Equal(t, 3, resp.Data[0].Count)
+}
+
+func TestBroadcastRecipientsClicked(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/recipients", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "clicked", r.URL.Query().Get("type"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjA",
+					"contact_id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"email": "carter@example.com",
+					"count": 3,
+					"clicked_links": [
+						{"url": "https://resend.com/pricing", "clicks": 2}
+					]
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	resp, err := client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListBroadcastRecipientsOptions{
+		Type: BroadcastRecipientEventTypeClicked,
+	})
+	if err != nil {
+		t.Errorf("Broadcasts.Recipients returned error: %v", err)
+	}
+
+	assert.Equal(t, 3, resp.Data[0].Count)
+	assert.Equal(t, 1, len(resp.Data[0].ClickedLinks))
+	assert.Equal(t, "https://resend.com/pricing", resp.Data[0].ClickedLinks[0].Url)
+	assert.Equal(t, 2, resp.Data[0].ClickedLinks[0].Clicks)
+}
+
+func TestBroadcastRecipientsBounced(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b/recipients", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		q := r.URL.Query()
+		assert.Equal(t, "bounced", q.Get("type"))
+		assert.Equal(t, "permanent", q.Get("bounce_type"))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		ret := `
+		{
+			"object": "list",
+			"has_more": false,
+			"data": [
+				{
+					"id": "b2Zmc2V0OjA",
+					"contact_id": "e169aa45-1ecf-4183-9955-b1499d5701d3",
+					"email": "carter@example.com",
+					"bounce_type": "permanent"
+				}
+			]
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	resp, err := client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListBroadcastRecipientsOptions{
+		Type:       BroadcastRecipientEventTypeBounced,
+		BounceType: BroadcastRecipientBounceTypePermanent,
+	})
+	if err != nil {
+		t.Errorf("Broadcasts.Recipients returned error: %v", err)
+	}
+
+	assert.Equal(t, BroadcastRecipientBounceTypePermanent, resp.Data[0].BounceType)
+}
+
+func TestBroadcastRecipientsNotFound(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/00000000-0000-0000-0000-000000000000/recipients", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+
+		ret := `
+		{
+			"statusCode": 404,
+			"name": "not_found",
+			"message": "Broadcast not found"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	resp, err := client.Broadcasts.Recipients("00000000-0000-0000-0000-000000000000", &ListBroadcastRecipientsOptions{
+		Type: BroadcastRecipientEventTypeSent,
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Broadcast not found")
+	assert.Equal(t, ListBroadcastRecipientsResponse{}, resp)
+}
+
+func TestBroadcastRecipientsValidations(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Broadcasts.Recipients("", &ListBroadcastRecipientsOptions{
+		Type: BroadcastRecipientEventTypeSent,
+	})
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: broadcastId cannot be empty")
+	}
+
+	_, err = client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", nil)
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: Type cannot be empty")
+	}
+
+	_, err = client.Broadcasts.Recipients("559ac32e-9ef5-46fb-82a1-b76b840c0f7b", &ListBroadcastRecipientsOptions{})
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: Type cannot be empty")
+	}
+}
