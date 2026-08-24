@@ -3,7 +3,9 @@ package resend
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 )
 
 type SendBroadcastRequest struct {
@@ -74,6 +76,81 @@ type ListBroadcastsResponse struct {
 	HasMore bool        `json:"has_more"`
 }
 
+// BroadcastRecipientEventType is the recipient event type to filter by when listing a
+// broadcast's recipients.
+type BroadcastRecipientEventType = string
+
+const (
+	BroadcastRecipientEventTypeSent         BroadcastRecipientEventType = "sent"
+	BroadcastRecipientEventTypeDelivered    BroadcastRecipientEventType = "delivered"
+	BroadcastRecipientEventTypeOpened       BroadcastRecipientEventType = "opened"
+	BroadcastRecipientEventTypeClicked      BroadcastRecipientEventType = "clicked"
+	BroadcastRecipientEventTypeBounced      BroadcastRecipientEventType = "bounced"
+	BroadcastRecipientEventTypeComplained   BroadcastRecipientEventType = "complained"
+	BroadcastRecipientEventTypeUnsubscribed BroadcastRecipientEventType = "unsubscribed"
+	BroadcastRecipientEventTypeSuppressed   BroadcastRecipientEventType = "suppressed"
+)
+
+// BroadcastRecipientBounceType is the bounce type to filter by. Only meaningful when
+// ListBroadcastRecipientsOptions.Type is BroadcastRecipientEventTypeBounced.
+type BroadcastRecipientBounceType = string
+
+const (
+	BroadcastRecipientBounceTypePermanent    BroadcastRecipientBounceType = "permanent"
+	BroadcastRecipientBounceTypeTransient    BroadcastRecipientBounceType = "transient"
+	BroadcastRecipientBounceTypeUndetermined BroadcastRecipientBounceType = "undetermined"
+)
+
+// BroadcastRecipientClickedLink is a link clicked by a recipient. Only present when Type is
+// BroadcastRecipientEventTypeClicked.
+type BroadcastRecipientClickedLink struct {
+	Url    string `json:"url"`
+	Clicks int    `json:"clicks"`
+}
+
+// BroadcastRecipient is a single recipient row for the requested event type. Count, BounceType
+// and ClickedLinks are only populated depending on ListBroadcastRecipientsOptions.Type.
+type BroadcastRecipient struct {
+	// Id is an opaque cursor identifying this row, used for pagination. It is not a real entity id.
+	Id        string  `json:"id"`
+	ContactId *string `json:"contact_id"`
+	Email     string  `json:"email"`
+
+	// Count is the number of times this recipient triggered the event. Only present when Type is
+	// BroadcastRecipientEventTypeOpened or BroadcastRecipientEventTypeClicked.
+	Count int `json:"count,omitempty"`
+
+	// BounceType is only present when Type is BroadcastRecipientEventTypeBounced.
+	BounceType BroadcastRecipientBounceType `json:"bounce_type,omitempty"`
+
+	// ClickedLinks is only present when Type is BroadcastRecipientEventTypeClicked.
+	ClickedLinks []BroadcastRecipientClickedLink `json:"clicked_links,omitempty"`
+}
+
+type ListBroadcastRecipientsResponse struct {
+	Object  string               `json:"object"`
+	HasMore bool                 `json:"has_more"`
+	Data    []BroadcastRecipient `json:"data"`
+}
+
+// ListBroadcastRecipientsOptions contains the filter and pagination parameters for listing a
+// broadcast's recipients.
+type ListBroadcastRecipientsOptions struct {
+	// Type is the recipient event type to filter by. Required.
+	Type BroadcastRecipientEventType
+
+	// Email filters recipients whose email address contains this substring.
+	Email string
+
+	// BounceType filters bounced recipients by bounce type. Only meaningful when Type is
+	// BroadcastRecipientEventTypeBounced.
+	BounceType BroadcastRecipientBounceType
+
+	Limit  *int
+	After  *string
+	Before *string
+}
+
 type Broadcast struct {
 	Object      string   `json:"object"`
 	Id          string   `json:"id"`
@@ -114,6 +191,9 @@ type BroadcastsSvc interface {
 
 	RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error)
 	Remove(broadcastId string) (RemoveBroadcastResponse, error)
+
+	RecipientsWithContext(ctx context.Context, broadcastId string, options *ListBroadcastRecipientsOptions) (ListBroadcastRecipientsResponse, error)
+	Recipients(broadcastId string, options *ListBroadcastRecipientsOptions) (ListBroadcastRecipientsResponse, error)
 }
 
 type BroadcastsSvcImpl struct {
@@ -348,4 +428,60 @@ func (s *BroadcastsSvcImpl) ListWithContext(ctx context.Context) (ListBroadcasts
 // List returns the list of all broadcasts
 func (s *BroadcastsSvcImpl) List() (ListBroadcastsResponse, error) {
 	return s.ListWithContext(context.Background())
+}
+
+// RecipientsWithContext returns a broadcast's recipients for a given event type, such as who
+// opened, clicked, or bounced.
+// https://resend.com/docs/api-reference/broadcasts/list-broadcast-recipients
+func (s *BroadcastsSvcImpl) RecipientsWithContext(ctx context.Context, broadcastId string, options *ListBroadcastRecipientsOptions) (ListBroadcastRecipientsResponse, error) {
+	if broadcastId == "" {
+		return ListBroadcastRecipientsResponse{}, errors.New("[ERROR]: broadcastId cannot be empty")
+	}
+
+	if options == nil || options.Type == "" {
+		return ListBroadcastRecipientsResponse{}, errors.New("[ERROR]: Type cannot be empty")
+	}
+
+	query := make(url.Values)
+	query.Set("type", options.Type)
+	if options.Email != "" {
+		query.Set("email", options.Email)
+	}
+	if options.BounceType != "" {
+		query.Set("bounce_type", options.BounceType)
+	}
+	if options.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%d", *options.Limit))
+	}
+	if options.After != nil {
+		query.Set("after", *options.After)
+	}
+	if options.Before != nil {
+		query.Set("before", *options.Before)
+	}
+
+	path := "broadcasts/" + broadcastId + "/recipients?" + query.Encode()
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return ListBroadcastRecipientsResponse{}, ErrFailedToCreateBroadcastRecipientsRequest
+	}
+
+	recipients := new(ListBroadcastRecipientsResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, recipients)
+
+	if err != nil {
+		return ListBroadcastRecipientsResponse{}, err
+	}
+
+	return *recipients, nil
+}
+
+// Recipients returns a broadcast's recipients for a given event type, such as who opened,
+// clicked, or bounced.
+func (s *BroadcastsSvcImpl) Recipients(broadcastId string, options *ListBroadcastRecipientsOptions) (ListBroadcastRecipientsResponse, error) {
+	return s.RecipientsWithContext(context.Background(), broadcastId, options)
 }
