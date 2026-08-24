@@ -120,15 +120,20 @@ type ListContactsResponse struct {
 	HasMore bool      `json:"has_more"`
 }
 
+type ContactPropertyValue struct {
+	Value any    `json:"value"` // string, number, or boolean, depending on Type
+	Type  string `json:"type"`
+}
+
 type Contact struct {
-	Id           string         `json:"id"`
-	Email        string         `json:"email"`
-	Object       string         `json:"object"`
-	FirstName    string         `json:"first_name"`
-	LastName     string         `json:"last_name"`
-	CreatedAt    string         `json:"created_at"`
-	Unsubscribed bool           `json:"unsubscribed"`
-	Properties   map[string]any `json:"properties,omitempty"` // Custom properties for global contacts (currently API only returns string values)
+	Id           string                          `json:"id"`
+	Email        string                          `json:"email"`
+	Object       string                          `json:"object"`
+	FirstName    string                          `json:"first_name"`
+	LastName     string                          `json:"last_name"`
+	CreatedAt    string                          `json:"created_at"`
+	Unsubscribed bool                            `json:"unsubscribed"`
+	Properties   map[string]ContactPropertyValue `json:"properties,omitempty"` // Custom properties for global contacts, returned as {value, type} objects
 }
 
 // Create creates a new Contact based on the given params
