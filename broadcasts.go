@@ -151,6 +151,21 @@ type ListBroadcastRecipientsOptions struct {
 	Before *string
 }
 
+type ListBroadcastClickedLinksResponse struct {
+	Object  string                 `json:"object"`
+	Data    []BroadcastClickedLink `json:"data"`
+	HasMore bool                   `json:"has_more"`
+}
+
+type BroadcastClickedLink struct {
+	// Id is an opaque cursor for this row, used only for pagination. It does
+	// not identify any entity in Resend.
+	Id           string `json:"id"`
+	Url          string `json:"url"`
+	Clicks       int    `json:"clicks"`
+	UniqueClicks int    `json:"unique_clicks"`
+}
+
 type Broadcast struct {
 	Object      string   `json:"object"`
 	Id          string   `json:"id"`
@@ -179,6 +194,10 @@ type BroadcastsSvc interface {
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListBroadcastsResponse, error)
 	ListWithContext(ctx context.Context) (ListBroadcastsResponse, error)
 	List() (ListBroadcastsResponse, error)
+
+	ClickedLinksWithOptions(ctx context.Context, broadcastId string, options *ListOptions) (ListBroadcastClickedLinksResponse, error)
+	ClickedLinksWithContext(ctx context.Context, broadcastId string) (ListBroadcastClickedLinksResponse, error)
+	ClickedLinks(broadcastId string) (ListBroadcastClickedLinksResponse, error)
 
 	GetWithContext(ctx context.Context, broadcastId string) (Broadcast, error)
 	Get(broadcastId string) (Broadcast, error)
@@ -484,4 +503,42 @@ func (s *BroadcastsSvcImpl) RecipientsWithContext(ctx context.Context, broadcast
 // clicked, or bounced.
 func (s *BroadcastsSvcImpl) Recipients(broadcastId string, options *ListBroadcastRecipientsOptions) (ListBroadcastRecipientsResponse, error) {
 	return s.RecipientsWithContext(context.Background(), broadcastId, options)
+}
+
+// ClickedLinksWithOptions returns the clicked links for a broadcast with pagination options
+// https://resend.com/docs/api-reference/broadcasts/list-broadcast-clicked-links
+func (s *BroadcastsSvcImpl) ClickedLinksWithOptions(ctx context.Context, broadcastId string, options *ListOptions) (ListBroadcastClickedLinksResponse, error) {
+	if broadcastId == "" {
+		return ListBroadcastClickedLinksResponse{}, errors.New("[ERROR]: broadcastId cannot be empty")
+	}
+
+	path := "broadcasts/" + broadcastId + "/clicked-links" + buildPaginationQuery(options)
+
+	// Prepare request
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return ListBroadcastClickedLinksResponse{}, errors.New("[ERROR]: Failed to create Broadcasts.ClickedLinks request")
+	}
+
+	clickedLinks := new(ListBroadcastClickedLinksResponse)
+
+	// Send Request
+	_, err = s.client.Perform(req, clickedLinks)
+
+	if err != nil {
+		return ListBroadcastClickedLinksResponse{}, err
+	}
+
+	return *clickedLinks, nil
+}
+
+// ClickedLinksWithContext returns the clicked links for a broadcast
+// https://resend.com/docs/api-reference/broadcasts/list-broadcast-clicked-links
+func (s *BroadcastsSvcImpl) ClickedLinksWithContext(ctx context.Context, broadcastId string) (ListBroadcastClickedLinksResponse, error) {
+	return s.ClickedLinksWithOptions(ctx, broadcastId, nil)
+}
+
+// ClickedLinks returns the clicked links for a broadcast
+func (s *BroadcastsSvcImpl) ClickedLinks(broadcastId string) (ListBroadcastClickedLinksResponse, error) {
+	return s.ClickedLinksWithContext(context.Background(), broadcastId)
 }
