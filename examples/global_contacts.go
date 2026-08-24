@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/resend/resend-go/v3"
+	"github.com/resend/resend-go/v4"
 )
 
 func globalContactsExample() {

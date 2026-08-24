@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Build](https://github.com/resend/resend-go/actions/workflows/go.yml/badge.svg)
 ![Release](https://img.shields.io/github/release/resend/resend-go.svg?style=flat-square)
-[![Go Reference](https://pkg.go.dev/badge/github.com/resend/resend-go/v3.svg)](https://pkg.go.dev/github.com/resend/resend-go/v3)
+[![Go Reference](https://pkg.go.dev/badge/github.com/resend/resend-go/v4.svg)](https://pkg.go.dev/github.com/resend/resend-go/v4)
 ---
 
 ## Installation
@@ -11,7 +11,7 @@
 To install the Go SDK, simply execute the following command on a terminal:
 
 ```
-go get github.com/resend/resend-go/v3
+go get github.com/resend/resend-go/v4
 ```
 
 ## Setup
@@ -25,7 +25,7 @@ package main
 
 import (
     "fmt"
-    "github.com/resend/resend-go/v3"
+    "github.com/resend/resend-go/v4"
 )
 
 func main() {
