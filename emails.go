@@ -181,7 +181,7 @@ const (
 
 // MetricsOptions contains the optional query parameters for the Metrics call.
 //
-// See also https://resend.com/docs/api-reference/emails/metrics
+// See also https://resend.com/docs/api-reference/emails/get-metrics
 type MetricsOptions struct {
 	// StartDate filters metrics to on/after this ISO 8601 date or datetime.
 	// Defaults server-side to 6 days before EndDate.
@@ -324,7 +324,7 @@ type MetricsDataPoint struct {
 
 // MetricsResponse is the response from the Metrics call.
 //
-// See also https://resend.com/docs/api-reference/emails/metrics
+// See also https://resend.com/docs/api-reference/emails/get-metrics
 type MetricsResponse struct {
 	Object      string             `json:"object"`
 	StartDate   string             `json:"start_date"`
@@ -705,7 +705,7 @@ func (s *EmailsSvcImpl) ListAttachments(emailId string) (ListEmailAttachmentsRes
 }
 
 // MetricsWithOptions retrieves email metrics with the given options.
-// https://resend.com/docs/api-reference/emails/metrics
+// https://resend.com/docs/api-reference/emails/get-metrics
 func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *MetricsOptions) (*MetricsResponse, error) {
 	if options != nil && metricsInvolvesEmailAndBroadcast(options) {
 		return nil, errors.New("[ERROR]: The `email` dimension/EmailId cannot be combined with the `broadcast` dimension/BroadcastId.")
@@ -732,13 +732,13 @@ func (s *EmailsSvcImpl) MetricsWithOptions(ctx context.Context, options *Metrics
 }
 
 // MetricsWithContext retrieves email metrics.
-// https://resend.com/docs/api-reference/emails/metrics
+// https://resend.com/docs/api-reference/emails/get-metrics
 func (s *EmailsSvcImpl) MetricsWithContext(ctx context.Context) (*MetricsResponse, error) {
 	return s.MetricsWithOptions(ctx, nil)
 }
 
 // Metrics retrieves email metrics.
-// https://resend.com/docs/api-reference/emails/metrics
+// https://resend.com/docs/api-reference/emails/get-metrics
 func (s *EmailsSvcImpl) Metrics() (*MetricsResponse, error) {
 	return s.MetricsWithContext(context.Background())
 }
