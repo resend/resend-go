@@ -312,6 +312,93 @@ func TestListWebhooksWithOptions(t *testing.T) {
 	assert.Equal(t, 1, len(resp.Data))
 }
 
+func TestListWebhookEvents(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/webhooks/webhook-id/events", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "10", r.URL.Query().Get("limit"))
+		assert.Equal(t, "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2", r.URL.Query().Get("after"))
+		fmt.Fprint(w, `{
+			"object": "list",
+			"has_more": true,
+			"data": [{"id":"msg_1srOrx2ZWZBpBUvZwXKQmoEYga2","type":"email.sent","created_at":"2026-08-22T15:28:00.000Z","status":"success"}]
+		}`)
+	})
+
+	limit := 10
+	after := "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2"
+	resp, err := client.Webhooks.ListEventsWithOptions(context.Background(), "webhook-id", &ListWebhookEventsOptions{Limit: &limit, After: &after})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "list", resp.Object)
+	assert.True(t, resp.HasMore)
+	assert.Equal(t, WebhookEventLog{
+		Id:        "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2",
+		Type:      "email.sent",
+		CreatedAt: "2026-08-22T15:28:00.000Z",
+		Status:    WebhookEventStatusSuccess,
+	}, resp.Data[0])
+}
+
+func TestGetWebhookEvent(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/webhooks/webhook-id/events/msg_1srOrx2ZWZBpBUvZwXKQmoEYga2", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		fmt.Fprint(w, `{
+			"object": "webhook_event",
+			"id": "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2",
+			"type": "email.sent",
+			"created_at": "2026-08-22T15:28:00.000Z",
+			"status": "failed",
+			"next_attempt_at": null,
+			"payload": {"type":"email.sent","data":{"email_id":"email-id"}}
+		}`)
+	})
+
+	resp, err := client.Webhooks.GetEvent("webhook-id", "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "webhook_event", resp.Object)
+	assert.Equal(t, WebhookEventStatusFailed, resp.Status)
+	assert.Nil(t, resp.NextAttemptAt)
+	assert.Equal(t, "email.sent", resp.Payload["type"])
+	assert.Equal(t, "email-id", resp.Payload["data"].(map[string]any)["email_id"])
+}
+
+func TestListWebhookEventAttempts(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/webhooks/webhook-id/events/msg_1srOrx2ZWZBpBUvZwXKQmoEYga2/attempts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "5", r.URL.Query().Get("limit"))
+		assert.Equal(t, "atmpt_2ZbUCwvGmIT4mLIN6d3Yz0Ainbd", r.URL.Query().Get("after"))
+		fmt.Fprint(w, `{
+			"object": "list",
+			"has_more": false,
+			"data": [{"id":"atmpt_2ZbUCwvGmIT4mLIN6d3Yz0Ainbd","http_status_code":200,"response":"{\"ok\":true}","sent_at":"2026-08-22T15:33:12.000Z"}]
+		}`)
+	})
+
+	limit := 5
+	after := "atmpt_2ZbUCwvGmIT4mLIN6d3Yz0Ainbd"
+	resp, err := client.Webhooks.ListEventAttemptsWithOptions(context.Background(), "webhook-id", "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2", &ListWebhookEventAttemptsOptions{Limit: &limit, After: &after})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "list", resp.Object)
+	assert.False(t, resp.HasMore)
+	assert.Equal(t, WebhookEventAttempt{
+		Id:             "atmpt_2ZbUCwvGmIT4mLIN6d3Yz0Ainbd",
+		HttpStatusCode: 200,
+		Response:       `{"ok":true}`,
+		SentAt:         "2026-08-22T15:33:12.000Z",
+	}, resp.Data[0])
+}
+
 func TestRemoveWebhook(t *testing.T) {
 	setup()
 	defer teardown()
