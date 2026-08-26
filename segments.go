@@ -198,16 +198,13 @@ func (s *SegmentsSvcImpl) UpdateWithContext(ctx context.Context, segmentId strin
 
 	path := "segments/" + segmentId
 
-	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
 		return UpdateSegmentResponse{}, errors.New("[ERROR]: Failed to create Segments.Update request")
 	}
 
-	// Build response recipient obj
 	segmentsResp := new(UpdateSegmentResponse)
 
-	// Send Request
 	_, err = s.client.Perform(req, segmentsResp)
 
 	if err != nil {
