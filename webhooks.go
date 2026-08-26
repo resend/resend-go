@@ -42,6 +42,15 @@ const (
 // Default tolerance for timestamp validation (5 minutes)
 const DefaultWebhookToleranceSeconds = 300
 
+type WebhookEventStatus = string
+
+const (
+	WebhookEventStatusPending    WebhookEventStatus = "pending"
+	WebhookEventStatusAttempting WebhookEventStatus = "attempting"
+	WebhookEventStatusSuccess    WebhookEventStatus = "success"
+	WebhookEventStatusFailed     WebhookEventStatus = "failed"
+)
+
 // CreateWebhookRequest represents the parameters for creating a webhook
 type CreateWebhookRequest struct {
 	Endpoint string   `json:"endpoint"`
@@ -95,6 +104,52 @@ type WebhookInList struct {
 	Events    []string `json:"events"`
 }
 
+type ListWebhookEventsOptions struct {
+	Limit *int    `json:"limit,omitempty"`
+	After *string `json:"after,omitempty"`
+}
+
+type WebhookEventLog struct {
+	Id        string             `json:"id"`
+	Type      string             `json:"type"`
+	CreatedAt string             `json:"created_at"`
+	Status    WebhookEventStatus `json:"status"`
+}
+
+type ListWebhookEventsResponse struct {
+	Object  string            `json:"object"`
+	HasMore bool              `json:"has_more"`
+	Data    []WebhookEventLog `json:"data"`
+}
+
+type WebhookEvent struct {
+	Object        string             `json:"object"`
+	Id            string             `json:"id"`
+	Type          string             `json:"type"`
+	CreatedAt     string             `json:"created_at"`
+	Status        WebhookEventStatus `json:"status"`
+	NextAttemptAt *string            `json:"next_attempt_at"`
+	Payload       map[string]any     `json:"payload"`
+}
+
+type WebhookEventAttempt struct {
+	Id             string `json:"id"`
+	HttpStatusCode int    `json:"http_status_code"`
+	Response       string `json:"response"`
+	SentAt         string `json:"sent_at"`
+}
+
+type ListWebhookEventAttemptsOptions struct {
+	Limit *int    `json:"limit,omitempty"`
+	After *string `json:"after,omitempty"`
+}
+
+type ListWebhookEventAttemptsResponse struct {
+	Object  string                `json:"object"`
+	HasMore bool                  `json:"has_more"`
+	Data    []WebhookEventAttempt `json:"data"`
+}
+
 // DeleteWebhookResponse represents the response from deleting a webhook
 type DeleteWebhookResponse struct {
 	Object  string `json:"object"`
@@ -127,6 +182,14 @@ type WebhooksSvc interface {
 	ListWithOptions(ctx context.Context, options *ListOptions) (*ListWebhooksResponse, error)
 	ListWithContext(ctx context.Context) (*ListWebhooksResponse, error)
 	List() (*ListWebhooksResponse, error)
+	ListEventsWithOptions(ctx context.Context, webhookId string, options *ListWebhookEventsOptions) (*ListWebhookEventsResponse, error)
+	ListEventsWithContext(ctx context.Context, webhookId string) (*ListWebhookEventsResponse, error)
+	ListEvents(webhookId string) (*ListWebhookEventsResponse, error)
+	GetEventWithContext(ctx context.Context, webhookId string, eventId string) (*WebhookEvent, error)
+	GetEvent(webhookId string, eventId string) (*WebhookEvent, error)
+	ListEventAttemptsWithOptions(ctx context.Context, webhookId string, eventId string, options *ListWebhookEventAttemptsOptions) (*ListWebhookEventAttemptsResponse, error)
+	ListEventAttemptsWithContext(ctx context.Context, webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
+	ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
 	RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error)
 	Remove(webhookId string) (*DeleteWebhookResponse, error)
 	Verify(options *VerifyWebhookOptions) error
@@ -248,6 +311,87 @@ func (s *WebhooksSvcImpl) ListWithContext(ctx context.Context) (*ListWebhooksRes
 // List lists all webhooks
 func (s *WebhooksSvcImpl) List() (*ListWebhooksResponse, error) {
 	return s.ListWithContext(context.Background())
+}
+
+func (s *WebhooksSvcImpl) ListEventsWithOptions(ctx context.Context, webhookId string, options *ListWebhookEventsOptions) (*ListWebhookEventsResponse, error) {
+	paginationOptions := &ListOptions{}
+	if options != nil {
+		paginationOptions.Limit = options.Limit
+		paginationOptions.After = options.After
+	}
+	path := "webhooks/" + webhookId + "/events" + buildPaginationQuery(paginationOptions)
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(ListWebhookEventsResponse)
+	_, err = s.client.Perform(req, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (s *WebhooksSvcImpl) ListEventsWithContext(ctx context.Context, webhookId string) (*ListWebhookEventsResponse, error) {
+	return s.ListEventsWithOptions(ctx, webhookId, nil)
+}
+
+func (s *WebhooksSvcImpl) ListEvents(webhookId string) (*ListWebhookEventsResponse, error) {
+	return s.ListEventsWithContext(context.Background(), webhookId)
+}
+
+func (s *WebhooksSvcImpl) GetEventWithContext(ctx context.Context, webhookId string, eventId string) (*WebhookEvent, error) {
+	path := "webhooks/" + webhookId + "/events/" + eventId
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(WebhookEvent)
+	_, err = s.client.Perform(req, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (s *WebhooksSvcImpl) GetEvent(webhookId string, eventId string) (*WebhookEvent, error) {
+	return s.GetEventWithContext(context.Background(), webhookId, eventId)
+}
+
+func (s *WebhooksSvcImpl) ListEventAttemptsWithOptions(ctx context.Context, webhookId string, eventId string, options *ListWebhookEventAttemptsOptions) (*ListWebhookEventAttemptsResponse, error) {
+	paginationOptions := &ListOptions{}
+	if options != nil {
+		paginationOptions.Limit = options.Limit
+		paginationOptions.After = options.After
+	}
+	path := "webhooks/" + webhookId + "/events/" + eventId + "/attempts" + buildPaginationQuery(paginationOptions)
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(ListWebhookEventAttemptsResponse)
+	_, err = s.client.Perform(req, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (s *WebhooksSvcImpl) ListEventAttemptsWithContext(ctx context.Context, webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error) {
+	return s.ListEventAttemptsWithOptions(ctx, webhookId, eventId, nil)
+}
+
+func (s *WebhooksSvcImpl) ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error) {
+	return s.ListEventAttemptsWithContext(context.Background(), webhookId, eventId)
 }
 
 // RemoveWithContext deletes a webhook by ID with the given context
