@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -101,6 +102,98 @@ func TestRemoveSegment(t *testing.T) {
 	assert.True(t, deleted.Deleted)
 	assert.Equal(t, deleted.Id, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
 	assert.Equal(t, deleted.Object, "segment")
+}
+
+func TestUpdateSegment(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/segments/d91cd9bd-1176-453e-8fc1-35364d380206", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		var ret any
+		ret = `
+		{
+			"object": "segment",
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
+			"name": "Renamed Segment"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	req := &UpdateSegmentRequest{
+		Name: "Renamed Segment",
+	}
+	resp, err := client.Segments.Update("d91cd9bd-1176-453e-8fc1-35364d380206", req)
+	if err != nil {
+		t.Errorf("Segments.Update returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
+	assert.Equal(t, resp.Object, "segment")
+	assert.Equal(t, resp.Name, "Renamed Segment")
+}
+
+func TestUpdateSegmentWithContext(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/segments/context-update-id", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		var ret any
+		ret = `
+		{
+			"object": "segment",
+			"id": "context-update-id",
+			"name": "Context Renamed Segment"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	ctx := context.Background()
+	resp, err := client.Segments.UpdateWithContext(ctx, "context-update-id", &UpdateSegmentRequest{
+		Name: "Context Renamed Segment",
+	})
+	if err != nil {
+		t.Errorf("Segments.UpdateWithContext returned error: %v", err)
+	}
+	assert.Equal(t, resp.Id, "context-update-id")
+	assert.Equal(t, resp.Object, "segment")
+	assert.Equal(t, resp.Name, "Context Renamed Segment")
+}
+
+func TestUpdateSegmentNotFound(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/segments/00000000-0000-0000-0000-000000000000", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+
+		var ret any
+		ret = `
+		{
+			"statusCode": 404,
+			"name": "not_found",
+			"message": "Segment not found"
+		}`
+
+		fmt.Fprint(w, ret)
+	})
+
+	resp, err := client.Segments.Update("00000000-0000-0000-0000-000000000000", &UpdateSegmentRequest{
+		Name: "Renamed Segment",
+	})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Segment not found")
+	assert.Equal(t, UpdateSegmentResponse{}, resp)
 }
 
 func TestGetSegment(t *testing.T) {

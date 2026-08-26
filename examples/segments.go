@@ -76,6 +76,15 @@ func segmentsExample() {
 	}
 	fmt.Printf("You have %d segments in your project\n", len(segments.Data))
 
+	// Rename the segment
+	renamedSegment, err := client.Segments.UpdateWithContext(ctx, segment.Id, &resend.UpdateSegmentRequest{
+		Name: "Premium Users - Updated",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Renamed segment: %s\n", renamedSegment.Name)
+
 	// Clean up: Remove the contact from the segment
 	removeFromSegment, err := client.Contacts.Segments.RemoveWithContext(ctx, &resend.RemoveContactSegmentRequest{
 		ContactId: contact.Id,
