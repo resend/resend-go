@@ -83,7 +83,7 @@ func segmentsExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Renamed segment: %s\n", renamedSegment.Name)
+	fmt.Printf("Renamed segment: %s\n", renamedSegment.Id)
 
 	// Clean up: Remove the contact from the segment
 	removeFromSegment, err := client.Contacts.Segments.RemoveWithContext(ctx, &resend.RemoveContactSegmentRequest{

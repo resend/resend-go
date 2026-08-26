@@ -117,8 +117,7 @@ func TestUpdateSegment(t *testing.T) {
 		ret = `
 		{
 			"object": "segment",
-			"id": "d91cd9bd-1176-453e-8fc1-35364d380206",
-			"name": "Renamed Segment"
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -133,7 +132,6 @@ func TestUpdateSegment(t *testing.T) {
 	}
 	assert.Equal(t, resp.Id, "d91cd9bd-1176-453e-8fc1-35364d380206")
 	assert.Equal(t, resp.Object, "segment")
-	assert.Equal(t, resp.Name, "Renamed Segment")
 }
 
 func TestUpdateSegmentWithContext(t *testing.T) {
@@ -149,8 +147,7 @@ func TestUpdateSegmentWithContext(t *testing.T) {
 		ret = `
 		{
 			"object": "segment",
-			"id": "context-update-id",
-			"name": "Context Renamed Segment"
+			"id": "context-update-id"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -165,7 +162,6 @@ func TestUpdateSegmentWithContext(t *testing.T) {
 	}
 	assert.Equal(t, resp.Id, "context-update-id")
 	assert.Equal(t, resp.Object, "segment")
-	assert.Equal(t, resp.Name, "Context Renamed Segment")
 }
 
 func TestUpdateSegmentNotFound(t *testing.T) {
