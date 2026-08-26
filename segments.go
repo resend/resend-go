@@ -14,6 +14,8 @@ type SegmentsSvc interface {
 	List() (ListSegmentsResponse, error)
 	GetWithContext(ctx context.Context, segmentId string) (Segment, error)
 	Get(segmentId string) (Segment, error)
+	UpdateWithContext(ctx context.Context, segmentId string, params *UpdateSegmentRequest) (UpdateSegmentResponse, error)
+	Update(segmentId string, params *UpdateSegmentRequest) (UpdateSegmentResponse, error)
 	RemoveWithContext(ctx context.Context, segmentId string) (RemoveSegmentResponse, error)
 	Remove(segmentId string) (RemoveSegmentResponse, error)
 }
@@ -29,6 +31,15 @@ type CreateSegmentRequest struct {
 type CreateSegmentResponse struct {
 	Id     string `json:"id"`
 	Name   string `json:"name"`
+	Object string `json:"object"`
+}
+
+type UpdateSegmentRequest struct {
+	Name string `json:"name"`
+}
+
+type UpdateSegmentResponse struct {
+	Id     string `json:"id"`
 	Object string `json:"object"`
 }
 
@@ -172,4 +183,39 @@ func (s *SegmentsSvcImpl) GetWithContext(ctx context.Context, segmentId string) 
 // https://resend.com/docs/api-reference/segments/get-segment
 func (s *SegmentsSvcImpl) Get(segmentId string) (Segment, error) {
 	return s.GetWithContext(context.Background(), segmentId)
+}
+
+// UpdateWithContext updates a segment by id
+// https://resend.com/docs/api-reference/segments/update-segment
+func (s *SegmentsSvcImpl) UpdateWithContext(ctx context.Context, segmentId string, params *UpdateSegmentRequest) (UpdateSegmentResponse, error) {
+	if segmentId == "" {
+		return UpdateSegmentResponse{}, errors.New("[ERROR]: segmentId cannot be empty")
+	}
+
+	if params == nil || params.Name == "" {
+		return UpdateSegmentResponse{}, errors.New("[ERROR]: Name cannot be empty")
+	}
+
+	path := "segments/" + segmentId
+
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
+	if err != nil {
+		return UpdateSegmentResponse{}, errors.New("[ERROR]: Failed to create Segments.Update request")
+	}
+
+	segmentsResp := new(UpdateSegmentResponse)
+
+	_, err = s.client.Perform(req, segmentsResp)
+
+	if err != nil {
+		return UpdateSegmentResponse{}, err
+	}
+
+	return *segmentsResp, nil
+}
+
+// Update updates a segment by id
+// https://resend.com/docs/api-reference/segments/update-segment
+func (s *SegmentsSvcImpl) Update(segmentId string, params *UpdateSegmentRequest) (UpdateSegmentResponse, error) {
+	return s.UpdateWithContext(context.Background(), segmentId, params)
 }
