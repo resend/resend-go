@@ -189,6 +189,14 @@ func (s *SegmentsSvcImpl) Get(segmentId string) (Segment, error) {
 // UpdateWithContext updates a segment by id
 // https://resend.com/docs/api-reference/segments/update-segment
 func (s *SegmentsSvcImpl) UpdateWithContext(ctx context.Context, segmentId string, params *UpdateSegmentRequest) (UpdateSegmentResponse, error) {
+	if segmentId == "" {
+		return UpdateSegmentResponse{}, errors.New("[ERROR]: segmentId cannot be empty")
+	}
+
+	if params == nil || params.Name == "" {
+		return UpdateSegmentResponse{}, errors.New("[ERROR]: Name cannot be empty")
+	}
+
 	path := "segments/" + segmentId
 
 	// Prepare request

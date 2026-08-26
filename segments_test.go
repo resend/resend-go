@@ -196,6 +196,39 @@ func TestUpdateSegmentNotFound(t *testing.T) {
 	assert.Equal(t, UpdateSegmentResponse{}, resp)
 }
 
+func TestUpdateSegmentEmptyId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Segments.Update("", &UpdateSegmentRequest{Name: "Renamed Segment"})
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: segmentId cannot be empty")
+	}
+}
+
+func TestUpdateSegmentNilParams(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Segments.Update("d91cd9bd-1176-453e-8fc1-35364d380206", nil)
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: Name cannot be empty")
+	}
+}
+
+func TestUpdateSegmentEmptyName(t *testing.T) {
+	setup()
+	defer teardown()
+
+	_, err := client.Segments.Update("d91cd9bd-1176-453e-8fc1-35364d380206", &UpdateSegmentRequest{})
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Equal(t, err.Error(), "[ERROR]: Name cannot be empty")
+	}
+}
+
 func TestGetSegment(t *testing.T) {
 	setup()
 	defer teardown()
