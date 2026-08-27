@@ -42,13 +42,18 @@ const (
 // Default tolerance for timestamp validation (5 minutes)
 const DefaultWebhookToleranceSeconds = 300
 
+// WebhookEventStatus represents the delivery status of a webhook event.
 type WebhookEventStatus = string
 
 const (
-	WebhookEventStatusPending    WebhookEventStatus = "pending"
+	// WebhookEventStatusPending indicates that the event is waiting for a delivery attempt.
+	WebhookEventStatusPending WebhookEventStatus = "pending"
+	// WebhookEventStatusAttempting indicates that the event is currently being delivered.
 	WebhookEventStatusAttempting WebhookEventStatus = "attempting"
-	WebhookEventStatusSuccess    WebhookEventStatus = "success"
-	WebhookEventStatusFailed     WebhookEventStatus = "failed"
+	// WebhookEventStatusSuccess indicates that the event was delivered successfully.
+	WebhookEventStatusSuccess WebhookEventStatus = "success"
+	// WebhookEventStatusFailed indicates that the event could not be delivered.
+	WebhookEventStatusFailed WebhookEventStatus = "failed"
 )
 
 // CreateWebhookRequest represents the parameters for creating a webhook
@@ -104,11 +109,13 @@ type WebhookInList struct {
 	Events    []string `json:"events"`
 }
 
+// ListWebhookEventsOptions represents the pagination options for listing webhook events.
 type ListWebhookEventsOptions struct {
 	Limit *int    `json:"limit,omitempty"`
 	After *string `json:"after,omitempty"`
 }
 
+// WebhookEventLog represents a webhook event in a list response.
 type WebhookEventLog struct {
 	Id        string             `json:"id"`
 	Type      string             `json:"type"`
@@ -116,12 +123,14 @@ type WebhookEventLog struct {
 	Status    WebhookEventStatus `json:"status"`
 }
 
+// ListWebhookEventsResponse represents the response from listing webhook events.
 type ListWebhookEventsResponse struct {
 	Object  string            `json:"object"`
 	HasMore bool              `json:"has_more"`
 	Data    []WebhookEventLog `json:"data"`
 }
 
+// WebhookEvent represents an event delivered to a webhook.
 type WebhookEvent struct {
 	Object        string             `json:"object"`
 	Id            string             `json:"id"`
@@ -132,6 +141,7 @@ type WebhookEvent struct {
 	Payload       map[string]any     `json:"payload"`
 }
 
+// WebhookEventAttempt represents a delivery attempt for a webhook event.
 type WebhookEventAttempt struct {
 	Id             string `json:"id"`
 	HttpStatusCode int    `json:"http_status_code"`
@@ -139,11 +149,13 @@ type WebhookEventAttempt struct {
 	SentAt         string `json:"sent_at"`
 }
 
+// ListWebhookEventAttemptsOptions represents the pagination options for listing webhook event attempts.
 type ListWebhookEventAttemptsOptions struct {
 	Limit *int    `json:"limit,omitempty"`
 	After *string `json:"after,omitempty"`
 }
 
+// ListWebhookEventAttemptsResponse represents the response from listing webhook event attempts.
 type ListWebhookEventAttemptsResponse struct {
 	Object  string                `json:"object"`
 	HasMore bool                  `json:"has_more"`
@@ -313,6 +325,8 @@ func (s *WebhooksSvcImpl) List() (*ListWebhooksResponse, error) {
 	return s.ListWithContext(context.Background())
 }
 
+// ListEventsWithOptions lists webhook events with pagination options.
+// https://resend.com/docs/api-reference/webhooks/list-events
 func (s *WebhooksSvcImpl) ListEventsWithOptions(ctx context.Context, webhookId string, options *ListWebhookEventsOptions) (*ListWebhookEventsResponse, error) {
 	paginationOptions := &ListOptions{}
 	if options != nil {
@@ -335,14 +349,18 @@ func (s *WebhooksSvcImpl) ListEventsWithOptions(ctx context.Context, webhookId s
 	return response, nil
 }
 
+// ListEventsWithContext lists webhook events with the given context.
 func (s *WebhooksSvcImpl) ListEventsWithContext(ctx context.Context, webhookId string) (*ListWebhookEventsResponse, error) {
 	return s.ListEventsWithOptions(ctx, webhookId, nil)
 }
 
+// ListEvents lists webhook events.
 func (s *WebhooksSvcImpl) ListEvents(webhookId string) (*ListWebhookEventsResponse, error) {
 	return s.ListEventsWithContext(context.Background(), webhookId)
 }
 
+// GetEventWithContext retrieves a webhook event by ID with the given context.
+// https://resend.com/docs/api-reference/webhooks/get-event
 func (s *WebhooksSvcImpl) GetEventWithContext(ctx context.Context, webhookId string, eventId string) (*WebhookEvent, error) {
 	path := "webhooks/" + webhookId + "/events/" + eventId
 
@@ -360,10 +378,13 @@ func (s *WebhooksSvcImpl) GetEventWithContext(ctx context.Context, webhookId str
 	return response, nil
 }
 
+// GetEvent retrieves a webhook event by ID.
 func (s *WebhooksSvcImpl) GetEvent(webhookId string, eventId string) (*WebhookEvent, error) {
 	return s.GetEventWithContext(context.Background(), webhookId, eventId)
 }
 
+// ListEventAttemptsWithOptions lists delivery attempts for a webhook event with pagination options.
+// https://resend.com/docs/api-reference/webhooks/list-event-attempts
 func (s *WebhooksSvcImpl) ListEventAttemptsWithOptions(ctx context.Context, webhookId string, eventId string, options *ListWebhookEventAttemptsOptions) (*ListWebhookEventAttemptsResponse, error) {
 	paginationOptions := &ListOptions{}
 	if options != nil {
@@ -386,10 +407,12 @@ func (s *WebhooksSvcImpl) ListEventAttemptsWithOptions(ctx context.Context, webh
 	return response, nil
 }
 
+// ListEventAttemptsWithContext lists delivery attempts for a webhook event with the given context.
 func (s *WebhooksSvcImpl) ListEventAttemptsWithContext(ctx context.Context, webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error) {
 	return s.ListEventAttemptsWithOptions(ctx, webhookId, eventId, nil)
 }
 
+// ListEventAttempts lists delivery attempts for a webhook event.
 func (s *WebhooksSvcImpl) ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error) {
 	return s.ListEventAttemptsWithContext(context.Background(), webhookId, eventId)
 }

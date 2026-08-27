@@ -72,6 +72,34 @@ func webhooksExample() {
 	}
 	fmt.Printf("Fetched %d webhooks (has_more: %v)\n", len(paginatedWebhooks.Data), paginatedWebhooks.HasMore)
 
+	// List Webhook Events
+	eventLimit := 10
+	webhookEvents, err := client.Webhooks.ListEventsWithOptions(ctx, created.Id, &resend.ListWebhookEventsOptions{
+		Limit: &eventLimit,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Fetched %d webhook events (has_more: %v)\n", len(webhookEvents.Data), webhookEvents.HasMore)
+
+	if len(webhookEvents.Data) > 0 {
+		eventId := webhookEvents.Data[0].Id
+
+		// Get Webhook Event
+		webhookEvent, err := client.Webhooks.GetEventWithContext(ctx, created.Id, eventId)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Webhook Event: %s (%s)\n", webhookEvent.Id, webhookEvent.Status)
+
+		// List Webhook Event Attempts
+		attempts, err := client.Webhooks.ListEventAttemptsWithContext(ctx, created.Id, eventId)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Fetched %d delivery attempts (has_more: %v)\n", len(attempts.Data), attempts.HasMore)
+	}
+
 	// Delete Webhook
 	deleted, err := client.Webhooks.RemoveWithContext(ctx, created.Id)
 	if err != nil {
