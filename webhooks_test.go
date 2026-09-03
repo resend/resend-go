@@ -369,6 +369,22 @@ func TestGetWebhookEvent(t *testing.T) {
 	assert.Equal(t, "email-id", resp.Payload["data"].(map[string]any)["email_id"])
 }
 
+func TestReplayWebhookEvent(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/webhooks/webhook-id/events/msg_1srOrx2ZWZBpBUvZwXKQmoEYga2/replay", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		fmt.Fprint(w, `{"object":"webhook_event","id":"msg_1srOrx2ZWZBpBUvZwXKQmoEYga2"}`)
+	})
+
+	resp, err := client.Webhooks.ReplayEvent("webhook-id", "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "webhook_event", resp.Object)
+	assert.Equal(t, "msg_1srOrx2ZWZBpBUvZwXKQmoEYga2", resp.Id)
+}
+
 func TestListWebhookEventAttempts(t *testing.T) {
 	setup()
 	defer teardown()
