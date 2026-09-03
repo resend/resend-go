@@ -141,6 +141,12 @@ type WebhookEvent struct {
 	Payload       map[string]any     `json:"payload"`
 }
 
+// ReplayWebhookEventResponse represents the response from replaying a webhook event.
+type ReplayWebhookEventResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
+}
+
 // WebhookEventAttempt represents a delivery attempt for a webhook event.
 type WebhookEventAttempt struct {
 	Id             string `json:"id"`
@@ -199,6 +205,8 @@ type WebhooksSvc interface {
 	ListEvents(webhookId string) (*ListWebhookEventsResponse, error)
 	GetEventWithContext(ctx context.Context, webhookId string, eventId string) (*WebhookEvent, error)
 	GetEvent(webhookId string, eventId string) (*WebhookEvent, error)
+	ReplayEventWithContext(ctx context.Context, webhookId string, eventId string) (*ReplayWebhookEventResponse, error)
+	ReplayEvent(webhookId string, eventId string) (*ReplayWebhookEventResponse, error)
 	ListEventAttemptsWithOptions(ctx context.Context, webhookId string, eventId string, options *ListWebhookEventAttemptsOptions) (*ListWebhookEventAttemptsResponse, error)
 	ListEventAttemptsWithContext(ctx context.Context, webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
 	ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
@@ -381,6 +389,30 @@ func (s *WebhooksSvcImpl) GetEventWithContext(ctx context.Context, webhookId str
 // GetEvent retrieves a webhook event by ID.
 func (s *WebhooksSvcImpl) GetEvent(webhookId string, eventId string) (*WebhookEvent, error) {
 	return s.GetEventWithContext(context.Background(), webhookId, eventId)
+}
+
+// ReplayEventWithContext queues one more delivery of a webhook event with the given context.
+// https://resend.com/docs/api-reference/webhooks/replay-event
+func (s *WebhooksSvcImpl) ReplayEventWithContext(ctx context.Context, webhookId string, eventId string) (*ReplayWebhookEventResponse, error) {
+	path := "webhooks/" + webhookId + "/events/" + eventId + "/replay"
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(ReplayWebhookEventResponse)
+	_, err = s.client.Perform(req, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+// ReplayEvent queues one more delivery of a webhook event.
+func (s *WebhooksSvcImpl) ReplayEvent(webhookId string, eventId string) (*ReplayWebhookEventResponse, error) {
+	return s.ReplayEventWithContext(context.Background(), webhookId, eventId)
 }
 
 // ListEventAttemptsWithOptions lists delivery attempts for a webhook event with pagination options.

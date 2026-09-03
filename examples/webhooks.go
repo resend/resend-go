@@ -92,6 +92,13 @@ func webhooksExample() {
 		}
 		fmt.Printf("Webhook Event: %s (%s)\n", webhookEvent.Id, webhookEvent.Status)
 
+		// Replay Webhook Event
+		replayed, err := client.Webhooks.ReplayEventWithContext(ctx, created.Id, eventId)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Replayed Webhook Event: %s\n", replayed.Id)
+
 		// List Webhook Event Attempts
 		attempts, err := client.Webhooks.ListEventAttemptsWithContext(ctx, created.Id, eventId)
 		if err != nil {
