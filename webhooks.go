@@ -69,6 +69,13 @@ type CreateWebhookResponse struct {
 	SigningSecret string `json:"signing_secret"`
 }
 
+// RotateWebhookSigningSecretResponse represents the response from rotating a webhook signing secret
+type RotateWebhookSigningSecretResponse struct {
+	Object        string `json:"object"`
+	Id            string `json:"id"`
+	SigningSecret string `json:"signing_secret"`
+}
+
 // Webhook represents a webhook object
 type Webhook struct {
 	Object        string   `json:"object"`
@@ -210,6 +217,8 @@ type WebhooksSvc interface {
 	ListEventAttemptsWithOptions(ctx context.Context, webhookId string, eventId string, options *ListWebhookEventAttemptsOptions) (*ListWebhookEventAttemptsResponse, error)
 	ListEventAttemptsWithContext(ctx context.Context, webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
 	ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error)
+	RotateSigningSecretWithContext(ctx context.Context, webhookId string) (*RotateWebhookSigningSecretResponse, error)
+	RotateSigningSecret(webhookId string) (*RotateWebhookSigningSecretResponse, error)
 	RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error)
 	Remove(webhookId string) (*DeleteWebhookResponse, error)
 	Verify(options *VerifyWebhookOptions) error
@@ -447,6 +456,30 @@ func (s *WebhooksSvcImpl) ListEventAttemptsWithContext(ctx context.Context, webh
 // ListEventAttempts lists delivery attempts for a webhook event.
 func (s *WebhooksSvcImpl) ListEventAttempts(webhookId string, eventId string) (*ListWebhookEventAttemptsResponse, error) {
 	return s.ListEventAttemptsWithContext(context.Background(), webhookId, eventId)
+}
+
+// RotateSigningSecretWithContext rotates the signing secret of a webhook with the given context.
+// https://resend.com/docs/api-reference/webhooks/rotate-signing-secret
+func (s *WebhooksSvcImpl) RotateSigningSecretWithContext(ctx context.Context, webhookId string) (*RotateWebhookSigningSecretResponse, error) {
+	path := "webhooks/" + webhookId + "/signing-secret/rotate"
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(RotateWebhookSigningSecretResponse)
+	_, err = s.client.Perform(req, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+// RotateSigningSecret rotates the signing secret of a webhook.
+func (s *WebhooksSvcImpl) RotateSigningSecret(webhookId string) (*RotateWebhookSigningSecretResponse, error) {
+	return s.RotateSigningSecretWithContext(context.Background(), webhookId)
 }
 
 // RemoveWithContext deletes a webhook by ID with the given context

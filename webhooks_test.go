@@ -415,6 +415,23 @@ func TestListWebhookEventAttempts(t *testing.T) {
 	}, resp.Data[0])
 }
 
+func TestRotateWebhookSigningSecret(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/webhooks/webhook-id/signing-secret/rotate", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		fmt.Fprint(w, `{"object":"webhook","id":"webhook-id","signing_secret":"whsec_rotated_secret"}`)
+	})
+
+	resp, err := client.Webhooks.RotateSigningSecret("webhook-id")
+
+	assert.NoError(t, err)
+	assert.Equal(t, "webhook", resp.Object)
+	assert.Equal(t, "webhook-id", resp.Id)
+	assert.Equal(t, "whsec_rotated_secret", resp.SigningSecret)
+}
+
 func TestRemoveWebhook(t *testing.T) {
 	setup()
 	defer teardown()
