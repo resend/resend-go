@@ -51,6 +51,13 @@ func webhooksExample() {
 	}
 	fmt.Println("Updated Webhook ID: " + updated.Id)
 
+	// Rotate Webhook Signing Secret
+	rotated, err := client.Webhooks.RotateSigningSecretWithContext(ctx, created.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Rotated Signing Secret: " + rotated.SigningSecret)
+
 	// List Webhooks
 	webhooks, err := client.Webhooks.ListWithContext(ctx)
 	if err != nil {
