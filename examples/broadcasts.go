@@ -59,6 +59,13 @@ func broadcastExamples() {
 	}
 	fmt.Println("Updated broadcast with entry id: " + updatedBroadcast.Id)
 
+	// Duplicate Broadcast
+	duplicated, err := client.Broadcasts.DuplicateWithContext(ctx, broadcast.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Duplicated broadcast with entry id: " + duplicated.Id)
+
 	// Send Broadcast
 	// sendParams := &resend.SendBroadcastRequest{
 	// 	BroadcastId: broadcast.Id,
@@ -97,4 +104,10 @@ func broadcastExamples() {
 		panic(err)
 	}
 	fmt.Println("Deleted broadcast with entry id: " + removeResponse.Id)
+
+	removeDuplicateResponse, err := client.Broadcasts.RemoveWithContext(ctx, duplicated.Id)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Deleted duplicated broadcast with entry id: " + removeDuplicateResponse.Id)
 }

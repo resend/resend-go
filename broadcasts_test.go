@@ -326,6 +326,24 @@ func TestCancelBroadcast(t *testing.T) {
 	assert.Equal(t, canceled.Object, "broadcast")
 }
 
+func TestDuplicateBroadcast(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/b6d24b8e-af0b-4c3c-be0c-359bbd97381e/duplicate", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{"object": "broadcast", "id": "3d4a472d-bc6d-4dd2-aa9d-4a9f3a9c8a1e"}`)
+	})
+
+	duplicated, err := client.Broadcasts.Duplicate("b6d24b8e-af0b-4c3c-be0c-359bbd97381e")
+	if err != nil {
+		t.Errorf("Broadcasts.Duplicate returned error: %v", err)
+	}
+	assert.Equal(t, "3d4a472d-bc6d-4dd2-aa9d-4a9f3a9c8a1e", duplicated.Id)
+	assert.Equal(t, "broadcast", duplicated.Object)
+}
+
 func TestListBroadcasts(t *testing.T) {
 	setup()
 	defer teardown()
