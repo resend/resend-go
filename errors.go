@@ -52,6 +52,7 @@ var (
 	ErrFailedToCreateBroadcastSendRequest       = errors.New("[ERROR]: Failed to create Broadcasts.Send request")
 	ErrFailedToCreateBroadcastCreateRequest     = errors.New("[ERROR]: Failed to create Broadcasts.Create request")
 	ErrFailedToCreateBroadcastCancelRequest     = errors.New("[ERROR]: Failed to create Broadcasts.Cancel request")
+	ErrFailedToCreateBroadcastDuplicateRequest  = errors.New("[ERROR]: Failed to create Broadcasts.Duplicate request")
 	ErrFailedToCreateBroadcastRecipientsRequest = errors.New("[ERROR]: Failed to create Broadcasts.Recipients request")
 )
 

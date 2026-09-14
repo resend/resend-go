@@ -64,6 +64,11 @@ type CancelBroadcastResponse struct {
 	Id     string `json:"id"`
 }
 
+type DuplicateBroadcastResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
+}
+
 type RemoveBroadcastResponse struct {
 	Object  string `json:"object"`
 	Id      string `json:"id"`
@@ -207,6 +212,9 @@ type BroadcastsSvc interface {
 
 	CancelWithContext(ctx context.Context, broadcastId string) (CancelBroadcastResponse, error)
 	Cancel(broadcastId string) (CancelBroadcastResponse, error)
+
+	DuplicateWithContext(ctx context.Context, broadcastId string) (DuplicateBroadcastResponse, error)
+	Duplicate(broadcastId string) (DuplicateBroadcastResponse, error)
 
 	RemoveWithContext(ctx context.Context, broadcastId string) (RemoveBroadcastResponse, error)
 	Remove(broadcastId string) (RemoveBroadcastResponse, error)
@@ -385,6 +393,34 @@ func (s *BroadcastsSvcImpl) CancelWithContext(ctx context.Context, broadcastId s
 
 func (s *BroadcastsSvcImpl) Cancel(broadcastId string) (CancelBroadcastResponse, error) {
 	return s.CancelWithContext(context.Background(), broadcastId)
+}
+
+// DuplicateWithContext duplicates a broadcast by id, creating a new draft named after the source with " (copy)" appended
+// https://resend.com/docs/api-reference/broadcasts/duplicate-broadcast
+func (s *BroadcastsSvcImpl) DuplicateWithContext(ctx context.Context, broadcastId string) (DuplicateBroadcastResponse, error) {
+	if broadcastId == "" {
+		return DuplicateBroadcastResponse{}, errors.New("[ERROR]: broadcastId cannot be empty")
+	}
+
+	path := "broadcasts/" + broadcastId + "/duplicate"
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	if err != nil {
+		return DuplicateBroadcastResponse{}, ErrFailedToCreateBroadcastDuplicateRequest
+	}
+
+	resp := new(DuplicateBroadcastResponse)
+	_, err = s.client.Perform(req, resp)
+	if err != nil {
+		return DuplicateBroadcastResponse{}, err
+	}
+
+	return *resp, nil
+}
+
+// Duplicate duplicates a broadcast by id
+func (s *BroadcastsSvcImpl) Duplicate(broadcastId string) (DuplicateBroadcastResponse, error) {
+	return s.DuplicateWithContext(context.Background(), broadcastId)
 }
 
 // RemoveWithContext removes a given broadcast by id
