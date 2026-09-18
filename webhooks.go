@@ -37,6 +37,10 @@ const (
 	EventDomainCreated = "domain.created"
 	EventDomainUpdated = "domain.updated"
 	EventDomainDeleted = "domain.deleted"
+
+	// Suppression events
+	EventSuppressionAdded   = "suppression.added"
+	EventSuppressionRemoved = "suppression.removed"
 )
 
 // Default tolerance for timestamp validation (5 minutes)
