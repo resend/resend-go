@@ -2,7 +2,6 @@ package resend
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -82,14 +81,14 @@ type Usage struct {
 }
 
 // GetWithContext retrieves the caller's account-level usage and quota data.
-// https://resend.com/docs/api-reference/usage/get-usage
+// https://resend.com/docs/api-reference/usage/retrieve-usage
 func (s *UsageSvcImpl) GetWithContext(ctx context.Context) (Usage, error) {
 	path := "usage"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		return Usage{}, errors.New("[ERROR]: Failed to create Usage.Get request")
+		return Usage{}, ErrFailedToCreateUsageGetRequest
 	}
 
 	usage := new(Usage)

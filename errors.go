@@ -138,3 +138,8 @@ var (
 	ErrFailedToCreateOAuthGrantsListRequest   = errors.New("[ERROR]: Failed to create OAuthGrants.List request")
 	ErrFailedToCreateOAuthGrantsRevokeRequest = errors.New("[ERROR]: Failed to create OAuthGrants.Revoke request")
 )
+
+// UsageSvc errors
+var (
+	ErrFailedToCreateUsageGetRequest = errors.New("[ERROR]: Failed to create Usage.Get request")
+)

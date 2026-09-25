@@ -23,7 +23,7 @@ func TestGetUsage(t *testing.T) {
 			"object": "usage",
 			"emails": {
 				"daily": { "used": 258, "limit": null, "sent": 57, "received": 201, "resets_at": "2026-07-17T00:00:00.000Z" },
-				"monthly": { "used": 5422, "limit": 10000, "sent": 1000, "received": 4442, "resets_at": "2026-08-01T00:00:00.000Z" }
+				"monthly": { "used": 5442, "limit": 10000, "sent": 1000, "received": 4442, "resets_at": "2026-08-01T00:00:00.000Z" }
 			},
 			"contacts": { "used": 85000, "limit": 150000 },
 			"segments": { "used": 2, "limit": 3 },
@@ -49,7 +49,7 @@ func TestGetUsage(t *testing.T) {
 	assert.Equal(t, 201, usage.Emails.Daily.Received)
 	assert.Equal(t, "2026-07-17T00:00:00.000Z", usage.Emails.Daily.ResetsAt)
 
-	assert.Equal(t, 5422, usage.Emails.Monthly.Used)
+	assert.Equal(t, 5442, usage.Emails.Monthly.Used)
 	assert.NotNil(t, usage.Emails.Monthly.Limit)
 	assert.Equal(t, 10000, *usage.Emails.Monthly.Limit)
 
