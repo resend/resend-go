@@ -104,7 +104,7 @@ func (s *UsageSvcImpl) GetWithContext(ctx context.Context) (Usage, error) {
 }
 
 // Get retrieves the caller's account-level usage and quota data.
-// https://resend.com/docs/api-reference/usage/get-usage
+// https://resend.com/docs/api-reference/usage/retrieve-usage
 func (s *UsageSvcImpl) Get() (Usage, error) {
 	return s.GetWithContext(context.Background())
 }
