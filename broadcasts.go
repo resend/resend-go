@@ -230,7 +230,7 @@ type BroadcastsSvcImpl struct {
 // CreateWithContext creates a new Broadcast based on the given params
 // https://resend.com/docs/api-reference/broadcasts/create-broadcast
 func (s *BroadcastsSvcImpl) CreateWithContext(ctx context.Context, params *CreateBroadcastRequest) (CreateBroadcastResponse, error) {
-	path := "/broadcasts"
+	path := "broadcasts"
 
 	if params.SegmentId == "" && params.AudienceId == "" {
 		return CreateBroadcastResponse{}, errors.New("[ERROR]: Either SegmentId or AudienceId must be provided")
@@ -275,7 +275,7 @@ func (s *BroadcastsSvcImpl) UpdateWithContext(ctx context.Context, params *Updat
 		return UpdateBroadcastResponse{}, errors.New("[ERROR]: BroadcastId cannot be empty")
 	}
 
-	path := "/broadcasts/" + params.BroadcastId
+	path := "broadcasts/" + params.BroadcastId
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
@@ -340,7 +340,7 @@ func (s *BroadcastsSvcImpl) SendWithContext(ctx context.Context, params *SendBro
 		return SendBroadcastResponse{}, errors.New("[ERROR]: BroadcastId cannot be empty")
 	}
 
-	path := "/broadcasts/" + params.BroadcastId + "/send"
+	path := "broadcasts/" + params.BroadcastId + "/send"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)

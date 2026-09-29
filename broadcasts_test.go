@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -710,4 +711,42 @@ func TestBroadcastsClickedLinksValidations(t *testing.T) {
 	if err != nil {
 		assert.Equal(t, err.Error(), "[ERROR]: broadcastId cannot be empty")
 	}
+}
+
+func TestBroadcastsKeepBaseURLPathPrefix(t *testing.T) {
+	setup()
+	defer teardown()
+
+	prefixed, _ := url.Parse(server.URL + "/proxy/")
+	client.BaseURL = prefixed
+
+	respond := func(w http.ResponseWriter) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"id": "b1"}`)
+	}
+	mux.HandleFunc("/proxy/broadcasts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		respond(w)
+	})
+	mux.HandleFunc("/proxy/broadcasts/b1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		respond(w)
+	})
+	mux.HandleFunc("/proxy/broadcasts/b1/send", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		respond(w)
+	})
+
+	_, err := client.Broadcasts.Create(&CreateBroadcastRequest{
+		SegmentId: "s1",
+		From:      "a@example.com",
+		Subject:   "hi",
+	})
+	assert.NoError(t, err)
+
+	_, err = client.Broadcasts.Update(&UpdateBroadcastRequest{BroadcastId: "b1", Subject: "hello"})
+	assert.NoError(t, err)
+
+	_, err = client.Broadcasts.Send(&SendBroadcastRequest{BroadcastId: "b1"})
+	assert.NoError(t, err)
 }
