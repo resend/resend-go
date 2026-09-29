@@ -29,9 +29,10 @@ const (
 	EventEmailSuppressed      = "email.suppressed"
 
 	// Contact events
-	EventContactCreated = "contact.created"
-	EventContactUpdated = "contact.updated"
-	EventContactDeleted = "contact.deleted"
+	EventContactCreated       = "contact.created"
+	EventContactUpdated       = "contact.updated"
+	EventContactDeleted       = "contact.deleted"
+	EventContactTopicsUpdated = "contact.topics.updated"
 
 	// Domain events
 	EventDomainCreated = "domain.created"
@@ -41,6 +42,11 @@ const (
 	// Suppression events
 	EventSuppressionAdded   = "suppression.added"
 	EventSuppressionRemoved = "suppression.removed"
+
+	// Topic events
+	EventTopicCreated = "topic.created"
+	EventTopicUpdated = "topic.updated"
+	EventTopicDeleted = "topic.deleted"
 )
 
 // Default tolerance for timestamp validation (5 minutes)
