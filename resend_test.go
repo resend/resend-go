@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -222,4 +224,102 @@ func TestRateLimitErrorHandling(t *testing.T) {
 	assert.Equal(t, "0", rateLimitErr.Remaining)
 	assert.Equal(t, "60", rateLimitErr.Reset)
 	assert.Equal(t, "60", rateLimitErr.RetryAfter)
+}
+
+func TestNewRequestSetsReplayableBody(t *testing.T) {
+	client := NewClient("123")
+	req, err := client.NewRequest(context.Background(), http.MethodPost, "/emails", map[string]string{"a": "b"})
+	assert.NoError(t, err)
+	want := "{\"a\":\"b\"}\n"
+	assert.Equal(t, int64(len(want)), req.ContentLength)
+	assert.NotNil(t, req.GetBody)
+	body, err := req.GetBody()
+	assert.NoError(t, err)
+	got, err := io.ReadAll(body)
+	assert.NoError(t, err)
+	assert.Equal(t, want, string(got))
+}
+
+func TestNewRequestWithoutParamsHasNoBody(t *testing.T) {
+	client := NewClient("123")
+	req, err := client.NewRequest(context.Background(), http.MethodGet, "/emails", nil)
+	assert.NoError(t, err)
+	assert.Nil(t, req.Body)
+	assert.Equal(t, int64(0), req.ContentLength)
+	_, ok := req.Header["Content-Type"]
+	assert.False(t, ok)
+}
+
+func TestNewRequestReturnsEncodeError(t *testing.T) {
+	client := NewClient("123")
+	req, err := client.NewRequest(context.Background(), http.MethodPost, "/emails", make(chan int))
+	assert.Error(t, err)
+	assert.Nil(t, req)
+}
+
+func TestPerformFollowsTemporaryAndPermanentRedirects(t *testing.T) {
+	for _, status := range []int{http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			var gotMethod, gotBody, gotKey, gotType string
+			dest := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				b, _ := io.ReadAll(r.Body)
+				gotMethod, gotBody = r.Method, string(b)
+				gotKey, gotType = r.Header.Get("Idempotency-Key"), r.Header.Get("Content-Type")
+				w.Write([]byte(`{"id":"1"}`))
+			}))
+			defer dest.Close()
+			src := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				http.Redirect(w, r, dest.URL+"/emails", status)
+			}))
+			defer src.Close()
+
+			client := NewClient("123")
+			base, err := url.Parse(src.URL + "/")
+			assert.NoError(t, err)
+			client.BaseURL = base
+
+			opts := &SendEmailOptions{IdempotencyKey: "key-1"}
+			req, err := client.NewRequestWithOptions(context.Background(), http.MethodPost, "emails", map[string]string{"a": "b"}, opts)
+			assert.NoError(t, err)
+
+			var out map[string]string
+			_, err = client.Perform(req, &out)
+			assert.NoError(t, err)
+			assert.Equal(t, "1", out["id"])
+			assert.Equal(t, http.MethodPost, gotMethod)
+			assert.Equal(t, "{\"a\":\"b\"}\n", gotBody)
+			assert.Equal(t, "key-1", gotKey)
+			assert.Equal(t, "application/json", gotType)
+		})
+	}
+}
+
+type failingMarshaler struct{ called *bool }
+
+func (f failingMarshaler) MarshalJSON() ([]byte, error) {
+	*f.called = true
+	return nil, errors.New("marshal failed")
+}
+
+func TestNewRequestValidatesBeforeEncoding(t *testing.T) {
+	client := NewClient("123")
+
+	called := false
+	req, err := client.NewRequest(context.Background(), "BAD METHOD", "/emails", failingMarshaler{&called})
+	assert.Error(t, err)
+	assert.Nil(t, req)
+	assert.False(t, called, "params must not be marshalled when the method is invalid")
+
+	called = false
+	//lint:ignore SA1012 intentionally passing a nil context
+	req, err = client.NewRequest(nil, http.MethodPost, "/emails", failingMarshaler{&called}) //nolint:staticcheck
+	assert.Error(t, err)
+	assert.Nil(t, req)
+	assert.False(t, called, "params must not be marshalled when the context is nil")
+
+	called = false
+	req, err = client.NewRequest(context.Background(), http.MethodPost, "/emails", failingMarshaler{&called})
+	assert.Error(t, err)
+	assert.Nil(t, req)
+	assert.True(t, called)
 }

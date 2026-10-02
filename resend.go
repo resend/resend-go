@@ -175,7 +175,14 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params any
 			return nil, err
 		}
 
-		req.Body = io.NopCloser(buf)
+		// Set the length and a replayable body like http.NewRequest does for
+		// a bytes.Buffer, so 307/308 redirects can resend the request body.
+		b := buf.Bytes()
+		req.Body = io.NopCloser(bytes.NewReader(b))
+		req.ContentLength = int64(len(b))
+		req.GetBody = func() (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewReader(b)), nil
+		}
 		req.Header.Set("Content-Type", contentType)
 	}
 
