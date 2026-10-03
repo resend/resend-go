@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 )
 
 type ContactSegmentsSvc interface {
@@ -71,7 +72,7 @@ func (s *ContactSegmentsSvcImpl) AddWithContext(ctx context.Context, params *Add
 		identifier = params.Email
 	}
 
-	path := "contacts/" + identifier + "/segments/" + params.SegmentId
+	path := "contacts/" + url.PathEscape(identifier) + "/segments/" + url.PathEscape(params.SegmentId)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
@@ -115,7 +116,7 @@ func (s *ContactSegmentsSvcImpl) RemoveWithContext(ctx context.Context, params *
 		identifier = params.Email
 	}
 
-	path := "contacts/" + identifier + "/segments/" + params.SegmentId
+	path := "contacts/" + url.PathEscape(identifier) + "/segments/" + url.PathEscape(params.SegmentId)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
@@ -154,7 +155,7 @@ func (s *ContactSegmentsSvcImpl) ListWithOptions(ctx context.Context, params *Li
 		identifier = params.Email
 	}
 
-	path := "contacts/" + identifier + "/segments" + buildPaginationQuery(options)
+	path := "contacts/" + url.PathEscape(identifier) + "/segments" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)

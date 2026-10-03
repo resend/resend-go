@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 )
 
 // ContactTopic represents a topic subscription for a contact
@@ -61,7 +62,7 @@ func (s *ContactTopicsSvcImpl) ListWithOptions(ctx context.Context, id string, o
 		return ListContactTopicsResponse{}, errors.New("[ERROR]: Contact ID or email is missing")
 	}
 
-	path := "contacts/" + id + "/topics" + buildPaginationQuery(options)
+	path := "contacts/" + url.PathEscape(id) + "/topics" + buildPaginationQuery(options)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -114,7 +115,7 @@ func (s *ContactTopicsSvcImpl) UpdateWithContext(ctx context.Context, params *Up
 		identifier = params.Email
 	}
 
-	path := "contacts/" + identifier + "/topics"
+	path := "contacts/" + url.PathEscape(identifier) + "/topics"
 
 	// Prepare request - send only the topics array as body
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params.Topics)

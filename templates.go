@@ -3,6 +3,7 @@ package resend
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 // VariableType represents the type of a template variable
@@ -183,7 +184,7 @@ func (s *TemplatesSvcImpl) Create(params *CreateTemplateRequest) (*CreateTemplat
 // GetWithContext retrieves a template by ID or alias
 // https://resend.com/docs/api-reference/templates/get-template
 func (s *TemplatesSvcImpl) GetWithContext(ctx context.Context, identifier string) (*Template, error) {
-	path := "templates/" + identifier
+	path := "templates/" + url.PathEscape(identifier)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
@@ -243,7 +244,7 @@ func (s *TemplatesSvcImpl) List(options *ListOptions) (*ListTemplatesResponse, e
 // UpdateWithContext updates a template by ID or alias
 // https://resend.com/docs/api-reference/templates/update-template
 func (s *TemplatesSvcImpl) UpdateWithContext(ctx context.Context, identifier string, params *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
-	path := "templates/" + identifier
+	path := "templates/" + url.PathEscape(identifier)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
@@ -273,7 +274,7 @@ func (s *TemplatesSvcImpl) Update(identifier string, params *UpdateTemplateReque
 // PublishWithContext publishes a template by ID or alias
 // https://resend.com/docs/api-reference/templates/publish-template
 func (s *TemplatesSvcImpl) PublishWithContext(ctx context.Context, identifier string) (*PublishTemplateResponse, error) {
-	path := "templates/" + identifier + "/publish"
+	path := "templates/" + url.PathEscape(identifier) + "/publish"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
@@ -303,7 +304,7 @@ func (s *TemplatesSvcImpl) Publish(identifier string) (*PublishTemplateResponse,
 // DuplicateWithContext duplicates a template by ID or alias
 // https://resend.com/docs/api-reference/templates/duplicate-template
 func (s *TemplatesSvcImpl) DuplicateWithContext(ctx context.Context, identifier string) (*DuplicateTemplateResponse, error) {
-	path := "templates/" + identifier + "/duplicate"
+	path := "templates/" + url.PathEscape(identifier) + "/duplicate"
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
@@ -333,7 +334,7 @@ func (s *TemplatesSvcImpl) Duplicate(identifier string) (*DuplicateTemplateRespo
 // RemoveWithContext removes a template by ID or alias
 // https://resend.com/docs/api-reference/templates/delete-template
 func (s *TemplatesSvcImpl) RemoveWithContext(ctx context.Context, identifier string) (*RemoveTemplateResponse, error) {
-	path := "templates/" + identifier
+	path := "templates/" + url.PathEscape(identifier)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)

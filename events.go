@@ -3,6 +3,7 @@ package resend
 import (
 	"context"
 	"net/http"
+	"net/url"
 )
 
 type EventSchemaType = string
@@ -119,7 +120,7 @@ func (s *EventsSvcImpl) Create(params *CreateEventRequest) (CreateEventResponse,
 // GetWithContext retrieves an Event by ID or name
 // https://resend.com/docs/api-reference/events/get-event
 func (s *EventsSvcImpl) GetWithContext(ctx context.Context, identifier string) (Event, error) {
-	path := "events/" + identifier
+	path := "events/" + url.PathEscape(identifier)
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -173,7 +174,7 @@ func (s *EventsSvcImpl) List() (ListEventsResponse, error) {
 // UpdateWithContext updates an Event's schema by ID or name
 // https://resend.com/docs/api-reference/events/update-event
 func (s *EventsSvcImpl) UpdateWithContext(ctx context.Context, identifier string, params *UpdateEventRequest) (UpdateEventResponse, error) {
-	path := "events/" + identifier
+	path := "events/" + url.PathEscape(identifier)
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
 	if err != nil {
@@ -197,7 +198,7 @@ func (s *EventsSvcImpl) Update(identifier string, params *UpdateEventRequest) (U
 // RemoveWithContext deletes an Event by ID or name
 // https://resend.com/docs/api-reference/events/delete-event
 func (s *EventsSvcImpl) RemoveWithContext(ctx context.Context, identifier string) (DeleteEventResponse, error) {
-	path := "events/" + identifier
+	path := "events/" + url.PathEscape(identifier)
 
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
