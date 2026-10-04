@@ -494,6 +494,50 @@ func TestSendEmailWithOptions(t *testing.T) {
 	assert.Equal(t, req.Header["Idempotency-Key"][0], "unique-idempotency-key")
 }
 
+func TestSendEmailWithEmptyOptions(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		options  *SendEmailOptions
+		canceled bool
+	}{
+		{name: "nil"},
+		{name: "empty", options: &SendEmailOptions{}},
+		{name: "nil with canceled context", canceled: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			setup()
+			defer teardown()
+
+			params := &SendEmailRequest{To: []string{"recipient@example.com"}}
+			want := &SendEmailResponse{Id: "email-1"}
+			mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, http.MethodPost)
+				assert.Empty(t, r.Header.Get("Idempotency-Key"))
+				var body SendEmailRequest
+				assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+				assert.Equal(t, params, &body)
+				w.Header().Set("Content-Type", "application/json")
+				assert.NoError(t, json.NewEncoder(w).Encode(want))
+			})
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if tc.canceled {
+				cancel()
+			}
+			resp, err := client.Emails.SendWithOptions(ctx, params, tc.options)
+			if tc.canceled {
+				assert.ErrorIs(t, err, context.Canceled)
+				assert.Nil(t, resp)
+				return
+			}
+			if assert.NoError(t, err) {
+				assert.Equal(t, want, resp)
+			}
+		})
+	}
+}
+
 func testMethod(t *testing.T, r *http.Request, expected string) {
 	if expected != r.Method {
 		t.Errorf("Request method = %v, expected %v", r.Method, expected)

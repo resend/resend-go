@@ -223,6 +223,51 @@ func TestBatchSendWithOptionsEmail(t *testing.T) {
 	assert.Nil(t, resp.Errors)
 }
 
+func TestBatchSendWithEmptyOptions(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		options  *BatchSendEmailOptions
+		canceled bool
+	}{
+		{name: "nil"},
+		{name: "empty", options: &BatchSendEmailOptions{}},
+		{name: "nil with canceled context", canceled: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			setup()
+			defer teardown()
+
+			params := []*SendEmailRequest{{To: []string{"recipient@example.com"}}}
+			want := &BatchEmailResponse{Data: []SendEmailResponse{{Id: "email-1"}}}
+			mux.HandleFunc("/emails/batch", func(w http.ResponseWriter, r *http.Request) {
+				testMethod(t, r, http.MethodPost)
+				assert.Empty(t, r.Header.Get("Idempotency-Key"))
+				assert.Empty(t, r.Header.Get("x-batch-validation"))
+				var body []*SendEmailRequest
+				assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+				assert.Equal(t, params, body)
+				w.Header().Set("Content-Type", "application/json")
+				assert.NoError(t, json.NewEncoder(w).Encode(want))
+			})
+
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if tc.canceled {
+				cancel()
+			}
+			resp, err := client.Batch.SendWithOptions(ctx, params, tc.options)
+			if tc.canceled {
+				assert.ErrorIs(t, err, context.Canceled)
+				assert.Nil(t, resp)
+				return
+			}
+			if assert.NoError(t, err) {
+				assert.Equal(t, want, resp)
+			}
+		})
+	}
+}
+
 func TestBatchSendWithValidationMode(t *testing.T) {
 	setup()
 	defer teardown()

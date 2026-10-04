@@ -522,6 +522,10 @@ func (s *EmailsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateEma
 // and additional options
 // https://resend.com/docs/api-reference/emails/send-email
 func (s *EmailsSvcImpl) SendWithOptions(ctx context.Context, params *SendEmailRequest, options *SendEmailOptions) (*SendEmailResponse, error) {
+	if options == nil {
+		return s.SendWithContext(ctx, params)
+	}
+
 	path := "emails"
 
 	// Prepare request
