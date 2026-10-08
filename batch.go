@@ -101,8 +101,12 @@ func (s *BatchSvcImpl) SendWithContext(ctx context.Context, params []*SendEmailR
 
 // SendWithOptions is the same as Send but accepts a ctx and options as arguments
 func (s *BatchSvcImpl) SendWithOptions(ctx context.Context, params []*SendEmailRequest, options *BatchSendEmailOptions) (*BatchEmailResponse, error) {
+	if options == nil {
+		return s.SendWithContext(ctx, params)
+	}
+
 	// Validate BatchValidation field if provided
-	if options != nil && options.BatchValidation != "" {
+	if options.BatchValidation != "" {
 		if !options.BatchValidation.IsValid() {
 			return nil, errors.New("[ERROR]: BatchValidation must be either BatchValidationStrict or BatchValidationPermissive")
 		}
