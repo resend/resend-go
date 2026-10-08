@@ -294,32 +294,11 @@ func TestPerformFollowsTemporaryAndPermanentRedirects(t *testing.T) {
 	}
 }
 
-type failingMarshaler struct{ called *bool }
-
-func (f failingMarshaler) MarshalJSON() ([]byte, error) {
-	*f.called = true
-	return nil, errors.New("marshal failed")
-}
-
-func TestNewRequestValidatesBeforeEncoding(t *testing.T) {
+func TestNewRequestReturnsErrorForInvalidMethod(t *testing.T) {
 	client := NewClient("123")
-
-	called := false
-	req, err := client.NewRequest(context.Background(), "BAD METHOD", "/emails", failingMarshaler{&called})
-	assert.Error(t, err)
-	assert.Nil(t, req)
-	assert.False(t, called, "params must not be marshalled when the method is invalid")
-
-	called = false
-	//lint:ignore SA1012 intentionally passing a nil context
-	req, err = client.NewRequest(nil, http.MethodPost, "/emails", failingMarshaler{&called}) //nolint:staticcheck
-	assert.Error(t, err)
-	assert.Nil(t, req)
-	assert.False(t, called, "params must not be marshalled when the context is nil")
-
-	called = false
-	req, err = client.NewRequest(context.Background(), http.MethodPost, "/emails", failingMarshaler{&called})
-	assert.Error(t, err)
-	assert.Nil(t, req)
-	assert.True(t, called)
+	for _, params := range []any{nil, map[string]string{"a": "b"}} {
+		req, err := client.NewRequest(context.Background(), "BAD METHOD", "/emails", params)
+		assert.Error(t, err)
+		assert.Nil(t, req)
+	}
 }

@@ -162,27 +162,24 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params any
 		return nil, err
 	}
 
-	var req *http.Request
-	req, err = http.NewRequestWithContext(ctx, method, u.String(), nil)
+	// Passing the *bytes.Buffer itself (not a wrapping io.Reader) lets
+	// net/http set ContentLength and GetBody, so 307/308 redirects can
+	// resend the request body.
+	var body io.Reader
+	if params != nil {
+		buf := new(bytes.Buffer)
+		if err := json.NewEncoder(buf).Encode(params); err != nil {
+			return nil, err
+		}
+		body = buf
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
 	if err != nil {
 		return nil, err
 	}
 
 	if params != nil {
-		buf := new(bytes.Buffer)
-		err = json.NewEncoder(buf).Encode(params)
-		if err != nil {
-			return nil, err
-		}
-
-		// Set the length and a replayable body like http.NewRequest does for
-		// a bytes.Buffer, so 307/308 redirects can resend the request body.
-		b := buf.Bytes()
-		req.Body = io.NopCloser(bytes.NewReader(b))
-		req.ContentLength = int64(len(b))
-		req.GetBody = func() (io.ReadCloser, error) {
-			return io.NopCloser(bytes.NewReader(b)), nil
-		}
 		req.Header.Set("Content-Type", contentType)
 	}
 
