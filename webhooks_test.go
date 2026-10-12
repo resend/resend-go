@@ -490,3 +490,37 @@ func TestRemoveWebhookWithContext(t *testing.T) {
 	assert.Equal(t, "test-delete-id", resp.Id)
 	assert.Equal(t, true, resp.Deleted)
 }
+
+func TestInboxWebhookEventConstants(t *testing.T) {
+	assert.Equal(t, []string{
+		"inbox.created",
+		"inbox.updated",
+		"inbox.deleted",
+		"inbox.thread.created",
+		"inbox.email.received",
+		"inbox.email.sent",
+		"inbox.thread.folder.updated",
+		"inbox.thread.assigned",
+		"inbox.thread.unassigned",
+		"inbox.thread.labels.updated",
+		"inbox.draft.created",
+		"inbox.draft.updated",
+		"inbox.draft.sent",
+		"inbox.draft.deleted",
+	}, []string{
+		EventInboxCreated,
+		EventInboxUpdated,
+		EventInboxDeleted,
+		EventInboxThreadCreated,
+		EventInboxEmailReceived,
+		EventInboxEmailSent,
+		EventInboxThreadFolderUpdated,
+		EventInboxThreadAssigned,
+		EventInboxThreadUnassigned,
+		EventInboxThreadLabelsUpdated,
+		EventInboxDraftCreated,
+		EventInboxDraftUpdated,
+		EventInboxDraftSent,
+		EventInboxDraftDeleted,
+	})
+}
