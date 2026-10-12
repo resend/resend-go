@@ -70,6 +70,7 @@ type Client struct {
 	OAuthGrants       OAuthGrantsSvc
 	Suppressions      *SuppressionsSvcImpl
 	Usage             UsageSvc
+	Inboxes           *InboxesSvcImpl
 }
 
 // NewClient is the default client constructor
@@ -121,6 +122,15 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.Events = &EventsSvcImpl{client: c}
 	c.OAuthGrants = &OAuthGrantsSvcImpl{client: c}
 	c.Usage = &UsageSvcImpl{client: c}
+
+	inboxesSvc := &InboxesSvcImpl{client: c}
+	inboxesSvc.Agent = &InboxAgentSvcImpl{client: c}
+	inboxesSvc.Labels = &InboxLabelsSvcImpl{client: c}
+	inboxThreadsSvc := &InboxThreadsSvcImpl{client: c}
+	inboxThreadsSvc.Emails = &InboxThreadEmailsSvcImpl{client: c}
+	inboxesSvc.Threads = inboxThreadsSvc
+	inboxesSvc.Drafts = &InboxDraftsSvcImpl{client: c}
+	c.Inboxes = inboxesSvc
 
 	c.ApiKey = apiKey
 	c.headers = make(map[string]string)
