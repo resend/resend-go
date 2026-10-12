@@ -79,6 +79,25 @@ func TestUpdateInboxAgentEmptyActionsDisablesAll(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestUpdateInboxAgentValueAfterClearWins(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/inboxes/"+testInboxId+"/agent", func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, map[string]any{"tone": "formal"}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"object": "inbox_agent", "id": "a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90"}`)
+	})
+
+	params := &UpdateInboxAgentRequest{}
+	params.ClearTone()
+	tone := "formal"
+	params.Tone = &tone
+
+	_, err := client.Inboxes.Agent.Update(testInboxId, params)
+	assert.NoError(t, err)
+}
+
 func TestUpdateInboxAgentValidation(t *testing.T) {
 	setup()
 	defer teardown()

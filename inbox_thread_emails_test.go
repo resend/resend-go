@@ -124,6 +124,9 @@ func TestReplyInboxThreadEmailValidation(t *testing.T) {
 	_, err := client.Inboxes.Threads.Emails.Reply(testInboxId, testThreadId, testThreadEmailId, &ReplyInboxThreadEmailRequest{})
 	assert.EqualError(t, err, "[ERROR]: At least one of Html or Text is required")
 
+	_, err = client.Inboxes.Threads.Emails.Reply(testInboxId, testThreadId, testThreadEmailId, &ReplyInboxThreadEmailRequest{Html: " ", Text: "\n"})
+	assert.EqualError(t, err, "[ERROR]: At least one of Html or Text is required")
+
 	_, err = client.Inboxes.Threads.Emails.ReplyWithContext(context.Background(), testInboxId, testThreadId, testThreadEmailId, nil)
 	assert.EqualError(t, err, "[ERROR]: At least one of Html or Text is required")
 

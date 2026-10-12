@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 )
 
 // InboxDraftType tells whether a draft replies in an existing thread or starts a new one.
@@ -83,6 +84,11 @@ type CreateInboxDraftRequest struct {
 	// ReplyToEmailId is the email ID to reply to, as returned in Data[].Id by
 	// Threads.Emails.List. It must be sent with ThreadId.
 	ReplyToEmailId string
+}
+
+func (r CreateInboxDraftRequest) hasContent() bool {
+	return len(r.To) > 0 || len(r.Cc) > 0 || len(r.Bcc) > 0 ||
+		strings.TrimSpace(r.Subject) != "" || strings.TrimSpace(r.Text) != "" || strings.TrimSpace(r.Html) != ""
 }
 
 func (r CreateInboxDraftRequest) MarshalJSON() ([]byte, error) {
@@ -274,6 +280,9 @@ func (s *InboxDraftsSvcImpl) CreateWithContext(ctx context.Context, inboxId stri
 	}
 	if (params.ThreadId == "") != (params.ReplyToEmailId == "") {
 		return CreateInboxDraftResponse{}, errors.New("[ERROR]: ThreadId and ReplyToEmailId must be provided together")
+	}
+	if !params.hasContent() {
+		return CreateInboxDraftResponse{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html must be non-empty")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, inboxPath(inboxId, "drafts"), params)

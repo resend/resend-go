@@ -152,9 +152,9 @@ func (s *InboxAgentSvcImpl) UpdateWithContext(ctx context.Context, inboxId strin
 }
 
 func setNullableString(aux map[string]any, key string, value *string, cleared bool) {
-	if cleared {
-		aux[key] = nil
-	} else if value != nil {
+	if value != nil {
 		aux[key] = *value
+	} else if cleared {
+		aux[key] = nil
 	}
 }

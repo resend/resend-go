@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 )
 
 // InboxThreadEmailDirection tells whether the inbox received or sent a thread email.
@@ -219,7 +220,7 @@ func (s *InboxThreadEmailsSvcImpl) ReplyWithContext(ctx context.Context, inboxId
 	if err := validateInboxThreadEmailIds(inboxId, threadId, emailId); err != nil {
 		return ReplyInboxThreadEmailResponse{}, err
 	}
-	if params == nil || (params.Html == "" && params.Text == "") {
+	if params == nil || (strings.TrimSpace(params.Html) == "" && strings.TrimSpace(params.Text) == "") {
 		return ReplyInboxThreadEmailResponse{}, errors.New("[ERROR]: At least one of Html or Text is required")
 	}
 

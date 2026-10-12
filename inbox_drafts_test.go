@@ -115,6 +115,9 @@ func TestCreateInboxDraftValidation(t *testing.T) {
 	_, err := client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{Text: "Hi", ThreadId: testThreadId})
 	assert.EqualError(t, err, "[ERROR]: ThreadId and ReplyToEmailId must be provided together")
 
+	_, err = client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{To: []string{}, Subject: " ", ThreadId: testThreadId, ReplyToEmailId: testThreadEmailId})
+	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html must be non-empty")
+
 	_, err = client.Inboxes.Drafts.Create(testInboxId, nil)
 	assert.EqualError(t, err, "[ERROR]: Draft params are required")
 

@@ -86,6 +86,9 @@ func TestUpdateInboxLabel(t *testing.T) {
 
 	_, err = client.Inboxes.Labels.UpdateWithContext(context.Background(), testInboxId, "", nil)
 	assert.EqualError(t, err, "[ERROR]: Label ID is required")
+
+	_, err = client.Inboxes.Labels.Update(testInboxId, testLabelId, nil)
+	assert.EqualError(t, err, "[ERROR]: At least one of Name or Color is required")
 }
 
 func TestRemoveInboxLabel(t *testing.T) {
