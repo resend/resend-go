@@ -36,8 +36,8 @@ type CreateInboxLabelResponse struct {
 	Id     string `json:"id"`
 }
 
-// UpdateInboxLabelRequest contains params for renaming or recoloring a label. Provide at least one
-// of Name or Color. Omitted fields keep their current value.
+// UpdateInboxLabelRequest contains params for renaming or recoloring a label. Omitted fields keep
+// their current value.
 type UpdateInboxLabelRequest struct {
 	// Name is a new name for the label. Max 64 characters. The API trims it. It must not match
 	// another label on the inbox, compared without case.
@@ -146,8 +146,8 @@ func (s *InboxLabelsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, lab
 	if labelId == "" {
 		return UpdateInboxLabelResponse{}, errors.New("[ERROR]: Label ID is required")
 	}
-	if params == nil || (params.Name == "" && params.Color == "") {
-		return UpdateInboxLabelResponse{}, errors.New("[ERROR]: At least one of Name or Color is required")
+	if params == nil {
+		params = &UpdateInboxLabelRequest{}
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "labels", labelId), params)

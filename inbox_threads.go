@@ -152,9 +152,9 @@ type SearchInboxThreadsResponse struct {
 type UpdateInboxThreadRequest struct {
 	// Read marks every email in the thread read or unread.
 	Read *bool `json:"read,omitempty"`
-	// Folder moves the thread to this folder. InboxFolderSent is assigned automatically and cannot
-	// be set. Moving a thread out of trash restores it and clears its deletion deadline.
-	Folder InboxFolder `json:"folder,omitempty"`
+	// Folder moves the thread to this folder. `sent` is assigned automatically and cannot be set.
+	// Moving a thread out of trash restores it and clears its deletion deadline.
+	Folder InboxMoveThreadFolder `json:"folder,omitempty"`
 	// Deprecated: Use AddLabelIds instead. LabelId applies this label to the thread, the same as
 	// one entry in AddLabelIds.
 	LabelId string `json:"label_id,omitempty"`

@@ -210,7 +210,7 @@ func TestUpdateInboxThread(t *testing.T) {
 	read := false
 	resp, err := client.Inboxes.Threads.Update(testInboxId, testThreadId, &UpdateInboxThreadRequest{
 		Read:           &read,
-		Folder:         InboxFolderArchive,
+		Folder:         InboxMoveThreadFolderArchive,
 		AddLabelIds:    []string{testLabelId},
 		RemoveLabelIds: []string{"2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21"},
 	})

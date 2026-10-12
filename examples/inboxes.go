@@ -94,7 +94,7 @@ func inboxesExample() {
 
 		// Label the thread and archive it.
 		_, err = client.Inboxes.Threads.UpdateWithContext(ctx, inboxId, threadId, &resend.UpdateInboxThreadRequest{
-			Folder:      resend.InboxFolderArchive,
+			Folder:      resend.InboxMoveThreadFolderArchive,
 			AddLabelIds: []string{label.Id},
 		})
 		if err != nil {

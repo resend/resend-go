@@ -14,9 +14,20 @@ const (
 	InboxFolderInbox   InboxFolder = "inbox"
 	InboxFolderArchive InboxFolder = "archive"
 	InboxFolderSpam    InboxFolder = "spam"
-	// InboxFolderSent is assigned automatically and cannot be set on a thread update.
+	// InboxFolderSent is assigned automatically. A thread update cannot set it.
 	InboxFolderSent  InboxFolder = "sent"
 	InboxFolderTrash InboxFolder = "trash"
+)
+
+// InboxMoveThreadFolder is a folder a thread update can move a thread to. It has no `sent`,
+// because `sent` is assigned automatically.
+type InboxMoveThreadFolder = string
+
+const (
+	InboxMoveThreadFolderInbox   InboxMoveThreadFolder = "inbox"
+	InboxMoveThreadFolderArchive InboxMoveThreadFolder = "archive"
+	InboxMoveThreadFolderSpam    InboxMoveThreadFolder = "spam"
+	InboxMoveThreadFolderTrash   InboxMoveThreadFolder = "trash"
 )
 
 // Inbox is a single inbox as returned by Get.

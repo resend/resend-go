@@ -86,9 +86,21 @@ func TestUpdateInboxLabel(t *testing.T) {
 
 	_, err = client.Inboxes.Labels.UpdateWithContext(context.Background(), testInboxId, "", nil)
 	assert.EqualError(t, err, "[ERROR]: Label ID is required")
+}
 
-	_, err = client.Inboxes.Labels.Update(testInboxId, testLabelId, nil)
-	assert.EqualError(t, err, "[ERROR]: At least one of Name or Color is required")
+func TestUpdateInboxLabelEmptyBody(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/inboxes/"+testInboxId+"/labels/"+testLabelId, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		assert.Equal(t, map[string]any{}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"object": "inbox_label", "id": "%s"}`, testLabelId)
+	})
+
+	_, err := client.Inboxes.Labels.Update(testInboxId, testLabelId, nil)
+	assert.NoError(t, err)
 }
 
 func TestRemoveInboxLabel(t *testing.T) {
