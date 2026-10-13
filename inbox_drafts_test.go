@@ -262,11 +262,11 @@ func TestSendInboxDraft(t *testing.T) {
 		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
 	})
 
-	resp, err := client.Inboxes.Drafts.Send(testInboxId, testDraftId)
+	resp, err := client.Inboxes.Drafts.Send(testInboxId, testDraftId, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, testSentEmailId, resp.Id)
 
-	_, err = client.Inboxes.Drafts.SendWithContext(context.Background(), testInboxId, "")
+	_, err = client.Inboxes.Drafts.SendWithContext(context.Background(), testInboxId, "", nil)
 	assert.EqualError(t, err, "[ERROR]: Draft ID is required")
 }
 
@@ -356,7 +356,7 @@ func TestSendInboxDraftWithIdempotencyKey(t *testing.T) {
 		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
 	})
 
-	resp, err := client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, &SendInboxDraftOptions{IdempotencyKey: "send-key-1"})
+	resp, err := client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, nil, &SendInboxDraftOptions{IdempotencyKey: "send-key-1"})
 	assert.NoError(t, err)
 	assert.Equal(t, testSentEmailId, resp.Id)
 }
@@ -376,8 +376,40 @@ func TestInboxDraftsWithoutIdempotencyKey(t *testing.T) {
 
 	_, err := client.Inboxes.Drafts.CreateWithOptions(context.Background(), testInboxId, &CreateInboxDraftRequest{Text: "Hello."}, nil)
 	assert.NoError(t, err)
-	_, err = client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, &SendInboxDraftOptions{})
+	_, err = client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, nil, &SendInboxDraftOptions{})
 	assert.NoError(t, err)
-	_, err = client.Inboxes.Drafts.Send(testInboxId, testDraftId)
+	_, err = client.Inboxes.Drafts.Send(testInboxId, testDraftId, nil)
+	assert.NoError(t, err)
+}
+
+func TestSendInboxDraftWithHeaders(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(testDraftId, "send"), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, map[string]any{"headers": map[string]any{"X-Ticket-Id": "4821"}}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+
+	resp, err := client.Inboxes.Drafts.Send(testInboxId, testDraftId, &SendInboxDraftRequest{
+		Headers: map[string]string{"X-Ticket-Id": "4821"},
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, testSentEmailId, resp.Id)
+}
+
+func TestSendInboxDraftEmptyHeadersSendsNoBody(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(testDraftId, "send"), func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, int64(0), r.ContentLength)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+
+	_, err := client.Inboxes.Drafts.SendWithContext(context.Background(), testInboxId, testDraftId, &SendInboxDraftRequest{})
 	assert.NoError(t, err)
 }

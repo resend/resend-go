@@ -141,7 +141,9 @@ func inboxesExample() {
 		}
 		// Send with options: IdempotencyKey. A retry with the same key within 24 hours returns the
 		// first response.
-		sent, err := client.Inboxes.Drafts.SendWithOptions(ctx, inboxId, draft.Id, &resend.SendInboxDraftOptions{
+		sent, err := client.Inboxes.Drafts.SendWithOptions(ctx, inboxId, draft.Id, &resend.SendInboxDraftRequest{
+			Headers: map[string]string{"X-Ticket-Id": "4821"},
+		}, &resend.SendInboxDraftOptions{
 			IdempotencyKey: "send-draft-" + draft.Id,
 		})
 		if err != nil {

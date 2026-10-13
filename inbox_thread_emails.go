@@ -82,6 +82,10 @@ type ReplyInboxThreadEmailRequest struct {
 	// files. The Content of all files can total at most 25 MB. A Path file counts toward the 10
 	// files only, because it is fetched when the email is sent.
 	Attachments []*Attachment `json:"attachments,omitempty"`
+	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
+	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
+	// returns a 422.
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // ReplyInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Reply call.
@@ -125,6 +129,10 @@ type ForwardInboxThreadEmailRequest struct {
 	// Together they can have up to 10 files and at most 25 MB of Content. A Path file counts
 	// toward the 10 files only, because it is fetched when the email is sent.
 	Attachments []*Attachment `json:"attachments,omitempty"`
+	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
+	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
+	// returns a 422.
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // ForwardInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Forward call.

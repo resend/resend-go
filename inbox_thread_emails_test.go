@@ -97,6 +97,7 @@ func TestReplyInboxThreadEmail(t *testing.T) {
 			"text":      "Refund issued for order 1041.",
 			"subject":   "Re: Refund for order 1041",
 			"reply_all": true,
+			"headers":   map[string]any{"X-Ticket-Id": "4821"},
 			"attachments": []any{map[string]any{
 				"content":  []any{float64(104), float64(101), float64(108), float64(108), float64(111)},
 				"filename": "note.txt",
@@ -112,6 +113,7 @@ func TestReplyInboxThreadEmail(t *testing.T) {
 		Subject:     "Re: Refund for order 1041",
 		ReplyAll:    true,
 		Attachments: []*Attachment{{Content: []byte("hello"), Filename: "note.txt"}},
+		Headers:     map[string]string{"X-Ticket-Id": "4821"},
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, testSentEmailId, resp.Id)
@@ -141,8 +143,9 @@ func TestForwardInboxThreadEmail(t *testing.T) {
 	mux.HandleFunc(threadEmailsPath(testThreadEmailId, "forward"), func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
 		assert.Equal(t, map[string]any{
-			"to":   []any{"colleague@example.org"},
-			"html": "<p>Flagging this refund request for you.</p>",
+			"to":      []any{"colleague@example.org"},
+			"html":    "<p>Flagging this refund request for you.</p>",
+			"headers": map[string]any{"X-Priority": "1"},
 			"attachments": []any{map[string]any{
 				"path":     "https://example.org/invoice.pdf",
 				"filename": "invoice.pdf",
@@ -156,6 +159,7 @@ func TestForwardInboxThreadEmail(t *testing.T) {
 		To:          []string{"colleague@example.org"},
 		Html:        "<p>Flagging this refund request for you.</p>",
 		Attachments: []*Attachment{{Path: "https://example.org/invoice.pdf", Filename: "invoice.pdf"}},
+		Headers:     map[string]string{"X-Priority": "1"},
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, testSentEmailId, resp.Id)

@@ -244,6 +244,15 @@ type RemoveInboxDraftResponse struct {
 	Deleted bool   `json:"deleted"`
 }
 
+// SendInboxDraftRequest contains the optional params for sending a draft. Its only field is
+// Headers.
+type SendInboxDraftRequest struct {
+	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
+	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
+	// returns a 422.
+	Headers map[string]string `json:"headers,omitempty"`
+}
+
 // SendInboxDraftOptions is the additional options struct for the Inboxes.Drafts.Send call.
 type SendInboxDraftOptions struct {
 	// IdempotencyKey is a unique key for the request, so the draft is sent only once. 1 to 256
@@ -276,9 +285,9 @@ type InboxDraftsSvc interface {
 	UpdateWithContext(ctx context.Context, inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error)
 	Remove(inboxId, draftId string) (RemoveInboxDraftResponse, error)
 	RemoveWithContext(ctx context.Context, inboxId, draftId string) (RemoveInboxDraftResponse, error)
-	Send(inboxId, draftId string) (SendInboxDraftResponse, error)
-	SendWithContext(ctx context.Context, inboxId, draftId string) (SendInboxDraftResponse, error)
-	SendWithOptions(ctx context.Context, inboxId, draftId string, options *SendInboxDraftOptions) (SendInboxDraftResponse, error)
+	Send(inboxId, draftId string, params *SendInboxDraftRequest) (SendInboxDraftResponse, error)
+	SendWithContext(ctx context.Context, inboxId, draftId string, params *SendInboxDraftRequest) (SendInboxDraftResponse, error)
+	SendWithOptions(ctx context.Context, inboxId, draftId string, params *SendInboxDraftRequest, options *SendInboxDraftOptions) (SendInboxDraftResponse, error)
 }
 
 type InboxDraftsSvcImpl struct {
@@ -464,21 +473,21 @@ func (s *InboxDraftsSvcImpl) RemoveWithContext(ctx context.Context, inboxId, dra
 // Send sends the draft from the inbox address. A reply draft is sent in its thread. A draft without
 // a thread starts a new thread. The draft must have at least one `to` recipient, a non-empty
 // subject, and html or text, or the request returns a 422. A draft that was already sent returns a
-// 409.
+// 409. The params are optional and take only Headers. Nil params send no request body.
 // https://resend.com/docs/api-reference/inboxes/send-draft
-func (s *InboxDraftsSvcImpl) Send(inboxId, draftId string) (SendInboxDraftResponse, error) {
-	return s.SendWithContext(context.Background(), inboxId, draftId)
+func (s *InboxDraftsSvcImpl) Send(inboxId, draftId string, params *SendInboxDraftRequest) (SendInboxDraftResponse, error) {
+	return s.SendWithContext(context.Background(), inboxId, draftId, params)
 }
 
 // SendWithContext sends the draft with context.
 // https://resend.com/docs/api-reference/inboxes/send-draft
-func (s *InboxDraftsSvcImpl) SendWithContext(ctx context.Context, inboxId, draftId string) (SendInboxDraftResponse, error) {
-	return s.SendWithOptions(ctx, inboxId, draftId, nil)
+func (s *InboxDraftsSvcImpl) SendWithContext(ctx context.Context, inboxId, draftId string, params *SendInboxDraftRequest) (SendInboxDraftResponse, error) {
+	return s.SendWithOptions(ctx, inboxId, draftId, params, nil)
 }
 
 // SendWithOptions sends the draft with context and additional options, such as an idempotency key.
 // https://resend.com/docs/api-reference/inboxes/send-draft
-func (s *InboxDraftsSvcImpl) SendWithOptions(ctx context.Context, inboxId, draftId string, options *SendInboxDraftOptions) (SendInboxDraftResponse, error) {
+func (s *InboxDraftsSvcImpl) SendWithOptions(ctx context.Context, inboxId, draftId string, params *SendInboxDraftRequest, options *SendInboxDraftOptions) (SendInboxDraftResponse, error) {
 	if err := validateInboxDraftIds(inboxId, draftId); err != nil {
 		return SendInboxDraftResponse{}, err
 	}
@@ -488,7 +497,12 @@ func (s *InboxDraftsSvcImpl) SendWithOptions(ctx context.Context, inboxId, draft
 		opts = options
 	}
 
-	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, inboxPath(inboxId, "drafts", draftId, "send"), nil, opts)
+	var body any
+	if params != nil && len(params.Headers) > 0 {
+		body = params
+	}
+
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, inboxPath(inboxId, "drafts", draftId, "send"), body, opts)
 	if err != nil {
 		return SendInboxDraftResponse{}, ErrFailedToCreateInboxesDraftsSendRequest
 	}
