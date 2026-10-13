@@ -157,6 +157,12 @@ func inboxesExample() {
 		To:      []string{"ada@example.org"},
 		Subject: "Welcome",
 		Text:    "Hello Ada.",
+		// Draft attachments need Content, Filename and ContentType.
+		Attachments: []*resend.Attachment{{
+			Content:     []byte("Welcome guide"),
+			Filename:    "guide.txt",
+			ContentType: "text/plain",
+		}},
 	})
 	if err != nil {
 		panic(err)

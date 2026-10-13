@@ -40,7 +40,8 @@ func TestListInboxDrafts(t *testing.T) {
 				"snippet": "Refund issued for order 1041.",
 				"thread_id": "%s",
 				"reply_to_email_id": "%s",
-				"updated_at": "2026-08-05T14:12:04.110Z"
+				"updated_at": "2026-08-05T14:12:04.110Z",
+				"attachments": []
 			}]
 		}`, testDraftId, testThreadId, testThreadEmailId)
 	})
@@ -53,6 +54,7 @@ func TestListInboxDrafts(t *testing.T) {
 	assert.Nil(t, draft.To)
 	assert.Equal(t, "Refund issued for order 1041.", *draft.Snippet)
 	assert.Equal(t, testThreadId, *draft.ThreadId)
+	assert.Empty(t, draft.Attachments)
 
 	_, err = client.Inboxes.Drafts.ListWithContext(context.Background(), "", nil)
 	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")
@@ -116,7 +118,7 @@ func TestCreateInboxDraftValidation(t *testing.T) {
 	assert.EqualError(t, err, "[ERROR]: ThreadId and ReplyToEmailId must be provided together")
 
 	_, err = client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{To: []string{}, Subject: " ", ThreadId: testThreadId, ReplyToEmailId: testThreadEmailId})
-	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html must be non-empty")
+	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments must be non-empty")
 
 	_, err = client.Inboxes.Drafts.Create(testInboxId, nil)
 	assert.EqualError(t, err, "[ERROR]: Draft params are required")
@@ -146,7 +148,8 @@ func TestGetInboxDraft(t *testing.T) {
 			"reply_to_email_id": null,
 			"email_id": null,
 			"created_at": "2026-08-05T14:12:04.110Z",
-			"updated_at": "2026-08-05T14:12:04.110Z"
+			"updated_at": "2026-08-05T14:12:04.110Z",
+			"attachments": [{"id": "5c1e9d2a-7b3f-4e8a-9c6d-2f0a1b3c4d5e", "filename": "receipt.pdf", "content_type": "application/pdf", "size": 20841}]
 		}`, testDraftId)
 	})
 
@@ -158,6 +161,12 @@ func TestGetInboxDraft(t *testing.T) {
 	assert.Equal(t, "Refund issued for order 1041.", *resp.Text)
 	assert.Nil(t, resp.ThreadId)
 	assert.Nil(t, resp.EmailId)
+	assert.Equal(t, []InboxDraftAttachment{{
+		Id:          "5c1e9d2a-7b3f-4e8a-9c6d-2f0a1b3c4d5e",
+		Filename:    "receipt.pdf",
+		ContentType: "application/pdf",
+		Size:        20841,
+	}}, resp.Attachments)
 
 	_, err = client.Inboxes.Drafts.GetWithContext(context.Background(), testInboxId, "")
 	assert.EqualError(t, err, "[ERROR]: Draft ID is required")
@@ -218,10 +227,10 @@ func TestUpdateInboxDraftValidation(t *testing.T) {
 	defer teardown()
 
 	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{})
-	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments is required")
 
 	_, err = client.Inboxes.Drafts.Update(testInboxId, testDraftId, nil)
-	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments is required")
 }
 
 func TestRemoveInboxDraft(t *testing.T) {
@@ -259,4 +268,61 @@ func TestSendInboxDraft(t *testing.T) {
 
 	_, err = client.Inboxes.Drafts.SendWithContext(context.Background(), testInboxId, "")
 	assert.EqualError(t, err, "[ERROR]: Draft ID is required")
+}
+
+func TestCreateInboxDraftWithOnlyAttachments(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, map[string]any{
+			"attachments": []any{map[string]any{
+				"content":      []any{float64(104), float64(105)},
+				"filename":     "note.txt",
+				"content_type": "text/plain",
+			}},
+		}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
+	})
+
+	_, err := client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{
+		Attachments: []*Attachment{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
+	})
+	assert.NoError(t, err)
+}
+
+func TestUpdateInboxDraftAttachments(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var bodies []map[string]any
+	mux.HandleFunc(draftsPath(testDraftId), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		bodies = append(bodies, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s", "attachments": []}`, testDraftId)
+	})
+
+	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
+		Attachments: []*Attachment{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
+	})
+	assert.NoError(t, err)
+
+	resp, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
+		Attachments: []*Attachment{},
+	})
+	assert.NoError(t, err)
+	assert.Empty(t, resp.Attachments)
+
+	assert.Equal(t, []map[string]any{
+		{"attachments": []any{map[string]any{
+			"content":      []any{float64(104), float64(105)},
+			"filename":     "note.txt",
+			"content_type": "text/plain",
+		}}},
+		{"attachments": []any{}},
+	}, bodies)
 }

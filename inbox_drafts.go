@@ -16,6 +16,15 @@ const (
 	InboxDraftTypeReply      InboxDraftType = "reply"
 )
 
+// InboxDraftAttachment is a file stored on a draft.
+type InboxDraftAttachment struct {
+	Id          string `json:"id"`
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+	// Size is the size of the attachment in bytes.
+	Size int `json:"size"`
+}
+
 // InboxDraft is an inbox draft as returned by Get and Update.
 type InboxDraft struct {
 	Object string `json:"object"`
@@ -39,6 +48,8 @@ type InboxDraft struct {
 	EmailId   *string `json:"email_id"`
 	CreatedAt string  `json:"created_at"`
 	UpdatedAt string  `json:"updated_at"`
+	// Attachments holds the files stored on the draft.
+	Attachments []InboxDraftAttachment `json:"attachments"`
 }
 
 // InboxDraftListItem is an inbox draft as returned by List.
@@ -54,6 +65,8 @@ type InboxDraftListItem struct {
 	ThreadId       *string `json:"thread_id"`
 	ReplyToEmailId *string `json:"reply_to_email_id"`
 	UpdatedAt      string  `json:"updated_at"`
+	// Attachments holds the files stored on the draft.
+	Attachments []InboxDraftAttachment `json:"attachments"`
 }
 
 type ListInboxDraftsResponse struct {
@@ -64,7 +77,7 @@ type ListInboxDraftsResponse struct {
 }
 
 // CreateInboxDraftRequest contains params for creating a draft. At least one of To, Cc, Bcc,
-// Subject, Text or Html must be non-empty. The combined recipients of To, Cc and Bcc cannot exceed
+// Subject, Text, Html or Attachments must be non-empty. The combined recipients of To, Cc and Bcc cannot exceed
 // 50. ThreadId and ReplyToEmailId must be sent together or not at all.
 type CreateInboxDraftRequest struct {
 	// To holds the recipients. Each value can include a friendly name, for example
@@ -79,6 +92,10 @@ type CreateInboxDraftRequest struct {
 	Subject string
 	Html    string
 	Text    string
+	// Attachments are files to store on the draft. Each one needs Content, Filename and
+	// ContentType. A Path or ContentId returns a 422. A draft can carry up to 10 files and 25 MB in
+	// total.
+	Attachments []*Attachment
 	// ThreadId is the thread ID to reply in. It must be sent with ReplyToEmailId.
 	ThreadId string
 	// ReplyToEmailId is the email ID to reply to, as returned in Data[].Id by
@@ -88,7 +105,8 @@ type CreateInboxDraftRequest struct {
 
 func (r CreateInboxDraftRequest) hasContent() bool {
 	return len(r.To) > 0 || len(r.Cc) > 0 || len(r.Bcc) > 0 ||
-		strings.TrimSpace(r.Subject) != "" || strings.TrimSpace(r.Text) != "" || strings.TrimSpace(r.Html) != ""
+		strings.TrimSpace(r.Subject) != "" || strings.TrimSpace(r.Text) != "" || strings.TrimSpace(r.Html) != "" ||
+		len(r.Attachments) > 0
 }
 
 func (r CreateInboxDraftRequest) MarshalJSON() ([]byte, error) {
@@ -111,6 +129,9 @@ func (r CreateInboxDraftRequest) MarshalJSON() ([]byte, error) {
 	if r.Text != "" {
 		aux["text"] = r.Text
 	}
+	if len(r.Attachments) > 0 {
+		aux["attachments"] = r.Attachments
+	}
 	if r.ThreadId != "" {
 		aux["thread_id"] = r.ThreadId
 	}
@@ -125,7 +146,8 @@ type CreateInboxDraftResponse struct {
 	Id     string `json:"id"`
 }
 
-// UpdateInboxDraftRequest contains params for updating a draft. Send at least one field. Omitted
+// UpdateInboxDraftRequest contains params for updating a draft. Send at least one of To, Cc, Bcc,
+// Subject, Text, Html or Attachments. Omitted
 // fields are left unchanged. Setting Text or Html replaces the whole body, so the body part you
 // omit becomes null. The merged draft must contain at least one non-empty field, and its combined
 // recipients cannot exceed 50.
@@ -144,6 +166,11 @@ type UpdateInboxDraftRequest struct {
 	Html *string
 	// Text is the plain text body. Use ClearText to clear it.
 	Text *string
+	// Attachments replaces every attachment on the draft. Each one needs Content, Filename and
+	// ContentType. A Path or ContentId returns a 422. A draft can carry up to 10 files and 25 MB in
+	// total. A nil slice is omitted and keeps the attachments. An empty, non-nil slice removes them
+	// all.
+	Attachments []*Attachment
 
 	subjectCleared bool
 	htmlCleared    bool
@@ -172,7 +199,8 @@ func (r UpdateInboxDraftRequest) isEmpty() bool {
 	return r.To == nil && r.Cc == nil && r.Bcc == nil &&
 		r.Subject == nil && !r.subjectCleared &&
 		r.Html == nil && !r.htmlCleared &&
-		r.Text == nil && !r.textCleared
+		r.Text == nil && !r.textCleared &&
+		r.Attachments == nil
 }
 
 func (r UpdateInboxDraftRequest) MarshalJSON() ([]byte, error) {
@@ -189,6 +217,9 @@ func (r UpdateInboxDraftRequest) MarshalJSON() ([]byte, error) {
 	setNullableString(aux, "subject", r.Subject, r.subjectCleared)
 	setNullableString(aux, "html", r.Html, r.htmlCleared)
 	setNullableString(aux, "text", r.Text, r.textCleared)
+	if r.Attachments != nil {
+		aux["attachments"] = r.Attachments
+	}
 	return json.Marshal(aux)
 }
 
@@ -282,7 +313,7 @@ func (s *InboxDraftsSvcImpl) CreateWithContext(ctx context.Context, inboxId stri
 		return CreateInboxDraftResponse{}, errors.New("[ERROR]: ThreadId and ReplyToEmailId must be provided together")
 	}
 	if !params.hasContent() {
-		return CreateInboxDraftResponse{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html must be non-empty")
+		return CreateInboxDraftResponse{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments must be non-empty")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, inboxPath(inboxId, "drafts"), params)
@@ -324,8 +355,9 @@ func (s *InboxDraftsSvcImpl) GetWithContext(ctx context.Context, inboxId, draftI
 	return *resp, nil
 }
 
-// Update updates the content of an unsent draft. Omitted fields are left unchanged. A request that
-// sets Text or Html replaces the whole body. The body part you omit from that request becomes
+// Update updates the content of an unsent draft. Omitted fields are left unchanged. Sending
+// Attachments replaces every attachment on the draft. A request that sets Text or Html replaces the
+// whole body. The body part you omit from that request becomes
 // null. A draft that was already sent, or that changed during the request, returns a 409.
 // https://resend.com/docs/api-reference/inboxes/update-draft
 func (s *InboxDraftsSvcImpl) Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error) {
@@ -339,7 +371,7 @@ func (s *InboxDraftsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, dra
 		return InboxDraft{}, err
 	}
 	if params == nil || params.isEmpty() {
-		return InboxDraft{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text or Html is required")
+		return InboxDraft{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments is required")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "drafts", draftId), params)
