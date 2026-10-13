@@ -84,6 +84,21 @@ type ReplyInboxThreadEmailRequest struct {
 	Attachments []*Attachment `json:"attachments,omitempty"`
 }
 
+// ReplyInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Reply call.
+type ReplyInboxThreadEmailOptions struct {
+	// IdempotencyKey is a unique key for the request, so the reply is sent only once. 1 to 256
+	// characters. A retry with the same key within 24 hours returns the first response, with the
+	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// request is still running, returns a 409.
+	// https://resend.com/docs/dashboard/emails/idempotency-keys
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// GetIdempotencyKey returns the idempotency key for the Inboxes.Threads.Emails.Reply request.
+func (o ReplyInboxThreadEmailOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 type ReplyInboxThreadEmailResponse struct {
 	// Id is the ID of the sent email. Use it with the emails methods.
 	Id string `json:"id"`
@@ -112,6 +127,21 @@ type ForwardInboxThreadEmailRequest struct {
 	Attachments []*Attachment `json:"attachments,omitempty"`
 }
 
+// ForwardInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Forward call.
+type ForwardInboxThreadEmailOptions struct {
+	// IdempotencyKey is a unique key for the request, so the forward is sent only once. 1 to 256
+	// characters. A retry with the same key within 24 hours returns the first response, with the
+	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// request is still running, returns a 409.
+	// https://resend.com/docs/dashboard/emails/idempotency-keys
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// GetIdempotencyKey returns the idempotency key for the Inboxes.Threads.Emails.Forward request.
+func (o ForwardInboxThreadEmailOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 type ForwardInboxThreadEmailResponse struct {
 	// Id is the ID of the sent email. Use it with the emails methods.
 	Id string `json:"id"`
@@ -124,8 +154,10 @@ type InboxThreadEmailsSvc interface {
 	GetWithContext(ctx context.Context, inboxId, threadId, emailId string) (InboxThreadEmail, error)
 	Reply(inboxId, threadId, emailId string, params *ReplyInboxThreadEmailRequest) (ReplyInboxThreadEmailResponse, error)
 	ReplyWithContext(ctx context.Context, inboxId, threadId, emailId string, params *ReplyInboxThreadEmailRequest) (ReplyInboxThreadEmailResponse, error)
+	ReplyWithOptions(ctx context.Context, inboxId, threadId, emailId string, params *ReplyInboxThreadEmailRequest, options *ReplyInboxThreadEmailOptions) (ReplyInboxThreadEmailResponse, error)
 	Forward(inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest) (ForwardInboxThreadEmailResponse, error)
 	ForwardWithContext(ctx context.Context, inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest) (ForwardInboxThreadEmailResponse, error)
+	ForwardWithOptions(ctx context.Context, inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest, options *ForwardInboxThreadEmailOptions) (ForwardInboxThreadEmailResponse, error)
 }
 
 type InboxThreadEmailsSvcImpl struct {
@@ -220,6 +252,13 @@ func (s *InboxThreadEmailsSvcImpl) Reply(inboxId, threadId, emailId string, para
 // ReplyWithContext sends a reply to a thread email with context.
 // https://resend.com/docs/api-reference/inboxes/reply-thread-email
 func (s *InboxThreadEmailsSvcImpl) ReplyWithContext(ctx context.Context, inboxId, threadId, emailId string, params *ReplyInboxThreadEmailRequest) (ReplyInboxThreadEmailResponse, error) {
+	return s.ReplyWithOptions(ctx, inboxId, threadId, emailId, params, nil)
+}
+
+// ReplyWithOptions sends a reply to a thread email with context and additional options, such as
+// an idempotency key.
+// https://resend.com/docs/api-reference/inboxes/reply-thread-email
+func (s *InboxThreadEmailsSvcImpl) ReplyWithOptions(ctx context.Context, inboxId, threadId, emailId string, params *ReplyInboxThreadEmailRequest, options *ReplyInboxThreadEmailOptions) (ReplyInboxThreadEmailResponse, error) {
 	if err := validateInboxThreadEmailIds(inboxId, threadId, emailId); err != nil {
 		return ReplyInboxThreadEmailResponse{}, err
 	}
@@ -229,7 +268,12 @@ func (s *InboxThreadEmailsSvcImpl) ReplyWithContext(ctx context.Context, inboxId
 
 	path := inboxPath(inboxId, "threads", threadId, "emails", emailId, "reply")
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
+	var opts Options
+	if options != nil {
+		opts = options
+	}
+
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, path, params, opts)
 	if err != nil {
 		return ReplyInboxThreadEmailResponse{}, ErrFailedToCreateInboxesThreadEmailsReplyRequest
 	}
@@ -255,6 +299,13 @@ func (s *InboxThreadEmailsSvcImpl) Forward(inboxId, threadId, emailId string, pa
 // ForwardWithContext forwards a thread email with context.
 // https://resend.com/docs/api-reference/inboxes/forward-thread-email
 func (s *InboxThreadEmailsSvcImpl) ForwardWithContext(ctx context.Context, inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest) (ForwardInboxThreadEmailResponse, error) {
+	return s.ForwardWithOptions(ctx, inboxId, threadId, emailId, params, nil)
+}
+
+// ForwardWithOptions forwards a thread email with context and additional options, such as an
+// idempotency key.
+// https://resend.com/docs/api-reference/inboxes/forward-thread-email
+func (s *InboxThreadEmailsSvcImpl) ForwardWithOptions(ctx context.Context, inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest, options *ForwardInboxThreadEmailOptions) (ForwardInboxThreadEmailResponse, error) {
 	if err := validateInboxThreadEmailIds(inboxId, threadId, emailId); err != nil {
 		return ForwardInboxThreadEmailResponse{}, err
 	}
@@ -264,7 +315,12 @@ func (s *InboxThreadEmailsSvcImpl) ForwardWithContext(ctx context.Context, inbox
 
 	path := inboxPath(inboxId, "threads", threadId, "emails", emailId, "forward")
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
+	var opts Options
+	if options != nil {
+		opts = options
+	}
+
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, path, params, opts)
 	if err != nil {
 		return ForwardInboxThreadEmailResponse{}, ErrFailedToCreateInboxesThreadEmailsForwardRequest
 	}

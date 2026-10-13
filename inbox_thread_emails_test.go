@@ -171,3 +171,48 @@ func TestForwardInboxThreadEmailValidation(t *testing.T) {
 	_, err = client.Inboxes.Threads.Emails.ForwardWithContext(context.Background(), testInboxId, "", testThreadEmailId, nil)
 	assert.EqualError(t, err, "[ERROR]: Thread ID is required")
 }
+
+func TestReplyAndForwardWithIdempotencyKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(threadEmailsPath(testThreadEmailId, "reply"), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, "reply-key-1", r.Header.Get("Idempotency-Key"))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+	mux.HandleFunc(threadEmailsPath(testThreadEmailId, "forward"), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, "forward-key-1", r.Header.Get("Idempotency-Key"))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+
+	ctx := context.Background()
+	reply, err := client.Inboxes.Threads.Emails.ReplyWithOptions(ctx, testInboxId, testThreadId, testThreadEmailId,
+		&ReplyInboxThreadEmailRequest{Text: "Thanks."}, &ReplyInboxThreadEmailOptions{IdempotencyKey: "reply-key-1"})
+	assert.NoError(t, err)
+	assert.Equal(t, testSentEmailId, reply.Id)
+
+	forward, err := client.Inboxes.Threads.Emails.ForwardWithOptions(ctx, testInboxId, testThreadId, testThreadEmailId,
+		&ForwardInboxThreadEmailRequest{To: []string{"colleague@example.org"}}, &ForwardInboxThreadEmailOptions{IdempotencyKey: "forward-key-1"})
+	assert.NoError(t, err)
+	assert.Equal(t, testSentEmailId, forward.Id)
+}
+
+func TestReplyWithoutIdempotencyKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(threadEmailsPath(testThreadEmailId, "reply"), func(w http.ResponseWriter, r *http.Request) {
+		_, ok := r.Header["Idempotency-Key"]
+		assert.False(t, ok)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+
+	_, err := client.Inboxes.Threads.Emails.ReplyWithOptions(context.Background(), testInboxId, testThreadId, testThreadEmailId,
+		&ReplyInboxThreadEmailRequest{Text: "Thanks."}, nil)
+	assert.NoError(t, err)
+}

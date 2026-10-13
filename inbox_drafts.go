@@ -141,6 +141,21 @@ func (r CreateInboxDraftRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
+// CreateInboxDraftOptions is the additional options struct for the Inboxes.Drafts.Create call.
+type CreateInboxDraftOptions struct {
+	// IdempotencyKey is a unique key for the request, so the draft is created only once. 1 to 256
+	// characters. A retry with the same key within 24 hours returns the first response, with the
+	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// request is still running, returns a 409.
+	// https://resend.com/docs/dashboard/emails/idempotency-keys
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// GetIdempotencyKey returns the idempotency key for the Inboxes.Drafts.Create request.
+func (o CreateInboxDraftOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 type CreateInboxDraftResponse struct {
 	Object string `json:"object"`
 	Id     string `json:"id"`
@@ -229,6 +244,21 @@ type RemoveInboxDraftResponse struct {
 	Deleted bool   `json:"deleted"`
 }
 
+// SendInboxDraftOptions is the additional options struct for the Inboxes.Drafts.Send call.
+type SendInboxDraftOptions struct {
+	// IdempotencyKey is a unique key for the request, so the draft is sent only once. 1 to 256
+	// characters. A retry with the same key within 24 hours returns the first response, with the
+	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// request is still running, returns a 409.
+	// https://resend.com/docs/dashboard/emails/idempotency-keys
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+}
+
+// GetIdempotencyKey returns the idempotency key for the Inboxes.Drafts.Send request.
+func (o SendInboxDraftOptions) GetIdempotencyKey() string {
+	return o.IdempotencyKey
+}
+
 type SendInboxDraftResponse struct {
 	// Id is the ID of the sent email. Use it with the emails methods.
 	Id string `json:"id"`
@@ -239,6 +269,7 @@ type InboxDraftsSvc interface {
 	ListWithContext(ctx context.Context, inboxId string, options *ListOptions) (ListInboxDraftsResponse, error)
 	Create(inboxId string, params *CreateInboxDraftRequest) (CreateInboxDraftResponse, error)
 	CreateWithContext(ctx context.Context, inboxId string, params *CreateInboxDraftRequest) (CreateInboxDraftResponse, error)
+	CreateWithOptions(ctx context.Context, inboxId string, params *CreateInboxDraftRequest, options *CreateInboxDraftOptions) (CreateInboxDraftResponse, error)
 	Get(inboxId, draftId string) (InboxDraft, error)
 	GetWithContext(ctx context.Context, inboxId, draftId string) (InboxDraft, error)
 	Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error)
@@ -247,6 +278,7 @@ type InboxDraftsSvc interface {
 	RemoveWithContext(ctx context.Context, inboxId, draftId string) (RemoveInboxDraftResponse, error)
 	Send(inboxId, draftId string) (SendInboxDraftResponse, error)
 	SendWithContext(ctx context.Context, inboxId, draftId string) (SendInboxDraftResponse, error)
+	SendWithOptions(ctx context.Context, inboxId, draftId string, options *SendInboxDraftOptions) (SendInboxDraftResponse, error)
 }
 
 type InboxDraftsSvcImpl struct {
@@ -306,6 +338,13 @@ func (s *InboxDraftsSvcImpl) Create(inboxId string, params *CreateInboxDraftRequ
 // CreateWithContext creates an unsent draft on the inbox with context.
 // https://resend.com/docs/api-reference/inboxes/create-draft
 func (s *InboxDraftsSvcImpl) CreateWithContext(ctx context.Context, inboxId string, params *CreateInboxDraftRequest) (CreateInboxDraftResponse, error) {
+	return s.CreateWithOptions(ctx, inboxId, params, nil)
+}
+
+// CreateWithOptions creates an unsent draft on the inbox with context and additional options,
+// such as an idempotency key.
+// https://resend.com/docs/api-reference/inboxes/create-draft
+func (s *InboxDraftsSvcImpl) CreateWithOptions(ctx context.Context, inboxId string, params *CreateInboxDraftRequest, options *CreateInboxDraftOptions) (CreateInboxDraftResponse, error) {
 	if inboxId == "" {
 		return CreateInboxDraftResponse{}, errors.New("[ERROR]: Inbox ID is required")
 	}
@@ -319,7 +358,12 @@ func (s *InboxDraftsSvcImpl) CreateWithContext(ctx context.Context, inboxId stri
 		return CreateInboxDraftResponse{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments must be non-empty")
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, inboxPath(inboxId, "drafts"), params)
+	var opts Options
+	if options != nil {
+		opts = options
+	}
+
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, inboxPath(inboxId, "drafts"), params, opts)
 	if err != nil {
 		return CreateInboxDraftResponse{}, ErrFailedToCreateInboxesDraftsCreateRequest
 	}
@@ -429,11 +473,22 @@ func (s *InboxDraftsSvcImpl) Send(inboxId, draftId string) (SendInboxDraftRespon
 // SendWithContext sends the draft with context.
 // https://resend.com/docs/api-reference/inboxes/send-draft
 func (s *InboxDraftsSvcImpl) SendWithContext(ctx context.Context, inboxId, draftId string) (SendInboxDraftResponse, error) {
+	return s.SendWithOptions(ctx, inboxId, draftId, nil)
+}
+
+// SendWithOptions sends the draft with context and additional options, such as an idempotency key.
+// https://resend.com/docs/api-reference/inboxes/send-draft
+func (s *InboxDraftsSvcImpl) SendWithOptions(ctx context.Context, inboxId, draftId string, options *SendInboxDraftOptions) (SendInboxDraftResponse, error) {
 	if err := validateInboxDraftIds(inboxId, draftId); err != nil {
 		return SendInboxDraftResponse{}, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, inboxPath(inboxId, "drafts", draftId, "send"), nil)
+	var opts Options
+	if options != nil {
+		opts = options
+	}
+
+	req, err := s.client.NewRequestWithOptions(ctx, http.MethodPost, inboxPath(inboxId, "drafts", draftId, "send"), nil, opts)
 	if err != nil {
 		return SendInboxDraftResponse{}, ErrFailedToCreateInboxesDraftsSendRequest
 	}

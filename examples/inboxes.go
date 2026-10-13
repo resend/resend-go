@@ -139,7 +139,11 @@ func inboxesExample() {
 		if err != nil {
 			panic(err)
 		}
-		sent, err := client.Inboxes.Drafts.SendWithContext(ctx, inboxId, draft.Id)
+		// Send with options: IdempotencyKey. A retry with the same key within 24 hours returns the
+		// first response.
+		sent, err := client.Inboxes.Drafts.SendWithOptions(ctx, inboxId, draft.Id, &resend.SendInboxDraftOptions{
+			IdempotencyKey: "send-draft-" + draft.Id,
+		})
 		if err != nil {
 			panic(err)
 		}

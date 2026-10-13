@@ -326,3 +326,58 @@ func TestUpdateInboxDraftAttachments(t *testing.T) {
 		{"attachments": []any{}},
 	}, bodies)
 }
+
+func TestCreateInboxDraftWithIdempotencyKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, "draft-key-1", r.Header.Get("Idempotency-Key"))
+		assert.Equal(t, map[string]any{"text": "Hello."}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
+	})
+
+	resp, err := client.Inboxes.Drafts.CreateWithOptions(context.Background(), testInboxId, &CreateInboxDraftRequest{Text: "Hello."}, &CreateInboxDraftOptions{IdempotencyKey: "draft-key-1"})
+	assert.NoError(t, err)
+	assert.Equal(t, testDraftId, resp.Id)
+}
+
+func TestSendInboxDraftWithIdempotencyKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(testDraftId, "send"), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, "send-key-1", r.Header.Get("Idempotency-Key"))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"id": "%s"}`, testSentEmailId)
+	})
+
+	resp, err := client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, &SendInboxDraftOptions{IdempotencyKey: "send-key-1"})
+	assert.NoError(t, err)
+	assert.Equal(t, testSentEmailId, resp.Id)
+}
+
+func TestInboxDraftsWithoutIdempotencyKey(t *testing.T) {
+	setup()
+	defer teardown()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		_, ok := r.Header["Idempotency-Key"]
+		assert.False(t, ok)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
+	}
+	mux.HandleFunc(draftsPath(), handler)
+	mux.HandleFunc(draftsPath(testDraftId, "send"), handler)
+
+	_, err := client.Inboxes.Drafts.CreateWithOptions(context.Background(), testInboxId, &CreateInboxDraftRequest{Text: "Hello."}, nil)
+	assert.NoError(t, err)
+	_, err = client.Inboxes.Drafts.SendWithOptions(context.Background(), testInboxId, testDraftId, &SendInboxDraftOptions{})
+	assert.NoError(t, err)
+	_, err = client.Inboxes.Drafts.Send(testInboxId, testDraftId)
+	assert.NoError(t, err)
+}
