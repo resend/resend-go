@@ -80,19 +80,22 @@ type ReplyInboxThreadEmailRequest struct {
 	ReplyAll bool `json:"reply_all,omitempty"`
 	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. Up to 10
 	// files. The Content of all files can total at most 25 MB. A Path file counts toward the 10
-	// files only, because it is fetched when the email is sent.
+	// files only, because it is fetched when the email is sent. An empty file, a blocked file type,
+	// or a Path that is not an http or https URL or that points to localhost returns a 422.
 	Attachments []*Attachment `json:"attachments,omitempty"`
 	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
 	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
-	// returns a 422.
+	// returns a 422. Header names cannot be empty, and names and values cannot contain line breaks
+	// or null characters, or the request returns a 422.
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // ReplyInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Reply call.
 type ReplyInboxThreadEmailOptions struct {
 	// IdempotencyKey is a unique key for the request, so the reply is sent only once. 1 to 256
-	// characters. A retry with the same key within 24 hours returns the first response, with the
-	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// characters. A retry with the same key within 24 hours returns the first successful (2xx)
+	// response, with the `idempotent-replayed: true` header. A failed request is not stored, so it
+	// can be retried with the same key. Reusing the key with a different body, or while the first
 	// request is still running, returns a 409.
 	// https://resend.com/docs/dashboard/emails/idempotency-keys
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
@@ -127,19 +130,23 @@ type ForwardInboxThreadEmailRequest struct {
 	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. They
 	// share one limit with the attachments of the original message, which the forward also sends.
 	// Together they can have up to 10 files and at most 25 MB of Content. A Path file counts
-	// toward the 10 files only, because it is fetched when the email is sent.
+	// toward the 10 files only, because it is fetched when the email is sent. An empty file, a
+	// blocked file type, or a Path that is not an http or https URL or that points to localhost
+	// returns a 422.
 	Attachments []*Attachment `json:"attachments,omitempty"`
 	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
 	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
-	// returns a 422.
+	// returns a 422. Header names cannot be empty, and names and values cannot contain line breaks
+	// or null characters, or the request returns a 422.
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // ForwardInboxThreadEmailOptions is the additional options struct for the Inboxes.Threads.Emails.Forward call.
 type ForwardInboxThreadEmailOptions struct {
 	// IdempotencyKey is a unique key for the request, so the forward is sent only once. 1 to 256
-	// characters. A retry with the same key within 24 hours returns the first response, with the
-	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// characters. A retry with the same key within 24 hours returns the first successful (2xx)
+	// response, with the `idempotent-replayed: true` header. A failed request is not stored, so it
+	// can be retried with the same key. Reusing the key with a different body, or while the first
 	// request is still running, returns a 409.
 	// https://resend.com/docs/dashboard/emails/idempotency-keys
 	IdempotencyKey string `json:"idempotency_key,omitempty"`

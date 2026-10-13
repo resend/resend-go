@@ -278,7 +278,7 @@ func TestCreateInboxDraftWithOnlyAttachments(t *testing.T) {
 		testMethod(t, r, http.MethodPost)
 		assert.Equal(t, map[string]any{
 			"attachments": []any{map[string]any{
-				"content":      []any{float64(104), float64(105)},
+				"content":      "aGk=",
 				"filename":     "note.txt",
 				"content_type": "text/plain",
 			}},
@@ -289,7 +289,7 @@ func TestCreateInboxDraftWithOnlyAttachments(t *testing.T) {
 	})
 
 	_, err := client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{
-		Attachments: []*Attachment{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
+		Attachments: []*InboxDraftAttachmentInput{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
 	})
 	assert.NoError(t, err)
 }
@@ -307,19 +307,19 @@ func TestUpdateInboxDraftAttachments(t *testing.T) {
 	})
 
 	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
-		Attachments: []*Attachment{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
+		Attachments: []*InboxDraftAttachmentInput{{Content: []byte("hi"), Filename: "note.txt", ContentType: "text/plain"}},
 	})
 	assert.NoError(t, err)
 
 	resp, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
-		Attachments: []*Attachment{},
+		Attachments: []*InboxDraftAttachmentInput{},
 	})
 	assert.NoError(t, err)
 	assert.Empty(t, resp.Attachments)
 
 	assert.Equal(t, []map[string]any{
 		{"attachments": []any{map[string]any{
-			"content":      []any{float64(104), float64(105)},
+			"content":      "aGk=",
 			"filename":     "note.txt",
 			"content_type": "text/plain",
 		}}},

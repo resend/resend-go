@@ -25,6 +25,17 @@ type InboxDraftAttachment struct {
 	Size int `json:"size"`
 }
 
+// InboxDraftAttachmentInput is a file to store on a draft. Unlike Emails.Send attachments, a draft
+// attachment cannot use a path or a content ID.
+type InboxDraftAttachmentInput struct {
+	// Content is the content of the file. It is sent encoded in base64 and cannot be empty.
+	Content []byte `json:"content"`
+	// Filename of the attachment. A blocked file type returns a 422.
+	Filename string `json:"filename"`
+	// ContentType is the MIME type of the attachment.
+	ContentType string `json:"content_type"`
+}
+
 // InboxDraft is an inbox draft as returned by Get and Update.
 type InboxDraft struct {
 	Object string `json:"object"`
@@ -38,7 +49,8 @@ type InboxDraft struct {
 	Bcc     []string `json:"bcc"`
 	Subject *string  `json:"subject"`
 	Html    *string  `json:"html"`
-	Text    *string  `json:"text"`
+	// Text is the plain text body. A reply draft created without a body has an empty string.
+	Text *string `json:"text"`
 	// ThreadId is the thread ID when the draft is a reply. nil otherwise.
 	ThreadId *string `json:"thread_id"`
 	// ReplyToEmailId is the email ID the draft replies to. nil otherwise.
@@ -93,9 +105,9 @@ type CreateInboxDraftRequest struct {
 	Html    string
 	Text    string
 	// Attachments are files to store on the draft. Each one needs Content, Filename and
-	// ContentType. A Path or ContentId returns a 422. The files on a draft can total at most 25 MB.
-	// An empty file or a blocked file type returns a 422.
-	Attachments []*Attachment
+	// ContentType. The files on a draft can total at most 25 MB. An empty file or a blocked file
+	// type returns a 422.
+	Attachments []*InboxDraftAttachmentInput
 	// ThreadId is the thread ID to reply in. It must be sent with ReplyToEmailId.
 	ThreadId string
 	// ReplyToEmailId is the email ID to reply to, as returned in Data[].Id by
@@ -144,8 +156,9 @@ func (r CreateInboxDraftRequest) MarshalJSON() ([]byte, error) {
 // CreateInboxDraftOptions is the additional options struct for the Inboxes.Drafts.Create call.
 type CreateInboxDraftOptions struct {
 	// IdempotencyKey is a unique key for the request, so the draft is created only once. 1 to 256
-	// characters. A retry with the same key within 24 hours returns the first response, with the
-	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// characters. A retry with the same key within 24 hours returns the first successful (2xx)
+	// response, with the `idempotent-replayed: true` header. A failed request is not stored, so it
+	// can be retried with the same key. Reusing the key with a different body, or while the first
 	// request is still running, returns a 409.
 	// https://resend.com/docs/dashboard/emails/idempotency-keys
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
@@ -182,10 +195,10 @@ type UpdateInboxDraftRequest struct {
 	// Text is the plain text body. Use ClearText to clear it.
 	Text *string
 	// Attachments replaces every attachment on the draft. Each one needs Content, Filename and
-	// ContentType. A Path or ContentId returns a 422. The files on a draft can total at most 25 MB.
-	// An empty file or a blocked file type returns a 422. A nil slice is omitted and keeps the
-	// attachments. An empty, non-nil slice removes them all.
-	Attachments []*Attachment
+	// ContentType. The files on a draft can total at most 25 MB. An empty file or a blocked file
+	// type returns a 422. A nil slice is omitted and keeps the attachments. An empty, non-nil slice
+	// removes them all.
+	Attachments []*InboxDraftAttachmentInput
 
 	subjectCleared bool
 	htmlCleared    bool
@@ -249,15 +262,17 @@ type RemoveInboxDraftResponse struct {
 type SendInboxDraftRequest struct {
 	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
 	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
-	// returns a 422.
+	// returns a 422. Header names cannot be empty, and names and values cannot contain line breaks
+	// or null characters, or the request returns a 422.
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // SendInboxDraftOptions is the additional options struct for the Inboxes.Drafts.Send call.
 type SendInboxDraftOptions struct {
 	// IdempotencyKey is a unique key for the request, so the draft is sent only once. 1 to 256
-	// characters. A retry with the same key within 24 hours returns the first response, with the
-	// `idempotent-replayed: true` header. Reusing the key with a different body, or while the first
+	// characters. A retry with the same key within 24 hours returns the first successful (2xx)
+	// response, with the `idempotent-replayed: true` header. A failed request is not stored, so it
+	// can be retried with the same key. Reusing the key with a different body, or while the first
 	// request is still running, returns a 409.
 	// https://resend.com/docs/dashboard/emails/idempotency-keys
 	IdempotencyKey string `json:"idempotency_key,omitempty"`
