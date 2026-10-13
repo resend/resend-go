@@ -219,31 +219,15 @@ func TestUpdateInboxThread(t *testing.T) {
 	assert.Equal(t, testLabelId, resp.Labels[0].Id)
 }
 
-func TestUpdateInboxThreadDeprecatedLabelId(t *testing.T) {
-	setup()
-	defer teardown()
-
-	mux.HandleFunc("/inboxes/"+testInboxId+"/threads/"+testThreadId, func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, map[string]any{"label_id": testLabelId}, decodeBody(t, r))
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"object": "inbox_thread", "id": "%s"}`, testThreadId)
-	})
-
-	_, err := client.Inboxes.Threads.UpdateWithContext(context.Background(), testInboxId, testThreadId, &UpdateInboxThreadRequest{
-		LabelId: testLabelId,
-	})
-	assert.NoError(t, err)
-}
-
 func TestUpdateInboxThreadValidation(t *testing.T) {
 	setup()
 	defer teardown()
 
 	_, err := client.Inboxes.Threads.Update(testInboxId, testThreadId, &UpdateInboxThreadRequest{})
-	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, LabelId, AddLabelIds or RemoveLabelIds is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
 
 	_, err = client.Inboxes.Threads.Update(testInboxId, testThreadId, nil)
-	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, LabelId, AddLabelIds or RemoveLabelIds is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
 
 	_, err = client.Inboxes.Threads.Update("", testThreadId, nil)
 	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")

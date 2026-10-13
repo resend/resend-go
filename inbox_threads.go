@@ -155,14 +155,11 @@ type UpdateInboxThreadRequest struct {
 	// Folder moves the thread to this folder. `sent` is assigned automatically and cannot be set.
 	// Moving a thread out of trash restores it and clears its deletion deadline.
 	Folder InboxMoveThreadFolder `json:"folder,omitempty"`
-	// Deprecated: Use AddLabelIds instead. LabelId applies this label to the thread, the same as
-	// one entry in AddLabelIds.
-	LabelId string `json:"label_id,omitempty"`
 	// AddLabelIds are label IDs to apply to the thread. Between 1 and 10 IDs. A label ID that does
 	// not exist in the inbox returns a 404.
 	AddLabelIds []string `json:"add_label_ids,omitempty"`
-	// RemoveLabelIds are label IDs to remove from the thread. Between 1 and 10 IDs. A label ID
-	// that does not exist in the inbox returns a 404.
+	// RemoveLabelIds are label IDs to remove from the thread. Between 1 and 10 IDs. The labels
+	// themselves are kept. A label ID that does not exist in the inbox returns a 404.
 	RemoveLabelIds []string `json:"remove_label_ids,omitempty"`
 }
 
@@ -343,7 +340,8 @@ func (s *InboxThreadsSvcImpl) GetWithContext(ctx context.Context, inboxId, threa
 
 // Update marks a thread read or unread, moves it to a folder, or adds and removes labels. At
 // least one field is required. A label ID cannot be both added and removed in the same request.
-// Moving a thread out of trash restores it and clears its deletion deadline.
+// Removing a label from a thread keeps the label itself. Moving a thread out of trash restores it
+// and clears its deletion deadline.
 // https://resend.com/docs/api-reference/inboxes/update-thread
 func (s *InboxThreadsSvcImpl) Update(inboxId, threadId string, params *UpdateInboxThreadRequest) (InboxThreadSummary, error) {
 	return s.UpdateWithContext(context.Background(), inboxId, threadId, params)
@@ -358,9 +356,9 @@ func (s *InboxThreadsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, th
 	if threadId == "" {
 		return InboxThreadSummary{}, errors.New("[ERROR]: Thread ID is required")
 	}
-	if params == nil || (params.Read == nil && params.Folder == "" && params.LabelId == "" &&
+	if params == nil || (params.Read == nil && params.Folder == "" &&
 		len(params.AddLabelIds) == 0 && len(params.RemoveLabelIds) == 0) {
-		return InboxThreadSummary{}, errors.New("[ERROR]: At least one of Read, Folder, LabelId, AddLabelIds or RemoveLabelIds is required")
+		return InboxThreadSummary{}, errors.New("[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "threads", threadId), params)
