@@ -93,7 +93,8 @@ type ListInboxThreadsOptions struct {
 	// least one unread email.
 	Read  *bool
 	Limit *int
-	// After and Before take a thread ID. Only one of them can be passed.
+	// After and Before take a thread ID. Only one of them can be passed. A cursor thread that is
+	// not in the selected folders returns a 404.
 	After  *string
 	Before *string
 }
@@ -101,7 +102,8 @@ type ListInboxThreadsOptions struct {
 // SearchInboxThreadsOptions contains the search terms, filters and pagination for searching
 // threads. Different parameters combine, so a thread must match all of them. Folders, Labels and
 // Read apply to the thread. Query, From, To, Cc, Bcc, HasAttachment, StartDate and EndDate must all
-// match the same email in the thread.
+// match the same email in the thread. When any of these email filters is set, the matching email
+// must itself be in one of Folders. For sent, that means an email the inbox sent.
 type SearchInboxThreadsOptions struct {
 	// Query is free text to search for in the subject, body, sender, recipients, and attachment
 	// names. Every word must match. Wrap words in double quotes to match an exact phrase. Start a
@@ -341,7 +343,8 @@ func (s *InboxThreadsSvcImpl) GetWithContext(ctx context.Context, inboxId, threa
 // Update marks a thread read or unread, moves it to a folder, or adds and removes labels. At
 // least one field is required. A label ID cannot be both added and removed in the same request.
 // Removing a label from a thread keeps the label itself. Moving a thread out of trash restores it
-// and clears its deletion deadline.
+// and clears its deletion deadline. The changes apply in this order: Read, Folder, added labels,
+// removed labels. They are not atomic, so a 404 for a label leaves the earlier changes applied.
 // https://resend.com/docs/api-reference/inboxes/update-thread
 func (s *InboxThreadsSvcImpl) Update(inboxId, threadId string, params *UpdateInboxThreadRequest) (InboxThreadSummary, error) {
 	return s.UpdateWithContext(context.Background(), inboxId, threadId, params)

@@ -71,10 +71,12 @@ type ReplyInboxThreadEmailRequest struct {
 	// Subject of the reply. It cannot contain a line break. When omitted, the thread subject is
 	// used, prefixed with `Re:` if it does not already start with it.
 	Subject string `json:"subject,omitempty"`
-	// ReplyAll replies to everyone on the original message. The reply goes to the author of the
-	// message, or to its Reply-To addresses if it has any. The other `to` and `cc` recipients of
-	// the message are copied in `cc`. The inbox address is always excluded. For a message the
-	// inbox sent, the reply goes to that message's `to` recipients and copies its `cc` recipients.
+	// ReplyAll replies to everyone on the original message. For a message the inbox received, the
+	// reply goes to its Reply-To addresses, or to its sender when it has none, and copies the other
+	// addresses of its `To` header and its `cc` recipients in `cc`. For a message the inbox sent,
+	// the reply goes to that message's Reply-To addresses when they are not the inbox address,
+	// otherwise to its `to` recipients, and copies its `cc` recipients. The inbox address is always
+	// excluded, and duplicates are removed.
 	ReplyAll bool `json:"reply_all,omitempty"`
 	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. Up to 10
 	// files. The Content of all files can total at most 25 MB. A Path file counts toward the 10
@@ -145,7 +147,8 @@ func validateInboxThreadEmailIds(inboxId, threadId, emailId string) error {
 
 // List returns the messages of a thread, oldest first. Pass the ID of the last message as After
 // to get the next, newer page. Pass the ID of the first message as Before to get the previous,
-// older page. You cannot combine After and Before.
+// older page. You cannot combine After and Before. A cursor that is not a message of the thread
+// returns a 404.
 // https://resend.com/docs/api-reference/inboxes/list-thread-emails
 func (s *InboxThreadEmailsSvcImpl) List(inboxId, threadId string, options *ListOptions) (ListInboxThreadEmailsResponse, error) {
 	return s.ListWithContext(context.Background(), inboxId, threadId, options)
@@ -242,7 +245,8 @@ func (s *InboxThreadEmailsSvcImpl) ReplyWithContext(ctx context.Context, inboxId
 // Forward forwards a message from the inbox address right away, with no stored draft. The original
 // message is quoted under a forwarded-message banner, below the optional Html or Text note. The
 // attachments of the original message are sent with the forward, together with any Attachments
-// you add. The request fails when they exceed 10 files or 25 MB of content in total.
+// you add. The request fails when they exceed 10 files or 25 MB of content in total. An original
+// attachment that was sent from a URL (Path) cannot be forwarded, and the request returns a 422.
 // https://resend.com/docs/api-reference/inboxes/forward-thread-email
 func (s *InboxThreadEmailsSvcImpl) Forward(inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest) (ForwardInboxThreadEmailResponse, error) {
 	return s.ForwardWithContext(context.Background(), inboxId, threadId, emailId, params)

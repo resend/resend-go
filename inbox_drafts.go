@@ -93,8 +93,8 @@ type CreateInboxDraftRequest struct {
 	Html    string
 	Text    string
 	// Attachments are files to store on the draft. Each one needs Content, Filename and
-	// ContentType. A Path or ContentId returns a 422. A draft can carry up to 10 files and 25 MB in
-	// total.
+	// ContentType. A Path or ContentId returns a 422. The files on a draft can total at most 25 MB.
+	// An empty file or a blocked file type returns a 422.
 	Attachments []*Attachment
 	// ThreadId is the thread ID to reply in. It must be sent with ReplyToEmailId.
 	ThreadId string
@@ -167,9 +167,9 @@ type UpdateInboxDraftRequest struct {
 	// Text is the plain text body. Use ClearText to clear it.
 	Text *string
 	// Attachments replaces every attachment on the draft. Each one needs Content, Filename and
-	// ContentType. A Path or ContentId returns a 422. A draft can carry up to 10 files and 25 MB in
-	// total. A nil slice is omitted and keeps the attachments. An empty, non-nil slice removes them
-	// all.
+	// ContentType. A Path or ContentId returns a 422. The files on a draft can total at most 25 MB.
+	// An empty file or a blocked file type returns a 422. A nil slice is omitted and keeps the
+	// attachments. An empty, non-nil slice removes them all.
 	Attachments []*Attachment
 
 	subjectCleared bool
@@ -294,7 +294,10 @@ func (s *InboxDraftsSvcImpl) ListWithContext(ctx context.Context, inboxId string
 // Create creates an unsent draft on the inbox. Omit ThreadId and ReplyToEmailId for a draft that
 // starts a new thread. Pass both together for a reply draft in an existing thread. Only one unsent
 // reply draft can target an email, so a reply draft request for an email that already has one
-// returns the ID of the existing draft.
+// returns the ID of the existing draft. That request ignores every other field, except
+// Attachments, which replaces the attachments of the existing draft when sent. A reply draft
+// created without Subject stores an empty subject and gets no `Re:` prefix, so set one before you
+// send it.
 // https://resend.com/docs/api-reference/inboxes/create-draft
 func (s *InboxDraftsSvcImpl) Create(inboxId string, params *CreateInboxDraftRequest) (CreateInboxDraftResponse, error) {
 	return s.CreateWithContext(context.Background(), inboxId, params)
@@ -415,8 +418,9 @@ func (s *InboxDraftsSvcImpl) RemoveWithContext(ctx context.Context, inboxId, dra
 }
 
 // Send sends the draft from the inbox address. A reply draft is sent in its thread. A draft without
-// a thread starts a new thread. The draft must have at least one `to` recipient, or the request
-// returns a 422. A draft that was already sent returns a 409.
+// a thread starts a new thread. The draft must have at least one `to` recipient, a non-empty
+// subject, and html or text, or the request returns a 422. A draft that was already sent returns a
+// 409.
 // https://resend.com/docs/api-reference/inboxes/send-draft
 func (s *InboxDraftsSvcImpl) Send(inboxId, draftId string) (SendInboxDraftResponse, error) {
 	return s.SendWithContext(context.Background(), inboxId, draftId)

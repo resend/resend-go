@@ -140,7 +140,8 @@ func inboxPath(inboxId string, segments ...string) string {
 }
 
 // Create creates an inbox that sends and receives email at an address on one of your domains.
-// A team that has reached the inbox limit of its plan gets a 403 validation_error.
+// A team that has reached the inbox limit of its plan gets a 403 validation_error. A blocked account
+// gets a 451.
 // https://resend.com/docs/api-reference/inboxes/create-inbox
 func (s *InboxesSvcImpl) Create(params *CreateInboxRequest) (CreateInboxResponse, error) {
 	return s.CreateWithContext(context.Background(), params)
@@ -167,7 +168,8 @@ func (s *InboxesSvcImpl) CreateWithContext(ctx context.Context, params *CreateIn
 }
 
 // List returns the inboxes of the team, newest first. The list items carry fewer fields than a
-// single inbox. Retrieve an inbox to get all its fields.
+// single inbox. Retrieve an inbox to get all its fields. The After and Before cursors take an
+// inbox ID. A value that is not a UUID returns a 422, and an unknown ID returns a 404.
 // https://resend.com/docs/api-reference/inboxes/list-inboxes
 func (s *InboxesSvcImpl) List(options *ListOptions) (ListInboxesResponse, error) {
 	return s.ListWithContext(context.Background(), options)

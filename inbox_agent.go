@@ -42,8 +42,8 @@ type UpdateInboxAgentRequest struct {
 	// Tone the agent writes in, such as `friendly and concise`. Max 64 characters. The API trims
 	// it, and the trimmed value must not be empty. Use ClearTone to clear the tone.
 	Tone *string
-	// EnabledActions replaces the whole set of actions the agent can take. A nil slice is
-	// omitted. An empty, non-nil slice disables all actions.
+	// EnabledActions replaces the whole set of actions the agent can take. Duplicates are
+	// removed. A nil slice is omitted. An empty, non-nil slice disables all actions.
 	EnabledActions []InboxAgentAction
 
 	instructionsCleared bool
