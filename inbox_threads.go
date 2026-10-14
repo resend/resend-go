@@ -31,8 +31,8 @@ type InboxThread struct {
 	// Bcc is always empty for a received email.
 	Bcc    []string           `json:"bcc"`
 	Labels []InboxThreadLabel `json:"labels"`
-	// MessageCount is the number of emails in the thread.
-	MessageCount int `json:"message_count"`
+	// EmailCount is the number of emails in the thread.
+	EmailCount int `json:"email_count"`
 	// HasAttachment tells whether the most recent email in the thread has an attachment.
 	HasAttachment bool `json:"has_attachment"`
 	// HasDraft tells whether the thread has an unsent draft.

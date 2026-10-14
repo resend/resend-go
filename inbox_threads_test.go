@@ -19,7 +19,7 @@ const testInboxThreadJSON = `{
 	"cc": [],
 	"bcc": [],
 	"labels": [{"id": "7f9c1d2e-4a6b-4c3d-8e15-9b0a7c6d5e34", "name": "Urgent", "color": "#E93D82"}],
-	"message_count": 2,
+	"email_count": 2,
 	"has_attachment": true,
 	"has_draft": false,
 	"read": false,
@@ -62,7 +62,7 @@ func TestListInboxThreads(t *testing.T) {
 	assert.Equal(t, "ada@example.org", *thread.From)
 	assert.Equal(t, []string{"support@example.com"}, thread.To)
 	assert.Equal(t, "#E93D82", thread.Labels[0].Color)
-	assert.Equal(t, 2, thread.MessageCount)
+	assert.Equal(t, 2, thread.EmailCount)
 	assert.True(t, thread.HasAttachment)
 	assert.Equal(t, InboxFolderInbox, thread.Folder)
 }
