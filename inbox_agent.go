@@ -26,7 +26,10 @@ type InboxAgent struct {
 	// Instructions the agent follows when it handles the threads of the inbox. nil when no
 	// instructions are set.
 	Instructions *string `json:"instructions"`
-	// Tone the agent writes in, such as `friendly and concise`. nil when no tone is set.
+	// Tone the agent writes in. One of the presets `concise_professional`, `concise_casual`,
+	// `expanded_professional`, or `expanded_casual`, or custom text in the owner's own words, such
+	// as `friendly and concise`. Older dashboard values such as `Concise · Casual` are custom text.
+	// nil when no tone is set.
 	Tone *string `json:"tone"`
 	// EnabledActions are the actions the agent can take. Empty when no actions are enabled.
 	EnabledActions []InboxAgentAction `json:"enabled_actions"`
@@ -39,8 +42,10 @@ type UpdateInboxAgentRequest struct {
 	// characters. The API trims it, and the trimmed value must not be empty. Use
 	// ClearInstructions to clear the instructions.
 	Instructions *string
-	// Tone the agent writes in, such as `friendly and concise`. Max 64 characters. The API trims
-	// it, and the trimmed value must not be empty. Use ClearTone to clear the tone.
+	// Tone the agent writes in. Use one of the presets `concise_professional`, `concise_casual`,
+	// `expanded_professional`, or `expanded_casual`, or describe the tone in your own words, such
+	// as `friendly and concise`. Custom text is max 64 characters. The API trims it, and the
+	// trimmed value must not be empty. Use ClearTone to clear the tone.
 	Tone *string
 	// EnabledActions replaces the whole set of actions the agent can take. Duplicates are
 	// removed. A nil slice is omitted. An empty, non-nil slice disables all actions.
