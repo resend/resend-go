@@ -107,7 +107,8 @@ func inboxesExample() {
 		}
 		emailId := emails.Data[len(emails.Data)-1].Id
 
-		// Reply right away. The reply goes to the Reply-To addresses of the message, or to its sender.
+		// Reply right away. For a received message, the reply goes to its Reply-To addresses, or to
+		// its sender. For a sent message, it goes to that message's `to` recipients.
 		reply, err := client.Inboxes.Threads.Emails.ReplyWithContext(ctx, inboxId, threadId, emailId, &resend.ReplyInboxThreadEmailRequest{
 			Text: "Thanks, we are on it.",
 		})
