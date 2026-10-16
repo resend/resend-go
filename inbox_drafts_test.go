@@ -185,7 +185,7 @@ func TestUpdateInboxDraft(t *testing.T) {
 			"text":    "Updated body.",
 		}, decodeBody(t, r))
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s", "subject": "Refund issued for order 1041", "html": null, "text": "Updated body."}`, testDraftId)
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
 	})
 
 	subject := "Refund issued for order 1041"
@@ -199,9 +199,7 @@ func TestUpdateInboxDraft(t *testing.T) {
 
 	resp, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, params)
 	assert.NoError(t, err)
-	assert.Equal(t, testDraftId, resp.Id)
-	assert.Equal(t, "Updated body.", *resp.Text)
-	assert.Nil(t, resp.Html)
+	assert.Equal(t, UpdateInboxDraftResponse{Object: "inbox_draft", Id: testDraftId}, resp)
 }
 
 func TestUpdateInboxDraftClearOnly(t *testing.T) {
@@ -303,7 +301,7 @@ func TestUpdateInboxDraftAttachments(t *testing.T) {
 		testMethod(t, r, http.MethodPatch)
 		bodies = append(bodies, decodeBody(t, r))
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s", "attachments": []}`, testDraftId)
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
 	})
 
 	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
@@ -311,11 +309,10 @@ func TestUpdateInboxDraftAttachments(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	resp, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
+	_, err = client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
 		Attachments: []*InboxDraftAttachmentInput{},
 	})
 	assert.NoError(t, err)
-	assert.Empty(t, resp.Attachments)
 
 	assert.Equal(t, []map[string]any{
 		{"attachments": []any{map[string]any{

@@ -128,6 +128,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	inboxesSvc.Labels = &InboxLabelsSvcImpl{client: c}
 	inboxThreadsSvc := &InboxThreadsSvcImpl{client: c}
 	inboxThreadsSvc.Emails = &InboxThreadEmailsSvcImpl{client: c}
+	inboxThreadsSvc.Labels = &InboxThreadLabelsSvcImpl{client: c}
 	inboxesSvc.Threads = inboxThreadsSvc
 	inboxesSvc.Drafts = &InboxDraftsSvcImpl{client: c}
 	c.Inboxes = inboxesSvc

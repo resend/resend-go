@@ -251,6 +251,11 @@ func (r UpdateInboxDraftRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
+type UpdateInboxDraftResponse struct {
+	Object string `json:"object"`
+	Id     string `json:"id"`
+}
+
 type RemoveInboxDraftResponse struct {
 	Object  string `json:"object"`
 	Id      string `json:"id"`
@@ -296,8 +301,8 @@ type InboxDraftsSvc interface {
 	CreateWithOptions(ctx context.Context, inboxId string, params *CreateInboxDraftRequest, options *CreateInboxDraftOptions) (CreateInboxDraftResponse, error)
 	Get(inboxId, draftId string) (InboxDraft, error)
 	GetWithContext(ctx context.Context, inboxId, draftId string) (InboxDraft, error)
-	Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error)
-	UpdateWithContext(ctx context.Context, inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error)
+	Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (UpdateInboxDraftResponse, error)
+	UpdateWithContext(ctx context.Context, inboxId, draftId string, params *UpdateInboxDraftRequest) (UpdateInboxDraftResponse, error)
 	Remove(inboxId, draftId string) (RemoveInboxDraftResponse, error)
 	RemoveWithContext(ctx context.Context, inboxId, draftId string) (RemoveInboxDraftResponse, error)
 	Send(inboxId, draftId string, params *SendInboxDraftRequest) (SendInboxDraftResponse, error)
@@ -431,29 +436,29 @@ func (s *InboxDraftsSvcImpl) GetWithContext(ctx context.Context, inboxId, draftI
 // whole body. The body part you omit from that request becomes
 // null. A draft that was already sent, or that changed during the request, returns a 409.
 // https://resend.com/docs/api-reference/inboxes/update-draft
-func (s *InboxDraftsSvcImpl) Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error) {
+func (s *InboxDraftsSvcImpl) Update(inboxId, draftId string, params *UpdateInboxDraftRequest) (UpdateInboxDraftResponse, error) {
 	return s.UpdateWithContext(context.Background(), inboxId, draftId, params)
 }
 
 // UpdateWithContext updates the content of an unsent draft with context.
 // https://resend.com/docs/api-reference/inboxes/update-draft
-func (s *InboxDraftsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, draftId string, params *UpdateInboxDraftRequest) (InboxDraft, error) {
+func (s *InboxDraftsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, draftId string, params *UpdateInboxDraftRequest) (UpdateInboxDraftResponse, error) {
 	if err := validateInboxDraftIds(inboxId, draftId); err != nil {
-		return InboxDraft{}, err
+		return UpdateInboxDraftResponse{}, err
 	}
 	if params == nil || params.isEmpty() {
-		return InboxDraft{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments is required")
+		return UpdateInboxDraftResponse{}, errors.New("[ERROR]: At least one of To, Cc, Bcc, Subject, Text, Html or Attachments is required")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "drafts", draftId), params)
 	if err != nil {
-		return InboxDraft{}, ErrFailedToCreateInboxesDraftsUpdateRequest
+		return UpdateInboxDraftResponse{}, ErrFailedToCreateInboxesDraftsUpdateRequest
 	}
 
-	resp := new(InboxDraft)
+	resp := new(UpdateInboxDraftResponse)
 	_, err = s.client.Perform(req, resp)
 	if err != nil {
-		return InboxDraft{}, err
+		return UpdateInboxDraftResponse{}, err
 	}
 	return *resp, nil
 }

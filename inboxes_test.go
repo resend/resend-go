@@ -101,7 +101,9 @@ func TestListInboxes(t *testing.T) {
 					"email_address": "support@acme.com",
 					"from_name": null,
 					"unread": 3,
-					"last_received": "2026-08-05T14:03:11.229Z"
+					"last_received": "2026-08-05T14:03:11.229Z",
+					"created_at": "2026-08-01T09:12:44.512Z",
+					"updated_at": "2026-08-02T10:00:00.000Z"
 				}
 			]
 		}`, testInboxId)
@@ -118,6 +120,8 @@ func TestListInboxes(t *testing.T) {
 	assert.Nil(t, resp.Data[0].FromName)
 	assert.Equal(t, 3, resp.Data[0].Unread)
 	assert.Equal(t, "2026-08-05T14:03:11.229Z", *resp.Data[0].LastReceived)
+	assert.Equal(t, "2026-08-01T09:12:44.512Z", resp.Data[0].CreatedAt)
+	assert.Equal(t, "2026-08-02T10:00:00.000Z", resp.Data[0].UpdatedAt)
 }
 
 func TestListInboxesWithoutOptions(t *testing.T) {
@@ -153,7 +157,8 @@ func TestGetInbox(t *testing.T) {
 			"unread": 3,
 			"drafts": 2,
 			"last_received": null,
-			"created_at": "2026-08-01T09:12:44.512Z"
+			"created_at": "2026-08-01T09:12:44.512Z",
+			"updated_at": "2026-08-02T10:00:00.000Z"
 		}`, testInboxId)
 	})
 
@@ -167,6 +172,7 @@ func TestGetInbox(t *testing.T) {
 	assert.Equal(t, 2, resp.Drafts)
 	assert.Nil(t, resp.LastReceived)
 	assert.Equal(t, "2026-08-01T09:12:44.512Z", resp.CreatedAt)
+	assert.Equal(t, "2026-08-02T10:00:00.000Z", resp.UpdatedAt)
 }
 
 func TestGetInboxByEmail(t *testing.T) {
@@ -215,7 +221,7 @@ func TestUpdateInboxValidation(t *testing.T) {
 	defer teardown()
 
 	_, err := client.Inboxes.Update("", &UpdateInboxRequest{Name: "Billing"})
-	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")
+	assert.EqualError(t, err, "[ERROR]: Inbox ID or email is required")
 
 	_, err = client.Inboxes.UpdateWithContext(context.Background(), testInboxId, &UpdateInboxRequest{})
 	assert.EqualError(t, err, "[ERROR]: At least one of Name or FromName is required")
@@ -240,7 +246,7 @@ func TestRemoveInbox(t *testing.T) {
 	assert.True(t, resp.Deleted)
 
 	_, err = client.Inboxes.RemoveWithContext(context.Background(), "")
-	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")
+	assert.EqualError(t, err, "[ERROR]: Inbox ID or email is required")
 }
 
 func TestCreateInboxPlanLimitError(t *testing.T) {

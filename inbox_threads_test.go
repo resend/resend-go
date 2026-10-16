@@ -107,8 +107,7 @@ func TestSearchInboxThreads(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"object": "list", "has_more": false, "data": [%s,
-			"matched_email_id": "e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80",
-			"highlights": {"subject": ["**Refund** for order 1041"], "attachments": ["**refund**.pdf"]}
+			"matched_email_id": "e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80"
 		}]}`, testInboxThreadJSON)
 	})
 
@@ -136,9 +135,6 @@ func TestSearchInboxThreads(t *testing.T) {
 	result := resp.Data[0]
 	assert.Equal(t, testThreadId, result.Id)
 	assert.Equal(t, "e8a3f1c6-2b9d-4e5a-a7c4-9d1b6f3e2a80", *result.MatchedEmailId)
-	assert.Equal(t, []string{"**Refund** for order 1041"}, result.Highlights.Subject)
-	assert.Equal(t, []string{"**refund**.pdf"}, result.Highlights.Attachments)
-	assert.Nil(t, result.Highlights.Body)
 }
 
 func TestSearchInboxThreadsNullMatchedEmail(t *testing.T) {
@@ -148,7 +144,7 @@ func TestSearchInboxThreadsNullMatchedEmail(t *testing.T) {
 	mux.HandleFunc("/inboxes/"+testInboxId+"/threads/search", func(w http.ResponseWriter, r *http.Request) {
 		assert.Empty(t, r.URL.RawQuery)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"object": "list", "has_more": false, "data": [%s, "matched_email_id": null, "highlights": {}}]}`, testInboxThreadJSON)
+		fmt.Fprintf(w, `{"object": "list", "has_more": false, "data": [%s, "matched_email_id": null}]}`, testInboxThreadJSON)
 	})
 
 	resp, err := client.Inboxes.Threads.SearchWithContext(context.Background(), testInboxId, nil)
@@ -191,10 +187,8 @@ func TestUpdateInboxThread(t *testing.T) {
 	mux.HandleFunc("/inboxes/"+testInboxId+"/threads/"+testThreadId, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		assert.Equal(t, map[string]any{
-			"read":             false,
-			"folder":           "archive",
-			"add_label_ids":    []any{testLabelId},
-			"remove_label_ids": []any{"2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21"},
+			"read":   false,
+			"folder": "archive",
 		}, decodeBody(t, r))
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{
@@ -209,10 +203,8 @@ func TestUpdateInboxThread(t *testing.T) {
 
 	read := false
 	resp, err := client.Inboxes.Threads.Update(testInboxId, testThreadId, &UpdateInboxThreadRequest{
-		Read:           &read,
-		Folder:         InboxMoveThreadFolderArchive,
-		AddLabelIds:    []string{testLabelId},
-		RemoveLabelIds: []string{"2b6d0f4e-8a1c-4e3b-9d57-1c0e8a6f4b21"},
+		Read:   &read,
+		Folder: InboxMoveThreadFolderArchive,
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, InboxFolderArchive, resp.Folder)
@@ -224,10 +216,10 @@ func TestUpdateInboxThreadValidation(t *testing.T) {
 	defer teardown()
 
 	_, err := client.Inboxes.Threads.Update(testInboxId, testThreadId, &UpdateInboxThreadRequest{})
-	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Read or Folder is required")
 
 	_, err = client.Inboxes.Threads.Update(testInboxId, testThreadId, nil)
-	assert.EqualError(t, err, "[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Read or Folder is required")
 
 	_, err = client.Inboxes.Threads.Update("", testThreadId, nil)
 	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")

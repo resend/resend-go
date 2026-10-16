@@ -16,8 +16,18 @@ const (
 	InboxAgentActionAddLabels     InboxAgentAction = "add_labels"
 	InboxAgentActionAssignThread  InboxAgentAction = "assign_thread"
 	InboxAgentActionMarkAsSpam    InboxAgentAction = "mark_as_spam"
-	InboxAgentActionArchiveThread InboxAgentAction = "archive_thread"
-	InboxAgentActionDeleteThread  InboxAgentAction = "delete_thread"
+	InboxAgentActionArchive       InboxAgentAction = "archive"
+	InboxAgentActionMoveToTrash   InboxAgentAction = "move_to_trash"
+)
+
+// InboxAgentTone is a tone preset the inbox agent writes in.
+type InboxAgentTone = string
+
+const (
+	InboxAgentToneConciseProfessional  InboxAgentTone = "concise_professional"
+	InboxAgentToneConciseCasual        InboxAgentTone = "concise_casual"
+	InboxAgentToneExpandedProfessional InboxAgentTone = "expanded_professional"
+	InboxAgentToneExpandedCasual       InboxAgentTone = "expanded_casual"
 )
 
 // InboxAgent holds the agent settings of an inbox.
@@ -26,13 +36,10 @@ type InboxAgent struct {
 	// Instructions the agent follows when it handles the threads of the inbox. nil when no
 	// instructions are set.
 	Instructions *string `json:"instructions"`
-	// Tone the agent writes in. One of the presets `concise_professional`, `concise_casual`,
-	// `expanded_professional`, or `expanded_casual`, or custom text in the owner's own words, such
-	// as `friendly and concise`. Older dashboard values such as `Concise · Casual` are custom text.
-	// nil when no tone is set.
-	Tone *string `json:"tone"`
-	// EnabledActions are the actions the agent can take. Empty when no actions are enabled.
-	EnabledActions []InboxAgentAction `json:"enabled_actions"`
+	// Tone the agent writes in. nil when no tone is set.
+	Tone *InboxAgentTone `json:"tone"`
+	// Actions are the actions the agent can take. Empty when no actions are enabled.
+	Actions []InboxAgentAction `json:"actions"`
 }
 
 // UpdateInboxAgentRequest contains params for updating the agent settings of an inbox. Provide at
@@ -42,14 +49,11 @@ type UpdateInboxAgentRequest struct {
 	// characters. The API trims it, and the trimmed value must not be empty. Use
 	// ClearInstructions to clear the instructions.
 	Instructions *string
-	// Tone the agent writes in. Use one of the presets `concise_professional`, `concise_casual`,
-	// `expanded_professional`, or `expanded_casual`, or describe the tone in your own words, such
-	// as `friendly and concise`. Custom text is max 64 characters. The API trims it, and the
-	// trimmed value must not be empty. Use ClearTone to clear the tone.
-	Tone *string
-	// EnabledActions replaces the whole set of actions the agent can take. Duplicates are
-	// removed. A nil slice is omitted. An empty, non-nil slice disables all actions.
-	EnabledActions []InboxAgentAction
+	// Tone the agent writes in. Use ClearTone to clear the tone.
+	Tone *InboxAgentTone
+	// Actions replaces the whole set of actions the agent can take. Duplicates are removed. A nil
+	// slice is omitted. An empty, non-nil slice disables all actions.
+	Actions []InboxAgentAction
 
 	instructionsCleared bool
 	toneCleared         bool
@@ -70,15 +74,15 @@ func (r *UpdateInboxAgentRequest) ClearTone() {
 func (r UpdateInboxAgentRequest) isEmpty() bool {
 	return r.Instructions == nil && !r.instructionsCleared &&
 		r.Tone == nil && !r.toneCleared &&
-		r.EnabledActions == nil
+		r.Actions == nil
 }
 
 func (r UpdateInboxAgentRequest) MarshalJSON() ([]byte, error) {
 	aux := make(map[string]any)
 	setNullableString(aux, "instructions", r.Instructions, r.instructionsCleared)
 	setNullableString(aux, "tone", r.Tone, r.toneCleared)
-	if r.EnabledActions != nil {
-		aux["enabled_actions"] = r.EnabledActions
+	if r.Actions != nil {
+		aux["actions"] = r.Actions
 	}
 	return json.Marshal(aux)
 }
@@ -100,7 +104,7 @@ type InboxAgentSvcImpl struct {
 }
 
 // Get retrieves the agent settings of the inbox. An inbox without a configured agent returns
-// empty settings: Instructions and Tone are nil and EnabledActions is empty.
+// empty settings: Instructions and Tone are nil and Actions is empty.
 // https://resend.com/docs/api-reference/inboxes/get-agent
 func (s *InboxAgentSvcImpl) Get(inboxId string) (InboxAgent, error) {
 	return s.GetWithContext(context.Background(), inboxId)
@@ -140,7 +144,7 @@ func (s *InboxAgentSvcImpl) UpdateWithContext(ctx context.Context, inboxId strin
 		return UpdateInboxAgentResponse{}, errors.New("[ERROR]: Inbox ID is required")
 	}
 	if params == nil || params.isEmpty() {
-		return UpdateInboxAgentResponse{}, errors.New("[ERROR]: At least one of Instructions, Tone or EnabledActions is required")
+		return UpdateInboxAgentResponse{}, errors.New("[ERROR]: At least one of Instructions, Tone or Actions is required")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "agent"), params)

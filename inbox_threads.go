@@ -45,28 +45,14 @@ type InboxThread struct {
 	Folder InboxFolder `json:"folder"`
 }
 
-// InboxThreadSearchHighlights holds where the search query matched the email in MatchedEmailId,
-// as text fragments with each match wrapped in `**`. Only keys with a match are set.
-type InboxThreadSearchHighlights struct {
-	Subject     []string `json:"subject,omitempty"`
-	Body        []string `json:"body,omitempty"`
-	From        []string `json:"from,omitempty"`
-	To          []string `json:"to,omitempty"`
-	Cc          []string `json:"cc,omitempty"`
-	Bcc         []string `json:"bcc,omitempty"`
-	Attachments []string `json:"attachments,omitempty"`
-}
-
 // InboxThreadSearchResult is a thread as returned by Search.
 type InboxThreadSearchResult struct {
 	InboxThread
-	// MatchedEmailId identifies the email in the thread that matched the search. When the query
-	// has words or phrases, it is the most relevant match. Otherwise, it is the newest. The get,
-	// reply and forward thread email methods accept it as the email ID, but it is not equal to the
-	// ID those methods return. nil when the search index returns no matched email for the thread.
+	// MatchedEmailId is the ID of the email in the thread that matched the search. When the query
+	// has words or phrases, it is the most relevant match. Otherwise, it is the newest. It is the
+	// same ID that Threads.Emails.List returns, so use it with the get, reply and forward thread
+	// email methods. nil when the search index returns no matched email for the thread.
 	MatchedEmailId *string `json:"matched_email_id"`
-	// Highlights is empty when there is no query.
-	Highlights InboxThreadSearchHighlights `json:"highlights"`
 }
 
 // InboxThreadSummary is the summary of a single thread, as returned by Get and Update.
@@ -150,19 +136,13 @@ type SearchInboxThreadsResponse struct {
 }
 
 // UpdateInboxThreadRequest contains params for updating a thread. At least one field is required.
-// A label ID cannot be both added and removed in the same request.
+// To change the labels of a thread, use Threads.Labels.
 type UpdateInboxThreadRequest struct {
 	// Read marks every email in the thread read or unread.
 	Read *bool `json:"read,omitempty"`
 	// Folder moves the thread to this folder. `sent` is assigned automatically and cannot be set.
 	// Moving a thread out of trash restores it and clears its deletion deadline.
 	Folder InboxMoveThreadFolder `json:"folder,omitempty"`
-	// AddLabelIds are label IDs to apply to the thread. Between 1 and 10 IDs. A label ID that does
-	// not exist in the inbox returns a 404.
-	AddLabelIds []string `json:"add_label_ids,omitempty"`
-	// RemoveLabelIds are label IDs to remove from the thread. Between 1 and 10 IDs. The labels
-	// themselves are kept. A label ID that does not exist in the inbox returns a 404.
-	RemoveLabelIds []string `json:"remove_label_ids,omitempty"`
 }
 
 type RemoveInboxThreadResponse struct {
@@ -189,6 +169,7 @@ type InboxThreadsSvc interface {
 type InboxThreadsSvcImpl struct {
 	client *Client
 	Emails InboxThreadEmailsSvc
+	Labels InboxThreadLabelsSvc
 }
 
 func setInboxCursorQuery(query url.Values, limit *int, after, before *string) {
@@ -340,11 +321,10 @@ func (s *InboxThreadsSvcImpl) GetWithContext(ctx context.Context, inboxId, threa
 	return *resp, nil
 }
 
-// Update marks a thread read or unread, moves it to a folder, or adds and removes labels. At
-// least one field is required. A label ID cannot be both added and removed in the same request.
-// Removing a label from a thread keeps the label itself. Moving a thread out of trash restores it
-// and clears its deletion deadline. The changes apply in this order: Read, Folder, added labels,
-// removed labels. They are not atomic, so a 404 for a label leaves the earlier changes applied.
+// Update marks a thread read or unread, or moves it to a folder. At least one of Read or Folder is
+// required. To change the labels of a thread, use Threads.Labels. Moving a thread out of trash
+// restores it and clears its deletion deadline. The changes apply in this order: Read, then Folder.
+// They are not atomic.
 // https://resend.com/docs/api-reference/inboxes/update-thread
 func (s *InboxThreadsSvcImpl) Update(inboxId, threadId string, params *UpdateInboxThreadRequest) (InboxThreadSummary, error) {
 	return s.UpdateWithContext(context.Background(), inboxId, threadId, params)
@@ -359,9 +339,8 @@ func (s *InboxThreadsSvcImpl) UpdateWithContext(ctx context.Context, inboxId, th
 	if threadId == "" {
 		return InboxThreadSummary{}, errors.New("[ERROR]: Thread ID is required")
 	}
-	if params == nil || (params.Read == nil && params.Folder == "" &&
-		len(params.AddLabelIds) == 0 && len(params.RemoveLabelIds) == 0) {
-		return InboxThreadSummary{}, errors.New("[ERROR]: At least one of Read, Folder, AddLabelIds or RemoveLabelIds is required")
+	if params == nil || (params.Read == nil && params.Folder == "") {
+		return InboxThreadSummary{}, errors.New("[ERROR]: At least one of Read or Folder is required")
 	}
 
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId, "threads", threadId), params)

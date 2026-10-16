@@ -51,6 +51,7 @@ type Inbox struct {
 	// folder has no received email.
 	LastReceived *string `json:"last_received"`
 	CreatedAt    string  `json:"created_at"`
+	UpdatedAt    string  `json:"updated_at"`
 }
 
 // InboxListItem is an inbox as returned by List. It carries fewer fields than Inbox.
@@ -61,6 +62,8 @@ type InboxListItem struct {
 	FromName     *string `json:"from_name"`
 	Unread       int     `json:"unread"`
 	LastReceived *string `json:"last_received"`
+	CreatedAt    string  `json:"created_at"`
+	UpdatedAt    string  `json:"updated_at"`
 }
 
 // CreateInboxRequest contains params for creating an inbox.
@@ -117,10 +120,10 @@ type InboxesSvc interface {
 	ListWithContext(ctx context.Context, options *ListOptions) (ListInboxesResponse, error)
 	Get(idOrEmail string) (Inbox, error)
 	GetWithContext(ctx context.Context, idOrEmail string) (Inbox, error)
-	Update(inboxId string, params *UpdateInboxRequest) (UpdateInboxResponse, error)
-	UpdateWithContext(ctx context.Context, inboxId string, params *UpdateInboxRequest) (UpdateInboxResponse, error)
-	Remove(inboxId string) (RemoveInboxResponse, error)
-	RemoveWithContext(ctx context.Context, inboxId string) (RemoveInboxResponse, error)
+	Update(idOrEmail string, params *UpdateInboxRequest) (UpdateInboxResponse, error)
+	UpdateWithContext(ctx context.Context, idOrEmail string, params *UpdateInboxRequest) (UpdateInboxResponse, error)
+	Remove(idOrEmail string) (RemoveInboxResponse, error)
+	RemoveWithContext(ctx context.Context, idOrEmail string) (RemoveInboxResponse, error)
 }
 
 type InboxesSvcImpl struct {
@@ -219,23 +222,24 @@ func (s *InboxesSvcImpl) GetWithContext(ctx context.Context, idOrEmail string) (
 }
 
 // Update updates the internal name of the inbox or the name recipients see when mail is sent from
-// it. At least one of Name or FromName is required. The inboxId param must be an ID, not an email.
+// it. At least one of Name or FromName is required. The idOrEmail param can be the inbox ID or
+// the inbox email address.
 // https://resend.com/docs/api-reference/inboxes/update-inbox
-func (s *InboxesSvcImpl) Update(inboxId string, params *UpdateInboxRequest) (UpdateInboxResponse, error) {
-	return s.UpdateWithContext(context.Background(), inboxId, params)
+func (s *InboxesSvcImpl) Update(idOrEmail string, params *UpdateInboxRequest) (UpdateInboxResponse, error) {
+	return s.UpdateWithContext(context.Background(), idOrEmail, params)
 }
 
 // UpdateWithContext updates an inbox with context.
 // https://resend.com/docs/api-reference/inboxes/update-inbox
-func (s *InboxesSvcImpl) UpdateWithContext(ctx context.Context, inboxId string, params *UpdateInboxRequest) (UpdateInboxResponse, error) {
-	if inboxId == "" {
-		return UpdateInboxResponse{}, errors.New("[ERROR]: Inbox ID is required")
+func (s *InboxesSvcImpl) UpdateWithContext(ctx context.Context, idOrEmail string, params *UpdateInboxRequest) (UpdateInboxResponse, error) {
+	if idOrEmail == "" {
+		return UpdateInboxResponse{}, errors.New("[ERROR]: Inbox ID or email is required")
 	}
 	if params == nil || (params.Name == "" && params.FromName == nil) {
 		return UpdateInboxResponse{}, errors.New("[ERROR]: At least one of Name or FromName is required")
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(inboxId), params)
+	req, err := s.client.NewRequest(ctx, http.MethodPatch, inboxPath(idOrEmail), params)
 	if err != nil {
 		return UpdateInboxResponse{}, ErrFailedToCreateInboxesUpdateRequest
 	}
@@ -248,21 +252,21 @@ func (s *InboxesSvcImpl) UpdateWithContext(ctx context.Context, inboxId string, 
 	return *resp, nil
 }
 
-// Remove removes the inbox. An inbox that does not exist or was already removed returns a 404
-// not_found.
+// Remove removes the inbox. The idOrEmail param can be the inbox ID or the inbox email address.
+// An inbox that does not exist or was already removed returns a 404 not_found.
 // https://resend.com/docs/api-reference/inboxes/delete-inbox
-func (s *InboxesSvcImpl) Remove(inboxId string) (RemoveInboxResponse, error) {
-	return s.RemoveWithContext(context.Background(), inboxId)
+func (s *InboxesSvcImpl) Remove(idOrEmail string) (RemoveInboxResponse, error) {
+	return s.RemoveWithContext(context.Background(), idOrEmail)
 }
 
 // RemoveWithContext removes the inbox with context.
 // https://resend.com/docs/api-reference/inboxes/delete-inbox
-func (s *InboxesSvcImpl) RemoveWithContext(ctx context.Context, inboxId string) (RemoveInboxResponse, error) {
-	if inboxId == "" {
-		return RemoveInboxResponse{}, errors.New("[ERROR]: Inbox ID is required")
+func (s *InboxesSvcImpl) RemoveWithContext(ctx context.Context, idOrEmail string) (RemoveInboxResponse, error) {
+	if idOrEmail == "" {
+		return RemoveInboxResponse{}, errors.New("[ERROR]: Inbox ID or email is required")
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, inboxPath(inboxId), nil)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, inboxPath(idOrEmail), nil)
 	if err != nil {
 		return RemoveInboxResponse{}, ErrFailedToCreateInboxesRemoveRequest
 	}

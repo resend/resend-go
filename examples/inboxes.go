@@ -47,10 +47,10 @@ func inboxesExample() {
 	}
 
 	// Configure the inbox agent. Omitted fields keep their current value.
-	tone := "friendly and concise"
+	tone := resend.InboxAgentToneConciseCasual
 	_, err = client.Inboxes.Agent.UpdateWithContext(ctx, inboxId, &resend.UpdateInboxAgentRequest{
-		Tone:           &tone,
-		EnabledActions: []resend.InboxAgentAction{resend.InboxAgentActionDraftReply},
+		Tone:    &tone,
+		Actions: []resend.InboxAgentAction{resend.InboxAgentActionDraftReply},
 	})
 	if err != nil {
 		panic(err)
@@ -59,7 +59,7 @@ func inboxesExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Agent actions: %v\n", agent.EnabledActions)
+	fmt.Printf("Agent actions: %v\n", agent.Actions)
 
 	// Labels are named, colored tags that belong to one inbox.
 	label, err := client.Inboxes.Labels.CreateWithContext(ctx, inboxId, &resend.CreateInboxLabelRequest{
@@ -93,9 +93,16 @@ func inboxesExample() {
 		threadId := threads.Data[0].Id
 
 		// Label the thread and archive it.
+		threadLabels, err := client.Inboxes.Threads.Labels.AddWithContext(ctx, inboxId, threadId, &resend.AddInboxThreadLabelsRequest{
+			Labels: []string{label.Id},
+		})
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Thread has %d labels\n", len(threadLabels.Data))
+
 		_, err = client.Inboxes.Threads.UpdateWithContext(ctx, inboxId, threadId, &resend.UpdateInboxThreadRequest{
-			Folder:      resend.InboxMoveThreadFolderArchive,
-			AddLabelIds: []string{label.Id},
+			Folder: resend.InboxMoveThreadFolderArchive,
 		})
 		if err != nil {
 			panic(err)

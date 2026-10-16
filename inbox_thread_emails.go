@@ -78,10 +78,10 @@ type ReplyInboxThreadEmailRequest struct {
 	// otherwise to its `to` recipients, and copies its `cc` recipients. The inbox address is always
 	// excluded, and duplicates are removed.
 	ReplyAll bool `json:"reply_all,omitempty"`
-	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. Up to 10
-	// files. The Content of all files can total at most 25 MB. A Path file counts toward the 10
-	// files only, because it is fetched when the email is sent. An empty file, a blocked file type,
-	// or a Path that is not an http or https URL or that points to localhost returns a 422.
+	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. The
+	// Content of all files can total at most 25 MB. A Path file does not count toward the 25 MB,
+	// because it is fetched when the email is sent. An empty file, a blocked file type, or a Path
+	// that is not an http or https URL or that points to localhost returns a 422.
 	Attachments []*Attachment `json:"attachments,omitempty"`
 	// Headers are custom headers to add to the email. The In-Reply-To, References and Reply-To
 	// headers are set by Resend and cannot be set here. Sending one of them, in any letter case,
@@ -129,8 +129,8 @@ type ForwardInboxThreadEmailRequest struct {
 	Subject string `json:"subject,omitempty"`
 	// Attachments are files to attach, as on Emails.Send. Each one needs Content or Path. They
 	// share one limit with the attachments of the original message, which the forward also sends.
-	// Together they can have up to 10 files and at most 25 MB of Content. A Path file counts
-	// toward the 10 files only, because it is fetched when the email is sent. An empty file, a
+	// Together they can have at most 25 MB of Content. A Path file does not count toward the 25
+	// MB, because it is fetched when the email is sent. An empty file, a
 	// blocked file type, or a Path that is not an http or https URL or that points to localhost
 	// returns a 422.
 	Attachments []*Attachment `json:"attachments,omitempty"`
@@ -304,7 +304,7 @@ func (s *InboxThreadEmailsSvcImpl) ReplyWithOptions(ctx context.Context, inboxId
 // Forward forwards a message from the inbox address right away, with no stored draft. The original
 // message is quoted under a forwarded-message banner, below the optional Html or Text note. The
 // attachments of the original message are sent with the forward, together with any Attachments
-// you add. The request fails when they exceed 10 files or 25 MB of content in total. An original
+// you add. The request fails when they exceed 25 MB of content in total. An original
 // attachment that was sent from a URL (Path) cannot be forwarded, and the request returns a 422.
 // https://resend.com/docs/api-reference/inboxes/forward-thread-email
 func (s *InboxThreadEmailsSvcImpl) Forward(inboxId, threadId, emailId string, params *ForwardInboxThreadEmailRequest) (ForwardInboxThreadEmailResponse, error) {

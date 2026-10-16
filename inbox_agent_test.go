@@ -19,8 +19,8 @@ func TestGetInboxAgent(t *testing.T) {
 		fmt.Fprint(w, `{
 			"object": "inbox_agent",
 			"instructions": "Answer refund questions yourself.",
-			"tone": null,
-			"enabled_actions": ["draft_reply", "add_labels"]
+			"tone": "concise_casual",
+			"actions": ["draft_reply", "archive", "move_to_trash"]
 		}`)
 	})
 
@@ -28,8 +28,8 @@ func TestGetInboxAgent(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "inbox_agent", resp.Object)
 	assert.Equal(t, "Answer refund questions yourself.", *resp.Instructions)
-	assert.Nil(t, resp.Tone)
-	assert.Equal(t, []InboxAgentAction{InboxAgentActionDraftReply, InboxAgentActionAddLabels}, resp.EnabledActions)
+	assert.Equal(t, InboxAgentToneConciseCasual, *resp.Tone)
+	assert.Equal(t, []InboxAgentAction{InboxAgentActionDraftReply, InboxAgentActionArchive, InboxAgentActionMoveToTrash}, resp.Actions)
 
 	_, err = client.Inboxes.Agent.GetWithContext(context.Background(), "")
 	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")
@@ -42,9 +42,9 @@ func TestUpdateInboxAgent(t *testing.T) {
 	mux.HandleFunc("/inboxes/"+testInboxId+"/agent", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPatch)
 		assert.Equal(t, map[string]any{
-			"instructions":    "Escalate legal threats.",
-			"tone":            nil,
-			"enabled_actions": []any{"mark_as_spam"},
+			"instructions": "Escalate legal threats.",
+			"tone":         nil,
+			"actions":      []any{"mark_as_spam"},
 		}, decodeBody(t, r))
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(w, `{"object": "inbox_agent", "id": "a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90"}`)
@@ -52,8 +52,8 @@ func TestUpdateInboxAgent(t *testing.T) {
 
 	instructions := "Escalate legal threats."
 	params := &UpdateInboxAgentRequest{
-		Instructions:   &instructions,
-		EnabledActions: []InboxAgentAction{InboxAgentActionMarkAsSpam},
+		Instructions: &instructions,
+		Actions:      []InboxAgentAction{InboxAgentActionMarkAsSpam},
 	}
 	params.ClearTone()
 
@@ -68,13 +68,13 @@ func TestUpdateInboxAgentEmptyActionsDisablesAll(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/inboxes/"+testInboxId+"/agent", func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, map[string]any{"enabled_actions": []any{}}, decodeBody(t, r))
+		assert.Equal(t, map[string]any{"actions": []any{}}, decodeBody(t, r))
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(w, `{"object": "inbox_agent", "id": "a1f84a4e-6f2b-4f0a-9c1d-8a2e5b3c7d90"}`)
 	})
 
 	_, err := client.Inboxes.Agent.UpdateWithContext(context.Background(), testInboxId, &UpdateInboxAgentRequest{
-		EnabledActions: []InboxAgentAction{},
+		Actions: []InboxAgentAction{},
 	})
 	assert.NoError(t, err)
 }
@@ -106,8 +106,8 @@ func TestUpdateInboxAgentValidation(t *testing.T) {
 	assert.EqualError(t, err, "[ERROR]: Inbox ID is required")
 
 	_, err = client.Inboxes.Agent.Update(testInboxId, &UpdateInboxAgentRequest{})
-	assert.EqualError(t, err, "[ERROR]: At least one of Instructions, Tone or EnabledActions is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Instructions, Tone or Actions is required")
 
 	_, err = client.Inboxes.Agent.Update(testInboxId, nil)
-	assert.EqualError(t, err, "[ERROR]: At least one of Instructions, Tone or EnabledActions is required")
+	assert.EqualError(t, err, "[ERROR]: At least one of Instructions, Tone or Actions is required")
 }
