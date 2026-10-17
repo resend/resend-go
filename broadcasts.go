@@ -26,6 +26,13 @@ type CreateBroadcastRequest struct {
 	Text       string   `json:"text,omitempty"`
 	Name       string   `json:"name,omitempty"`
 
+	// Preview text shown in the recipient's inbox, usually next to or below the subject line.
+	PreviewText string `json:"preview_text,omitempty"`
+
+	// The ID of the topic the broadcast is scoped to. When omitted, the broadcast is sent to
+	// every subscribed contact in the segment, without checking topic preferences.
+	TopicId string `json:"topic_id,omitempty"`
+
 	// Send the broadcast immediately upon creation instead of creating a draft.
 	Send bool `json:"send,omitempty"`
 
@@ -45,6 +52,12 @@ type UpdateBroadcastRequest struct {
 	Html        string   `json:"html,omitempty"`
 	Text        string   `json:"text,omitempty"`
 	Name        string   `json:"name,omitempty"`
+
+	// Preview text shown in the recipient's inbox, usually next to or below the subject line.
+	PreviewText string `json:"preview_text,omitempty"`
+
+	// The ID of the topic the broadcast is scoped to.
+	TopicId string `json:"topic_id,omitempty"`
 }
 
 type CreateBroadcastResponse struct {
@@ -187,6 +200,7 @@ type Broadcast struct {
 	SentAt      string   `json:"sent_at"`
 	Html        string   `json:"html"`
 	Text        string   `json:"text"`
+	TopicId     *string  `json:"topic_id"` // nil when the broadcast is not scoped to a topic
 }
 
 type BroadcastsSvc interface {
