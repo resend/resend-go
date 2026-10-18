@@ -173,7 +173,7 @@ func TestHandleError(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
 			err := handleError(c.resp)
-			assert.Equal(t, c.want, err)
+			assert.EqualError(t, err, c.want.Error())
 		})
 	}
 }

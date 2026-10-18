@@ -53,3 +53,23 @@ func main() {
 ```
 
 You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)
+
+## Error handling
+
+For API errors other than HTTP 429, use `errors.As` from the standard library's
+`errors` package to inspect the HTTP status, API error name, and message:
+
+```go
+_, err := client.Emails.Get("email-id")
+var apiError *resend.ResendError
+if errors.As(err, &apiError) {
+    fmt.Printf("Status: %d, name: %s, message: %s\n",
+        apiError.StatusCode, apiError.Name, apiError.Message)
+}
+```
+
+`StatusCode` comes from the HTTP response. If the error body cannot be read as
+JSON, `Name` is empty and `Message` falls back to the HTTP status.
+HTTP 429 responses continue to return `*resend.RateLimitError`; use
+`errors.Is(err, resend.ErrRateLimit)` to detect them and `errors.As` to access
+their rate-limit metadata, including `RetryAfter`.

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -262,38 +261,23 @@ func handleError(resp *http.Response) error {
 			RetryAfter: resp.Header.Get("retry-after"),
 		}
 
-	// Handles errors most likely caused by the client
-	case http.StatusUnprocessableEntity, http.StatusBadRequest:
-		r := &InvalidRequestError{}
-		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
-			err := json.NewDecoder(resp.Body).Decode(r)
-			if err != nil {
-				r.Message = resp.Status
-			}
-		} else {
-			r.Message = resp.Status
-		}
-
-		// TODO: replace this with a new ResendError type
-		return errors.New("[ERROR]: " + r.Message)
 	default:
-		// Tries to parse `message` attr from error
-		r := &DefaultError{}
-
+		r := &ResendError{}
 		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
-			err := json.NewDecoder(resp.Body).Decode(r)
-			if err != nil {
+			if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
+				r.Name = ""
 				r.Message = resp.Status
 			}
 		} else {
 			r.Message = resp.Status
 		}
 
-		if r.Message != "" {
-			// TODO: replace this with a new ResendError type
-			return errors.New("[ERROR]: " + r.Message)
+		// The HTTP response is authoritative, even if the body includes a status.
+		r.StatusCode = resp.StatusCode
+		if r.Message == "" && resp.StatusCode != http.StatusBadRequest && resp.StatusCode != http.StatusUnprocessableEntity {
+			r.Message = "Unknown Error"
 		}
-		return errors.New("[ERROR]: Unknown Error")
+		return r
 	}
 }
 
