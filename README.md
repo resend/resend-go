@@ -56,20 +56,35 @@ You can view all the examples in the [examples folder](https://github.com/resend
 
 ## Error handling
 
-For API errors other than HTTP 429, use `errors.As` from the standard library's
-`errors` package to inspect the HTTP status, API error name, and message:
+Use `errors.As` from the standard library's `errors` package to inspect typed
+API errors. HTTP 429 responses return `*resend.RateLimitError`; other HTTP error
+responses return `*resend.ResendError`. Handle other failures, such as network
+errors or canceled requests, separately:
 
 ```go
 _, err := client.Emails.Get("email-id")
-var apiError *resend.ResendError
-if errors.As(err, &apiError) {
-    fmt.Printf("Status: %d, name: %s, message: %s\n",
-        apiError.StatusCode, apiError.Name, apiError.Message)
+if err != nil {
+    var rateLimit *resend.RateLimitError
+    var apiError *resend.ResendError
+
+    switch {
+    case errors.As(err, &rateLimit):
+        fmt.Printf("Rate limited: %s (Retry-After: %s)\n",
+            rateLimit.Message, rateLimit.RetryAfter)
+    case errors.As(err, &apiError):
+        fmt.Printf("Status: %d, name: %s, message: %s\n",
+            apiError.StatusCode, apiError.Name, apiError.Message)
+    default:
+        fmt.Printf("Request failed: %v\n", err)
+    }
 }
 ```
 
-`StatusCode` comes from the HTTP response. If the error body cannot be read as
-JSON, `Name` is empty and `Message` falls back to the HTTP status.
-HTTP 429 responses continue to return `*resend.RateLimitError`; use
-`errors.Is(err, resend.ErrRateLimit)` to detect them and `errors.As` to access
-their rate-limit metadata, including `RetryAfter`.
+`ResendError.StatusCode` comes from the HTTP response. If the error body cannot
+be read as JSON, `Name` is empty and `Message` falls back to the HTTP status.
+`RateLimitError` includes rate-limit metadata such as `RetryAfter` when the
+corresponding response headers are present. You can also detect rate limits
+with `errors.Is(err, resend.ErrRateLimit)`.
+
+The SDK does not automatically retry requests. The application decides whether
+and when to retry.
