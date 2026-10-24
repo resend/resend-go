@@ -34,12 +34,12 @@ func main() {
     client := resend.NewClient(apiKey)
 
     params := &resend.SendEmailRequest{
-        To:      []string{"to@example", "you@example.com"},
-        From:    "me@exemple.io",
+        To:      []string{"to@example.com", "you@example.com"},
+        From:    "me@example.com",
         Text:    "hello world",
         Subject: "Hello from Golang",
         Cc:      []string{"cc@example.com"},
-        Bcc:     []string{"cc@example.com"},
+        Bcc:     []string{"bcc@example.com"},
         ReplyTo: "replyto@example.com",
     }
 
@@ -51,5 +51,7 @@ func main() {
 }
 
 ```
+
+Replace the placeholder API key and email addresses before sending. Use a verified domain for the `From` address.
 
 You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)
