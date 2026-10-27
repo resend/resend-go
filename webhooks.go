@@ -47,6 +47,22 @@ const (
 	EventTopicCreated = "topic.created"
 	EventTopicUpdated = "topic.updated"
 	EventTopicDeleted = "topic.deleted"
+
+	// Inbox events
+	EventInboxCreated             = "inbox.created"
+	EventInboxUpdated             = "inbox.updated"
+	EventInboxDeleted             = "inbox.deleted"
+	EventInboxThreadCreated       = "inbox.thread.created"
+	EventInboxEmailReceived       = "inbox.email.received"
+	EventInboxEmailSent           = "inbox.email.sent"
+	EventInboxThreadFolderUpdated = "inbox.thread.folder.updated"
+	EventInboxThreadAssigned      = "inbox.thread.assigned"
+	EventInboxThreadUnassigned    = "inbox.thread.unassigned"
+	EventInboxThreadLabelsUpdated = "inbox.thread.labels.updated"
+	EventInboxDraftCreated        = "inbox.draft.created"
+	EventInboxDraftUpdated        = "inbox.draft.updated"
+	EventInboxDraftSent           = "inbox.draft.sent"
+	EventInboxDraftDeleted        = "inbox.draft.deleted"
 )
 
 // Default tolerance for timestamp validation (5 minutes)
