@@ -400,7 +400,8 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	if r.LastName != "" {
 		aux["last_name"] = r.LastName
 	}
-	if r.unsubscribedSet {
+	// Preserve direct true values while requiring explicit intent to send false.
+	if r.Unsubscribed || r.unsubscribedSet {
 		aux["unsubscribed"] = r.Unsubscribed
 	}
 	// Include properties if provided (for global contacts)
