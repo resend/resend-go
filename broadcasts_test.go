@@ -454,8 +454,7 @@ func TestListBroadcasts(t *testing.T) {
 						"status": "draft",
 						"created_at": "2024-11-01 15:13:31.723+00",
 						"scheduled_at": null,
-						"sent_at": null,
-						"topic_id": null
+						"sent_at": null
 					},
 					{
 						"id": "559ac32e-9ef5-46fb-82a1-b76b840c0f7b",
@@ -463,8 +462,7 @@ func TestListBroadcasts(t *testing.T) {
 						"status": "sent",
 						"created_at": "2024-12-01 19:32:22.98+00",
 						"scheduled_at": "2024-12-02 19:32:22.98+00",
-						"sent_at": "2024-12-02 19:32:22.98+00",
-						"topic_id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
+						"sent_at": "2024-12-02 19:32:22.98+00"
 					}
 				]
 		}`
@@ -479,10 +477,6 @@ func TestListBroadcasts(t *testing.T) {
 
 	assert.Equal(t, len(broadcasts.Data), 2)
 	assert.Equal(t, broadcasts.Object, "list")
-	assert.Nil(t, broadcasts.Data[0].TopicId)
-	if assert.NotNil(t, broadcasts.Data[1].TopicId) {
-		assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", *broadcasts.Data[1].TopicId)
-	}
 
 }
 
