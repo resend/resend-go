@@ -46,12 +46,12 @@ type CreateTemplateResponse struct {
 // Important: All variables referenced in Html (e.g., {{{NAME}}}) must be
 // declared in the Variables array, or the API will return a validation error.
 type UpdateTemplateRequest struct {
-	Name      string              `json:"name"`
+	Name      string              `json:"name,omitempty"`
 	Alias     string              `json:"alias,omitempty"`
 	From      string              `json:"from,omitempty"`
 	Subject   string              `json:"subject,omitempty"`
 	ReplyTo   any                 `json:"reply_to,omitempty"` // string or []string
-	Html      string              `json:"html"`
+	Html      string              `json:"html,omitempty"`
 	Text      string              `json:"text,omitempty"`
 	Variables []*TemplateVariable `json:"variables,omitempty"`
 }
