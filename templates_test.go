@@ -784,6 +784,35 @@ func TestUpdateTemplate(t *testing.T) {
 	assert.Equal(t, "template", resp.Object)
 }
 
+func TestUpdateTemplateOmitsUnsetFields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	templateId := "34a080c9-b17d-4187-ad80-5af20266e535"
+
+	mux.HandleFunc(fmt.Sprintf("/templates/%s", templateId), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Errorf("Failed to decode request body: %v", err)
+		}
+
+		assert.Equal(t, map[string]any{"subject": "New subject"}, body)
+
+		fmt.Fprint(w, `{"id": "34a080c9-b17d-4187-ad80-5af20266e535", "object": "template"}`)
+	})
+
+	_, err := client.Templates.Update(templateId, &UpdateTemplateRequest{
+		Subject: "New subject",
+	})
+	if err != nil {
+		t.Errorf("Templates.Update returned error: %v", err)
+	}
+}
+
 func TestUpdateTemplateWithVariables(t *testing.T) {
 	setup()
 	defer teardown()
