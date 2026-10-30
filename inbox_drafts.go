@@ -25,15 +25,21 @@ type InboxDraftAttachment struct {
 	Size int `json:"size"`
 }
 
-// InboxDraftAttachmentInput is a file to store on a draft. Unlike Emails.Send attachments, a draft
-// attachment cannot use a path or a content ID.
+// InboxDraftAttachmentInput is a file to store on a draft. Set either Content or Path. Unlike
+// Emails.Send attachments, a Path file is downloaded when the request is made, not when the draft
+// is sent, and a draft attachment cannot use a content ID. When both are set, Path is ignored.
 type InboxDraftAttachmentInput struct {
 	// Content is the content of the file. It is sent encoded in base64 and cannot be empty.
-	Content []byte `json:"content"`
+	Content []byte `json:"content,omitempty"`
+	// Path is a URL to download the file from, starting with http or https. A file that cannot be
+	// downloaded returns a 422, and so does a request whose downloads take more than 20 seconds
+	// together.
+	Path string `json:"path,omitempty"`
 	// Filename of the attachment. A blocked file type returns a 422.
 	Filename string `json:"filename"`
-	// ContentType is the MIME type of the attachment.
-	ContentType string `json:"content_type"`
+	// ContentType is the MIME type of the attachment. It is required with Content. With Path, it
+	// defaults to the content type of the downloaded file.
+	ContentType string `json:"content_type,omitempty"`
 }
 
 // InboxDraft is an inbox draft as returned by Get and Update.
@@ -104,9 +110,10 @@ type CreateInboxDraftRequest struct {
 	Subject string
 	Html    string
 	Text    string
-	// Attachments are files to store on the draft. Each one needs Content, Filename and
-	// ContentType. The files on a draft can total at most 25 MB. An empty file or a blocked file
-	// type returns a 422.
+	// Attachments are files to store on the draft. Each one needs a Filename and either Content
+	// with a ContentType, or a Path URL that is downloaded when the request is made. The files on a
+	// draft, downloaded ones included, can total at most 25 MB. An empty file, a blocked file type,
+	// or a Path that cannot be downloaded returns a 422.
 	Attachments []*InboxDraftAttachmentInput
 	// ThreadId is the thread ID to reply in. It must be sent with ReplyToEmailId.
 	ThreadId string
@@ -194,9 +201,10 @@ type UpdateInboxDraftRequest struct {
 	Html *string
 	// Text is the plain text body. Use ClearText to clear it.
 	Text *string
-	// Attachments replaces every attachment on the draft. Each one needs Content, Filename and
-	// ContentType. The files on a draft can total at most 25 MB. An empty file or a blocked file
-	// type returns a 422. A nil slice is omitted and keeps the attachments. An empty, non-nil slice
+	// Attachments replaces every attachment on the draft. Each one needs a Filename and either
+	// Content with a ContentType, or a Path URL that is downloaded when the request is made. The
+	// files on a draft, downloaded ones included, can total at most 25 MB. An empty file, a blocked
+	// file type, or a Path that cannot be downloaded returns a 422. A nil slice is omitted and keeps the attachments. An empty, non-nil slice
 	// removes them all.
 	Attachments []*InboxDraftAttachmentInput
 
