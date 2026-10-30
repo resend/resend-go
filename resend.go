@@ -265,22 +265,25 @@ func handleError(resp *http.Response) error {
 		r := &ResendError{}
 		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			if err := json.NewDecoder(resp.Body).Decode(r); err != nil {
-				r.Name = ""
-				r.Message = resp.Status
+				// A failed decode can leave fields partially populated, so discard them.
+				*r = ResendError{Message: resp.Status}
 			}
 		} else {
 			r.Message = resp.Status
 		}
 
-		// The HTTP response is authoritative, even if the body includes a status.
+		// The HTTP status is authoritative, even if the body carries its own statusCode.
 		r.StatusCode = resp.StatusCode
-		if r.Message == "" && resp.StatusCode != http.StatusBadRequest && resp.StatusCode != http.StatusUnprocessableEntity {
+		if r.Message == "" {
 			r.Message = "Unknown Error"
 		}
 		return r
 	}
 }
 
+// InvalidRequestError is no longer returned by the SDK.
+//
+// Deprecated: Use ResendError instead.
 type InvalidRequestError struct {
 	StatusCode int    `json:"statusCode"`
 	Name       string `json:"name"`
