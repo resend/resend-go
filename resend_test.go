@@ -53,7 +53,22 @@ func TestResendRequestShouldReturnErrorIfContextIsCancelled(t *testing.T) {
 	assert.Nil(t, res)
 }
 
+func errorResponse(status int, contentType string, body string) *http.Response {
+	header := http.Header{}
+	if contentType != "" {
+		header.Set("Content-Type", contentType)
+	}
+	return &http.Response{
+		StatusCode: status,
+		Status:     fmt.Sprintf("%d %s", status, http.StatusText(status)),
+		Header:     header,
+		Body:       io.NopCloser(bytes.NewBufferString(body)),
+	}
+}
+
 func TestHandleError(t *testing.T) {
+	const jsonType = "application/json; charset=utf-8"
+
 	cases := []struct {
 		desc string
 		resp *http.Response
@@ -83,90 +98,83 @@ func TestHandleError(t *testing.T) {
 		},
 		{
 			desc: "validation_error",
-			resp: &http.Response{
-				StatusCode: http.StatusUnprocessableEntity,
-				Status:     fmt.Sprintf("%d %s", http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Validation error"}`)),
-			},
-			want: errors.New("[ERROR]: Validation error"),
+			resp: errorResponse(http.StatusUnprocessableEntity, jsonType, `{"name":"validation_error","message":"Validation error"}`),
+			want: &ResendError{StatusCode: http.StatusUnprocessableEntity, Name: "validation_error", Message: "Validation error"},
 		},
 		{
 			desc: "validation_error_no_json",
-			resp: &http.Response{
-				StatusCode: http.StatusUnprocessableEntity,
-				Status:     fmt.Sprintf("%d %s", http.StatusUnprocessableEntity, http.StatusText(http.StatusUnprocessableEntity)),
-				Body:       io.NopCloser(bytes.NewBufferString(`Validation error`)),
-			},
-			want: errors.New("[ERROR]: 422 Unprocessable Entity"),
+			resp: errorResponse(http.StatusUnprocessableEntity, "", `Validation error`),
+			want: &ResendError{StatusCode: http.StatusUnprocessableEntity, Message: "422 Unprocessable Entity"},
+		},
+		{
+			desc: "validation_error_no_message",
+			resp: errorResponse(http.StatusUnprocessableEntity, jsonType, `{}`),
+			want: &ResendError{StatusCode: http.StatusUnprocessableEntity, Message: "Unknown Error"},
 		},
 		{
 			desc: "bad_request",
-			resp: &http.Response{
-				StatusCode: http.StatusBadRequest,
-				Status:     fmt.Sprintf("%d %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Validation error"}`)),
-			},
-			want: errors.New("[ERROR]: Validation error"),
+			resp: errorResponse(http.StatusBadRequest, jsonType, `{"message":"Validation error"}`),
+			want: &ResendError{StatusCode: http.StatusBadRequest, Message: "Validation error"},
 		},
 		{
 			desc: "bad_request_no_json",
-			resp: &http.Response{
-				StatusCode: http.StatusBadRequest,
-				Status:     fmt.Sprintf("%d %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)),
-				Body:       io.NopCloser(bytes.NewBufferString(`Validation error`)),
-			},
-			want: errors.New("[ERROR]: 400 Bad Request"),
+			resp: errorResponse(http.StatusBadRequest, "", `Validation error`),
+			want: &ResendError{StatusCode: http.StatusBadRequest, Message: "400 Bad Request"},
 		},
 		{
 			desc: "bad_request_invalid_json",
-			resp: &http.Response{
-				StatusCode: http.StatusBadRequest,
-				Status:     fmt.Sprintf("%d %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{`)),
-			},
-			want: errors.New("[ERROR]: 400 Bad Request"),
+			resp: errorResponse(http.StatusBadRequest, jsonType, `{`),
+			want: &ResendError{StatusCode: http.StatusBadRequest, Message: "400 Bad Request"},
+		},
+		{
+			desc: "bad_request_no_message",
+			resp: errorResponse(http.StatusBadRequest, jsonType, `{}`),
+			want: &ResendError{StatusCode: http.StatusBadRequest, Message: "Unknown Error"},
+		},
+		{
+			desc: "forbidden",
+			resp: errorResponse(http.StatusForbidden, jsonType, `{"name":"restricted_api_key","message":"Not allowed"}`),
+			want: &ResendError{StatusCode: http.StatusForbidden, Name: "restricted_api_key", Message: "Not allowed"},
 		},
 		{
 			desc: "server_error",
-			resp: &http.Response{
-				StatusCode: http.StatusInternalServerError,
-				Status:     fmt.Sprintf("%d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{"message":"Server error"}`)),
-			},
-			want: errors.New("[ERROR]: Server error"),
+			resp: errorResponse(http.StatusInternalServerError, jsonType, `{"message":"Server error"}`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "Server error"},
 		},
 		{
 			desc: "server_error_no_json",
-			resp: &http.Response{
-				StatusCode: http.StatusInternalServerError,
-				Status:     fmt.Sprintf("%d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)),
-				Body:       io.NopCloser(bytes.NewBufferString(`Server error`)),
-			},
-			want: errors.New("[ERROR]: 500 Internal Server Error"),
+			resp: errorResponse(http.StatusInternalServerError, "", `Server error`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "500 Internal Server Error"},
 		},
 		{
 			desc: "server_error_invalid_json",
-			resp: &http.Response{
-				StatusCode: http.StatusInternalServerError,
-				Status:     fmt.Sprintf("%d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{`)),
-			},
-			want: errors.New("[ERROR]: 500 Internal Server Error"),
+			resp: errorResponse(http.StatusInternalServerError, jsonType, `{`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "500 Internal Server Error"},
 		},
 		{
 			desc: "server_error_no_message",
-			resp: &http.Response{
-				StatusCode: http.StatusInternalServerError,
-				Status:     fmt.Sprintf("%d %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)),
-				Header:     http.Header{"Content-Type": {"application/json; charset=utf-8"}},
-				Body:       io.NopCloser(bytes.NewBufferString(`{}`)),
-			},
-			want: errors.New("[ERROR]: Unknown Error"),
+			resp: errorResponse(http.StatusInternalServerError, jsonType, `{}`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "Unknown Error"},
+		},
+		{
+			desc: "server_error_partially_decoded_body",
+			resp: errorResponse(http.StatusInternalServerError, jsonType, `{"name":"internal_server_error","message":42}`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "500 Internal Server Error"},
+		},
+		{
+			desc: "server_error_null_body",
+			resp: errorResponse(http.StatusInternalServerError, jsonType, `null`),
+			want: &ResendError{StatusCode: http.StatusInternalServerError, Message: "Unknown Error"},
+		},
+		{
+			desc: "server_error_empty_body",
+			resp: errorResponse(http.StatusServiceUnavailable, jsonType, ``),
+			want: &ResendError{StatusCode: http.StatusServiceUnavailable, Message: "503 Service Unavailable"},
+		},
+		{
+			desc: "status_code_from_response_not_body",
+			resp: errorResponse(http.StatusServiceUnavailable, jsonType, `{"statusCode":200,"name":"internal_server_error","message":"Unavailable"}`),
+			want: &ResendError{StatusCode: http.StatusServiceUnavailable, Name: "internal_server_error", Message: "Unavailable"},
 		},
 	}
 
@@ -176,6 +184,29 @@ func TestHandleError(t *testing.T) {
 			assert.Equal(t, c.want, err)
 		})
 	}
+}
+
+func TestResendErrorPreservesMessageFormat(t *testing.T) {
+	err := &ResendError{StatusCode: http.StatusNotFound, Name: "not_found", Message: "Email not found"}
+	assert.EqualError(t, err, "[ERROR]: Email not found")
+}
+
+func TestPerformReturnsResendErrorForNonRateLimitResponses(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/missing", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, `{"statusCode":404,"name":"not_found","message":"Email not found"}`)
+	})
+
+	_, err := client.Emails.Get("missing")
+
+	var apiErr *ResendError
+	assert.True(t, errors.As(fmt.Errorf("get email: %w", err), &apiErr))
+	assert.Equal(t, &ResendError{StatusCode: http.StatusNotFound, Name: "not_found", Message: "Email not found"}, apiErr)
+	assert.False(t, errors.Is(err, ErrRateLimit))
 }
 
 func TestRateLimitErrorIs(t *testing.T) {
