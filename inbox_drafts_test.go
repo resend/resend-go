@@ -300,7 +300,7 @@ func TestCreateInboxDraftWithPathAttachment(t *testing.T) {
 		testMethod(t, r, http.MethodPost)
 		assert.Equal(t, map[string]any{
 			"attachments": []any{map[string]any{
-				"path":     "https://resend.com/static/sample/invoice.pdf",
+				"path":     "https://example.com/invoice.pdf",
 				"filename": "invoice.pdf",
 			}},
 		}, decodeBody(t, r))
@@ -310,7 +310,7 @@ func TestCreateInboxDraftWithPathAttachment(t *testing.T) {
 	})
 
 	_, err := client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{
-		Attachments: []*InboxDraftAttachmentInput{{Path: "https://resend.com/static/sample/invoice.pdf", Filename: "invoice.pdf"}},
+		Attachments: []*InboxDraftAttachmentInput{{Path: "https://example.com/invoice.pdf", Filename: "invoice.pdf"}},
 	})
 	assert.NoError(t, err)
 }
@@ -323,7 +323,7 @@ func TestUpdateInboxDraftWithPathAttachment(t *testing.T) {
 		testMethod(t, r, http.MethodPatch)
 		assert.Equal(t, map[string]any{
 			"attachments": []any{map[string]any{
-				"path":         "https://resend.com/static/sample/invoice.pdf",
+				"path":         "https://example.com/invoice.pdf",
 				"filename":     "invoice.pdf",
 				"content_type": "application/pdf",
 			}},
@@ -334,7 +334,7 @@ func TestUpdateInboxDraftWithPathAttachment(t *testing.T) {
 
 	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
 		Attachments: []*InboxDraftAttachmentInput{{
-			Path:        "https://resend.com/static/sample/invoice.pdf",
+			Path:        "https://example.com/invoice.pdf",
 			Filename:    "invoice.pdf",
 			ContentType: "application/pdf",
 		}},
