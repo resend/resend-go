@@ -292,6 +292,56 @@ func TestCreateInboxDraftWithOnlyAttachments(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestCreateInboxDraftWithPathAttachment(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, map[string]any{
+			"attachments": []any{map[string]any{
+				"path":     "https://resend.com/static/sample/invoice.pdf",
+				"filename": "invoice.pdf",
+			}},
+		}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
+	})
+
+	_, err := client.Inboxes.Drafts.Create(testInboxId, &CreateInboxDraftRequest{
+		Attachments: []*InboxDraftAttachmentInput{{Path: "https://resend.com/static/sample/invoice.pdf", Filename: "invoice.pdf"}},
+	})
+	assert.NoError(t, err)
+}
+
+func TestUpdateInboxDraftWithPathAttachment(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc(draftsPath(testDraftId), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		assert.Equal(t, map[string]any{
+			"attachments": []any{map[string]any{
+				"path":         "https://resend.com/static/sample/invoice.pdf",
+				"filename":     "invoice.pdf",
+				"content_type": "application/pdf",
+			}},
+		}, decodeBody(t, r))
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"object": "inbox_draft", "id": "%s"}`, testDraftId)
+	})
+
+	_, err := client.Inboxes.Drafts.Update(testInboxId, testDraftId, &UpdateInboxDraftRequest{
+		Attachments: []*InboxDraftAttachmentInput{{
+			Path:        "https://resend.com/static/sample/invoice.pdf",
+			Filename:    "invoice.pdf",
+			ContentType: "application/pdf",
+		}},
+	})
+	assert.NoError(t, err)
+}
+
 func TestUpdateInboxDraftAttachments(t *testing.T) {
 	setup()
 	defer teardown()
