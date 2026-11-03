@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	version     = "4.11.0"
+	version     = "4.12.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
