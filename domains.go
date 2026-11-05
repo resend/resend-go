@@ -89,7 +89,7 @@ type CreateDomainRequest struct {
 type CreateDomainResponse struct {
 	Id                string   `json:"id"`
 	Name              string   `json:"name"`
-	CreatedAt         string   `json:"createdAt"`
+	CreatedAt         string   `json:"created_at"`
 	Status            string   `json:"status"`
 	Records           []Record `json:"records"`
 	Region            string   `json:"region"`
