@@ -14,6 +14,22 @@ func (e *MissingRequiredFieldsError) Error() string {
 	return fmt.Sprintf("%s", e.message)
 }
 
+// ResendError represents an API error other than a rate limit error.
+// Use errors.As to inspect it. HTTP 429 responses return *RateLimitError instead.
+type ResendError struct {
+	// StatusCode is the HTTP response status, regardless of the response body.
+	StatusCode int `json:"statusCode"`
+	// Name is the API error name, when available.
+	Name string `json:"name"`
+	// Message is the API error message or a fallback for an unreadable body.
+	Message string `json:"message"`
+}
+
+// Error implements the error interface.
+func (e *ResendError) Error() string {
+	return "[ERROR]: " + e.Message
+}
+
 // ErrRateLimit is a sentinel error for rate limit detection with errors.Is
 var ErrRateLimit = errors.New("rate limit exceeded")
 

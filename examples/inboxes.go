@@ -171,7 +171,7 @@ func inboxesExample() {
 		To:      []string{"ada@example.org"},
 		Subject: "Welcome",
 		Text:    "Hello Ada.",
-		// Draft attachments need Content, Filename and ContentType.
+		// Draft attachments need a Filename and either Content with a ContentType, or a Path URL.
 		Attachments: []*resend.InboxDraftAttachmentInput{{
 			Content:     []byte("Welcome guide"),
 			Filename:    "guide.txt",

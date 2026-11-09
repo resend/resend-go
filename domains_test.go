@@ -23,7 +23,7 @@ func TestCreateDomain(t *testing.T) {
 		{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
-			"createdAt": "2023-03-28 17:12:02.059593+00",
+			"created_at": "2023-03-28 17:12:02.059593+00",
 			"status": "not_started",
 			"records": [
 			  {
@@ -125,7 +125,7 @@ func TestCreateDomainWithCapabilities(t *testing.T) {
 		fmt.Fprint(w, `{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
-			"createdAt": "2023-03-28 17:12:02.059593+00",
+			"created_at": "2023-03-28 17:12:02.059593+00",
 			"status": "not_started",
 			"region": "us-east-1",
 			"dnsProvider": "Unidentified"
@@ -167,7 +167,7 @@ func TestCreateDomainWithoutCapabilitiesOmitsKey(t *testing.T) {
 		fmt.Fprint(w, `{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
-			"createdAt": "2023-03-28 17:12:02.059593+00",
+			"created_at": "2023-03-28 17:12:02.059593+00",
 			"status": "not_started",
 			"region": "us-east-1",
 			"dnsProvider": "Unidentified"
@@ -195,7 +195,7 @@ func TestCreateDomainResponseDeserializesCapabilities(t *testing.T) {
 		fmt.Fprint(w, `{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
-			"createdAt": "2023-03-28 17:12:02.059593+00",
+			"created_at": "2023-03-28 17:12:02.059593+00",
 			"status": "not_started",
 			"region": "us-east-1",
 			"dnsProvider": "Unidentified",
@@ -475,7 +475,7 @@ func TestCreateDomainWithTrackingSubdomain(t *testing.T) {
 		fmt.Fprint(w, `{
 			"id": "4dd369bc-aa82-4ff3-97de-514ae3000ee0",
 			"name": "example.com",
-			"createdAt": "2023-03-28 17:12:02.059593+00",
+			"created_at": "2023-03-28 17:12:02.059593+00",
 			"status": "not_started",
 			"region": "us-east-1",
 			"dnsProvider": "Unidentified",

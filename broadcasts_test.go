@@ -2,6 +2,7 @@ package resend
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -134,6 +135,92 @@ func TestUpdateBroadcast(t *testing.T) {
 	assert.Equal(t, resp.Id, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b")
 }
 
+func TestCreateBroadcastWithPreviewTextAndTopicId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		var body map[string]any
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.Equal(t, "Product updates for this month", body["preview_text"])
+		assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", body["topic_id"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		fmt.Fprint(w, `{"id": "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794"}`)
+	})
+
+	req := &CreateBroadcastRequest{
+		SegmentId:   "78261eea-8f8b-4381-83c6-79fa7120f1cf",
+		From:        "hi@example.com",
+		Subject:     "Hello, world!",
+		PreviewText: "Product updates for this month",
+		TopicId:     "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
+	}
+	resp, err := client.Broadcasts.Create(req)
+	assert.NoError(t, err)
+	assert.Equal(t, "49a3999c-0ce1-4ea6-ab68-afcd6dc2e794", resp.Id)
+}
+
+func TestUpdateBroadcastWithPreviewTextAndTopicId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/broadcasts/559ac32e-9ef5-46fb-82a1-b76b840c0f7b", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+
+		var body map[string]any
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.Equal(t, "Product updates for this month", body["preview_text"])
+		assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", body["topic_id"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"id": "559ac32e-9ef5-46fb-82a1-b76b840c0f7b"}`)
+	})
+
+	req := &UpdateBroadcastRequest{
+		BroadcastId: "559ac32e-9ef5-46fb-82a1-b76b840c0f7b",
+		PreviewText: "Product updates for this month",
+		TopicId:     "b6d24b8e-af0b-4c3c-be0c-359bbd97381e",
+	}
+	resp, err := client.Broadcasts.Update(req)
+	assert.NoError(t, err)
+	assert.Equal(t, "559ac32e-9ef5-46fb-82a1-b76b840c0f7b", resp.Id)
+}
+
+func TestBroadcastRequestsOmitUnsetPreviewTextAndTopicId(t *testing.T) {
+	setup()
+	defer teardown()
+
+	assertOmitted := func(r *http.Request) {
+		var body map[string]any
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.NotContains(t, body, "preview_text")
+		assert.NotContains(t, body, "topic_id")
+	}
+	mux.HandleFunc("/broadcasts", func(w http.ResponseWriter, r *http.Request) {
+		assertOmitted(r)
+		fmt.Fprint(w, `{"id": "b1"}`)
+	})
+	mux.HandleFunc("/broadcasts/b1", func(w http.ResponseWriter, r *http.Request) {
+		assertOmitted(r)
+		fmt.Fprint(w, `{"id": "b1"}`)
+	})
+
+	_, err := client.Broadcasts.Create(&CreateBroadcastRequest{
+		SegmentId: "s1",
+		From:      "a@example.com",
+		Subject:   "hi",
+	})
+	assert.NoError(t, err)
+
+	_, err = client.Broadcasts.Update(&UpdateBroadcastRequest{BroadcastId: "b1", Subject: "hello"})
+	assert.NoError(t, err)
+}
+
 func TestCreateBroadcastValidations(t *testing.T) {
 	setup()
 	defer teardown()
@@ -196,7 +283,8 @@ func TestGetBroadcast(t *testing.T) {
 			"scheduled_at": null,
 			"sent_at": null,
 			"html": "<h1>Hello world</h1>",
-			"text": "Hello world"
+			"text": "Hello world",
+			"topic_id": "b6d24b8e-af0b-4c3c-be0c-359bbd97381e"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -216,6 +304,9 @@ func TestGetBroadcast(t *testing.T) {
 	assert.Equal(t, b.PreviewText, "Check out our latest announcements")
 	assert.Equal(t, b.Status, "draft")
 	assert.Equal(t, b.CreatedAt, "2024-12-01 19:32:22.98+00")
+	if assert.NotNil(t, b.TopicId) {
+		assert.Equal(t, "b6d24b8e-af0b-4c3c-be0c-359bbd97381e", *b.TopicId)
+	}
 }
 
 func TestGetBroadcastValidations(t *testing.T) {
