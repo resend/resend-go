@@ -88,11 +88,11 @@ type UpdateContactRequest struct {
 	unsubscribedSet bool           `json:"-"`
 }
 
-// Temporary setter for the `unsubscribed` field. This is here
-// as a backwards compatible way to set the unsubscribed field as false, since the
-// default zero value for a bool is false with omitempty, and setting as false
-// would omit the field from the JSON representation.
-// Proper fix for this is coming in v3.
+// SetUnsubscribed is required to send `unsubscribed: false` (resubscribe).
+// A plain bool can't distinguish an explicit false from an unset field, so a
+// directly assigned false is omitted to avoid resubscribing contacts on
+// unrelated updates. Assigning Unsubscribed = true directly also works.
+// Proper fix (a *bool field) needs a breaking change, so it waits for the next major version.
 func (r *UpdateContactRequest) SetUnsubscribed(val bool) {
 	r.Unsubscribed = val
 	r.unsubscribedSet = true
@@ -378,9 +378,9 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 	return *contactsResp, nil
 }
 
-// Patches the JSON representation of the UpdateContactRequest
-// in order to properly omit the `unsubscribed` field if it is not set
-// This is marked to be fixed properly in v3, since the actual fix would
+// Sends `unsubscribed` when it is true or was set via SetUnsubscribed, so a
+// zero-value false doesn't resubscribe contacts on unrelated updates.
+// This is marked to be fixed properly in the next major version, since the actual fix would
 // require a breaking change
 func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	type Alias UpdateContactRequest
@@ -400,7 +400,7 @@ func (r UpdateContactRequest) MarshalJSON() ([]byte, error) {
 	if r.LastName != "" {
 		aux["last_name"] = r.LastName
 	}
-	if r.unsubscribedSet {
+	if r.Unsubscribed || r.unsubscribedSet {
 		aux["unsubscribed"] = r.Unsubscribed
 	}
 	// Include properties if provided (for global contacts)

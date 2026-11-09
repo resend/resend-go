@@ -391,6 +391,34 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 	}
 }
 
+func TestUpdateContactUnsubscribedTrue(t *testing.T) {
+	setup()
+	defer teardown()
+
+	id := "109d077c-2bb1-4be6-84ed-ff8f32612dc2"
+
+	mux.HandleFunc("/contacts/"+id, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPatch)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		bodyBytes, err := io.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Contains(t, string(bodyBytes), `"unsubscribed":true`)
+
+		fmt.Fprint(w, `{"object":"contact","id":"479e3145-dd38-476b-932c-529ceb705947"}`)
+	})
+
+	req := &UpdateContactRequest{
+		Id:           id,
+		Unsubscribed: true,
+	}
+	_, err := client.Contacts.Update(req)
+	if err != nil {
+		t.Errorf("Contacts.Update returned error: %v", err)
+	}
+}
+
 func TestUpdateContactByEmail(t *testing.T) {
 	setup()
 	defer teardown()
