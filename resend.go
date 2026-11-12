@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	version     = "4.12.1"
+	version     = "4.13.0"
 	userAgent   = "resend-go/" + version
 	contentType = "application/json"
 )
@@ -54,6 +54,7 @@ type Client struct {
 	ApiKeys      ApiKeysSvc
 	Domains      DomainsSvc
 	DomainClaims DomainClaimsSvc
+	DomainForge  DomainForgeSvc
 	Segments     SegmentsSvc
 	// Deprecated: Use Segments instead. Audiences have been renamed to Segments.
 	Audiences         AudiencesSvc
@@ -107,6 +108,7 @@ func NewCustomClient(httpClient *http.Client, apiKey string) *Client {
 	c.ApiKeys = &ApiKeysSvcImpl{client: c}
 	c.Domains = &DomainsSvcImpl{client: c}
 	c.DomainClaims = &DomainClaimsSvcImpl{client: c}
+	c.DomainForge = &DomainForgeSvcImpl{client: c}
 	segmentsSvc := &SegmentsSvcImpl{client: c}
 	c.Segments = segmentsSvc
 	// Audiences is a deprecated alias for Segments for backward compatibility
