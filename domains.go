@@ -47,6 +47,7 @@ const (
 type DomainsSvc interface {
 	CreateWithContext(ctx context.Context, params *CreateDomainRequest) (CreateDomainResponse, error)
 	Create(params *CreateDomainRequest) (CreateDomainResponse, error)
+	VerifyWithOptions(ctx context.Context, domainId string, options *VerifyDomainOptions) (bool, error)
 	VerifyWithContext(ctx context.Context, domainId string) (bool, error)
 	Verify(domainId string) (bool, error)
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListDomainsResponse, error)
@@ -111,8 +112,11 @@ type UpdateDomainRequest struct {
 	ClickTracking     bool      `json:"click_tracking,omitempty"`
 	Tls               TlsOption `json:"tls,omitempty"`
 	TrackingSubdomain string    `json:"tracking_subdomain,omitempty"`
-	openTrackingSet   bool      `json:"-"`
-	clickTrackingSet  bool      `json:"-"`
+	// ForgeReturnPath moves the return path of a Forge domain. It does not
+	// start verification. Requires Forge to be enabled on the domain.
+	ForgeReturnPath  string `json:"forge_return_path,omitempty"`
+	openTrackingSet  bool   `json:"-"`
+	clickTrackingSet bool   `json:"-"`
 }
 
 // SetOpenTracking explicitly sets the open_tracking field, allowing false to be sent.
@@ -142,6 +146,9 @@ func (r UpdateDomainRequest) MarshalJSON() ([]byte, error) {
 	}
 	if r.TrackingSubdomain != "" {
 		aux["tracking_subdomain"] = r.TrackingSubdomain
+	}
+	if r.ForgeReturnPath != "" {
+		aux["forge_return_path"] = r.ForgeReturnPath
 	}
 	return json.Marshal(aux)
 }
@@ -228,13 +235,34 @@ func (s *DomainsSvcImpl) Create(params *CreateDomainRequest) (CreateDomainRespon
 	return s.CreateWithContext(context.Background(), params)
 }
 
-// VerifyWithContext verifies a given domain Id
+type VerifyDomainScope = string
+
+const (
+	VerifyDomainScopeForge VerifyDomainScope = "forge"
+)
+
+// VerifyDomainOptions limits which records a domain verification checks.
+type VerifyDomainOptions struct {
+	// Scope limits the check to specific records. Pass
+	// []VerifyDomainScope{VerifyDomainScopeForge} to verify only the Forge
+	// record and leave the other records untouched; this requires Forge to be
+	// enabled on the domain. When omitted, all records are checked.
+	Scope []VerifyDomainScope `json:"scope,omitempty"`
+}
+
+// VerifyWithOptions verifies a given domain Id, optionally limiting the check
+// to specific records
 // https://resend.com/docs/api-reference/domains/verify-domain
-func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) {
+func (s *DomainsSvcImpl) VerifyWithOptions(ctx context.Context, domainId string, options *VerifyDomainOptions) (bool, error) {
 	path := "domains/" + domainId + "/verify"
 
+	var params any
+	if options != nil && len(options.Scope) > 0 {
+		params = options
+	}
+
 	// Prepare request
-	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, params)
 	if err != nil {
 		return false, errors.New("[ERROR]: Failed to create Domains.Verify request")
 	}
@@ -247,6 +275,12 @@ func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string)
 	}
 
 	return true, nil
+}
+
+// VerifyWithContext verifies a given domain Id
+// https://resend.com/docs/api-reference/domains/verify-domain
+func (s *DomainsSvcImpl) VerifyWithContext(ctx context.Context, domainId string) (bool, error) {
+	return s.VerifyWithOptions(ctx, domainId, nil)
 }
 
 // Verify verifies a given domain Id
