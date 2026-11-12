@@ -289,10 +289,8 @@ func TestUpdateContactById(t *testing.T) {
 		var ret any
 		ret = `
 		{
-			"data": {
-				"id": "479e3145-dd38-476b-932c-529ceb705947"
-			},
-			"error": null
+			"object": "contact",
+			"id": "479e3145-dd38-476b-932c-529ceb705947"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -307,9 +305,9 @@ func TestUpdateContactById(t *testing.T) {
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
 	}
-	assert.NotNil(t, resp.Data)
-	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
-	assert.Equal(t, resp.Error, struct{}{})
+	assert.Equal(t, "contact", resp.Object)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Data.Id)
 }
 
 func TestUpdateContactUnsubscribedFalse(t *testing.T) {
@@ -327,10 +325,8 @@ func TestUpdateContactUnsubscribedFalse(t *testing.T) {
 		var ret any
 		ret = `
 		{
-			"data": {
-				"id": "479e3145-dd38-476b-932c-529ceb705947"
-			},
-			"error": null
+			"object": "contact",
+			"id": "479e3145-dd38-476b-932c-529ceb705947"
 		}`
 
 		bodyBytes, err := io.ReadAll(r.Body)
@@ -367,10 +363,8 @@ func TestUpdateContactUnsubscribedNil(t *testing.T) {
 		var ret any
 		ret = `
 		{
-			"data": {
-				"id": "479e3145-dd38-476b-932c-529ceb705947"
-			},
-			"error": null
+			"object": "contact",
+			"id": "479e3145-dd38-476b-932c-529ceb705947"
 		}`
 
 		bodyBytes, err := io.ReadAll(r.Body)
@@ -434,10 +428,8 @@ func TestUpdateContactByEmail(t *testing.T) {
 		var ret any
 		ret = `
 		{
-			"data": {
-				"id": "479e3145-dd38-476b-932c-529ceb705947"
-			},
-			"error": null
+			"object": "contact",
+			"id": "479e3145-dd38-476b-932c-529ceb705947"
 		}`
 
 		fmt.Fprint(w, ret)
@@ -452,9 +444,9 @@ func TestUpdateContactByEmail(t *testing.T) {
 	if err != nil {
 		t.Errorf("Contacts.Update returned error: %v", err)
 	}
-	assert.NotNil(t, resp.Data)
-	assert.Equal(t, resp.Data.Id, "479e3145-dd38-476b-932c-529ceb705947")
-	assert.Equal(t, resp.Error, struct{}{})
+	assert.Equal(t, "contact", resp.Object)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Id)
+	assert.Equal(t, "479e3145-dd38-476b-932c-529ceb705947", resp.Data.Id)
 }
 
 func TestUpdateContactIdMissing(t *testing.T) {
