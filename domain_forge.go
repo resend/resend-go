@@ -7,9 +7,10 @@ import (
 )
 
 // EnableDomainForgeRequest contains params for activating Forge on a domain.
-// ReturnPath is optional; when omitted, the server picks a free DNS label.
+// CustomReturnPath is optional; when omitted, the server picks a free DNS
+// label. It is set once and cannot be changed afterwards.
 type EnableDomainForgeRequest struct {
-	ReturnPath string `json:"return_path,omitempty"`
+	CustomReturnPath string `json:"custom_return_path,omitempty"`
 }
 
 type DomainForgeSvc interface {

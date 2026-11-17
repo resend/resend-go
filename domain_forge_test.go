@@ -51,7 +51,7 @@ func TestEnableDomainForge(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Fatalf("failed to decode request body: %v", err)
 		}
-		assert.Equal(t, "send", body["return_path"])
+		assert.Equal(t, "send", body["custom_return_path"])
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -59,7 +59,7 @@ func TestEnableDomainForge(t *testing.T) {
 	})
 
 	resp, err := client.DomainForge.Enable("d91cd9bd-1176-453e-8fc1-35364d380206", &EnableDomainForgeRequest{
-		ReturnPath: "send",
+		CustomReturnPath: "send",
 	})
 	if err != nil {
 		t.Errorf("DomainForge.Enable returned error: %v", err)

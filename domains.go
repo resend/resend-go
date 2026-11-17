@@ -112,11 +112,8 @@ type UpdateDomainRequest struct {
 	ClickTracking     bool      `json:"click_tracking,omitempty"`
 	Tls               TlsOption `json:"tls,omitempty"`
 	TrackingSubdomain string    `json:"tracking_subdomain,omitempty"`
-	// ForgeReturnPath moves the return path of a Forge domain. It does not
-	// start verification. Requires Forge to be enabled on the domain.
-	ForgeReturnPath  string `json:"forge_return_path,omitempty"`
-	openTrackingSet  bool   `json:"-"`
-	clickTrackingSet bool   `json:"-"`
+	openTrackingSet   bool      `json:"-"`
+	clickTrackingSet  bool      `json:"-"`
 }
 
 // SetOpenTracking explicitly sets the open_tracking field, allowing false to be sent.
@@ -146,9 +143,6 @@ func (r UpdateDomainRequest) MarshalJSON() ([]byte, error) {
 	}
 	if r.TrackingSubdomain != "" {
 		aux["tracking_subdomain"] = r.TrackingSubdomain
-	}
-	if r.ForgeReturnPath != "" {
-		aux["forge_return_path"] = r.ForgeReturnPath
 	}
 	return json.Marshal(aux)
 }
