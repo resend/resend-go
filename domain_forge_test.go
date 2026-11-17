@@ -86,7 +86,7 @@ func TestEnableDomainForgeWithoutReturnPath(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Fatalf("failed to decode request body: %v", err)
 		}
-		assert.Empty(t, body)
+		assert.Equal(t, map[string]any{}, body)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
