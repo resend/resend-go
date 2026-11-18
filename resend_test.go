@@ -363,6 +363,8 @@ func TestRequestPaths(t *testing.T) {
 				"inboxes/inbox-id/threads/../labels/label-id",
 				"emails/..?after=ok", "emails/.#fragment",
 				"https://example.invalid/emails/..", "//example.invalid/emails/..",
+				"emails/%2e", "emails/%2E%2E", "emails/.%2e", "emails/%2e.",
+				"emails/%2E/cancel", "domains/%2e%2e/api-keys", "emails/%2e%2e?after=ok",
 			} {
 				t.Run(path, func(t *testing.T) {
 					req, err := builder.build(client, path)
@@ -380,10 +382,7 @@ func TestRequestPaths(t *testing.T) {
 				{"emails/...", "https://example.invalid/v1/emails/..."},
 				{"contacts/john.doe@example.com", "https://example.invalid/v1/contacts/john.doe@example.com"},
 				{"contacts/john.doe%40example.com", "https://example.invalid/v1/contacts/john.doe%40example.com"},
-				{"emails/%2e", "https://example.invalid/v1/emails/%2e"},
-				{"emails/%2E%2E", "https://example.invalid/v1/emails/%2E%2E"},
-				{"emails/.%2e", "https://example.invalid/v1/emails/.%2e"},
-				{"emails/%2e.", "https://example.invalid/v1/emails/%2e."},
+				{"emails/%2e%2e%2e", "https://example.invalid/v1/emails/%2e%2e%2e"},
 				{"emails/..%2Femail-id", "https://example.invalid/v1/emails/..%2Femail-id"},
 				{"emails/%252e%252e", "https://example.invalid/v1/emails/%252e%252e"},
 				{"emails/email-id?after=/../", "https://example.invalid/v1/emails/email-id?after=/../"},
@@ -444,6 +443,10 @@ func TestServicesRejectDotSegmentsBeforeTransport(t *testing.T) {
 		}},
 		{"contact remove", func(c *Client) error {
 			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "../api-keys/example"})
+			return err
+		}},
+		{"contact remove encoded", func(c *Client) error {
+			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "%2e%2e/api-keys/example"})
 			return err
 		}},
 		{"inbox thread label remove", func(c *Client) error {

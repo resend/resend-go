@@ -212,7 +212,12 @@ func (c *Client) parseRequestURL(path string) (*url.URL, error) {
 	}
 
 	for _, segment := range strings.Split(ref.EscapedPath(), "/") {
-		if segment == "." || segment == ".." {
+		// Servers and proxies may decode %2e before resolving dot segments.
+		decoded, err := url.PathUnescape(segment)
+		if err != nil {
+			return nil, err
+		}
+		if decoded == "." || decoded == ".." {
 			return nil, errors.New("[ERROR]: Request path cannot contain . or .. segments")
 		}
 	}
