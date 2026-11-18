@@ -333,3 +333,151 @@ func TestNewRequestReturnsErrorForInvalidMethod(t *testing.T) {
 		assert.Nil(t, req)
 	}
 }
+
+func TestRequestPaths(t *testing.T) {
+	builders := []struct {
+		name  string
+		build func(*Client, string) (*http.Request, error)
+	}{
+		{"json", func(c *Client, path string) (*http.Request, error) {
+			return c.NewRequest(context.Background(), http.MethodGet, path, nil)
+		}},
+		{"options", func(c *Client, path string) (*http.Request, error) {
+			return c.NewRequestWithOptions(context.Background(), http.MethodPost, path, nil, &SendEmailOptions{IdempotencyKey: "test-key"})
+		}},
+		{"multipart", func(c *Client, path string) (*http.Request, error) {
+			return c.NewMultipartRequest(context.Background(), path, []byte("email\njohn.doe@example.com"), "contacts.csv", nil)
+		}},
+	}
+
+	for _, builder := range builders {
+		t.Run(builder.name, func(t *testing.T) {
+			client := NewClient("test-key")
+			client.BaseURL = &url.URL{Scheme: "https", Host: "example.invalid", Path: "/v1/"}
+
+			for _, path := range []string{
+				".", "..", "./emails", "../emails",
+				"emails/.", "emails/..", "emails/./cancel", "emails/../cancel",
+				"/emails/../", "emails//../cancel",
+				"contacts/../api-keys/example",
+				"inboxes/inbox-id/threads/../labels/label-id",
+				"emails/..?after=ok", "emails/.#fragment",
+				"https://example.invalid/emails/..", "//example.invalid/emails/..",
+				"emails/%2e", "emails/%2E%2E", "emails/.%2e", "emails/%2e.",
+				"emails/%2E/cancel", "domains/%2e%2e/api-keys", "emails/%2e%2e?after=ok",
+			} {
+				t.Run(path, func(t *testing.T) {
+					req, err := builder.build(client, path)
+					assert.EqualError(t, err, "[ERROR]: Request path cannot contain . or .. segments")
+					assert.Nil(t, req)
+				})
+			}
+
+			for _, tc := range []struct {
+				path string
+				want string
+			}{
+				{"emails/email-id", "https://example.invalid/v1/emails/email-id"},
+				{"/emails/email-id", "https://example.invalid/emails/email-id"},
+				{"emails/...", "https://example.invalid/v1/emails/..."},
+				{"contacts/john.doe@example.com", "https://example.invalid/v1/contacts/john.doe@example.com"},
+				{"contacts/john.doe%40example.com", "https://example.invalid/v1/contacts/john.doe%40example.com"},
+				{"emails/%2e%2e%2e", "https://example.invalid/v1/emails/%2e%2e%2e"},
+				{"emails/..%2Femail-id", "https://example.invalid/v1/emails/..%2Femail-id"},
+				{"emails/%252e%252e", "https://example.invalid/v1/emails/%252e%252e"},
+				{"emails/email-id?after=/../", "https://example.invalid/v1/emails/email-id?after=/../"},
+				{"emails/email-id#/../", "https://example.invalid/v1/emails/email-id#/../"},
+				{"emails/email-id%3F/..%23", "https://example.invalid/v1/emails/email-id%3F/..%23"},
+				{"https://example.invalid/emails/email-id", "https://example.invalid/emails/email-id"},
+				{"//example.invalid/emails/email-id", "https://example.invalid/emails/email-id"},
+				{"", "https://example.invalid/v1/"},
+				{"?after=..", "https://example.invalid/v1/?after=.."},
+				{"#/../", "https://example.invalid/v1/#/../"},
+			} {
+				t.Run(tc.path, func(t *testing.T) {
+					req, err := builder.build(client, tc.path)
+					if assert.NoError(t, err) && assert.NotNil(t, req) {
+						assert.Equal(t, tc.want, req.URL.String())
+					}
+				})
+			}
+
+			t.Run("invalid escape", func(t *testing.T) {
+				req, err := builder.build(client, "emails/%zz")
+				assert.Error(t, err)
+				assert.Nil(t, req)
+			})
+		})
+	}
+}
+
+type pathRecordingTransport struct {
+	paths []string
+}
+
+func (transport *pathRecordingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	transport.paths = append(transport.paths, req.Method+" "+req.URL.RequestURI())
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Header:     make(http.Header),
+		Body:       io.NopCloser(bytes.NewBufferString(`{}`)),
+	}, nil
+}
+
+func TestServicesRejectDotSegmentsBeforeTransport(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		call func(*Client) error
+	}{
+		{"email get", func(c *Client) error {
+			_, err := c.Emails.Get("..")
+			return err
+		}},
+		{"email cancel", func(c *Client) error {
+			_, err := c.Emails.Cancel("..")
+			return err
+		}},
+		{"domain remove", func(c *Client) error {
+			_, err := c.Domains.Remove(".")
+			return err
+		}},
+		{"contact remove", func(c *Client) error {
+			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "../api-keys/example"})
+			return err
+		}},
+		{"contact remove encoded", func(c *Client) error {
+			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "%2e%2e/api-keys/example"})
+			return err
+		}},
+		{"inbox thread label remove", func(c *Client) error {
+			_, err := c.Inboxes.Threads.Labels.Remove("inbox-id", "..", "label-id")
+			return err
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			transport := &pathRecordingTransport{}
+			client := NewCustomClient(&http.Client{Transport: transport}, "test-key")
+			client.BaseURL = &url.URL{Scheme: "https", Host: "example.invalid", Path: "/"}
+			assert.Error(t, tc.call(client))
+			assert.Empty(t, transport.paths)
+		})
+	}
+}
+
+func TestServicesPreserveDottedIdentifiers(t *testing.T) {
+	transport := &pathRecordingTransport{}
+	client := NewCustomClient(&http.Client{Transport: transport}, "test-key")
+	client.BaseURL = &url.URL{Scheme: "https", Host: "example.invalid", Path: "/v1/"}
+
+	_, err := client.Emails.Get("...")
+	assert.NoError(t, err)
+	_, err = client.Contacts.Remove(&RemoveContactOptions{Id: "john.doe%40example.com"})
+	assert.NoError(t, err)
+	_, err = client.Inboxes.Threads.Labels.Remove("john.doe@example.com", "...", "label-id")
+	assert.NoError(t, err)
+	assert.Equal(t, []string{
+		"GET /v1/emails/...",
+		"DELETE /v1/contacts/john.doe%40example.com",
+		"DELETE /v1/inboxes/john.doe@example.com/threads/.../labels/label-id",
+	}, transport.paths)
+}
