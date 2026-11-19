@@ -25,6 +25,7 @@ type DomainForgeSvcImpl struct {
 // EnableWithContext activates Forge on a domain and returns the full domain
 // object, using the given context. Enabling an already-migrated domain is
 // idempotent on the API side and returns its current state.
+// https://resend.com/docs/api-reference/domains/enable-forge
 func (s *DomainForgeSvcImpl) EnableWithContext(ctx context.Context, domainId string, params *EnableDomainForgeRequest) (Domain, error) {
 	path := "domains/" + domainId + "/forge"
 
@@ -48,6 +49,7 @@ func (s *DomainForgeSvcImpl) EnableWithContext(ctx context.Context, domainId str
 // Enable activates Forge on a domain and returns the full domain object.
 // Enabling an already-migrated domain is idempotent on the API side and
 // returns its current state.
+// https://resend.com/docs/api-reference/domains/enable-forge
 func (s *DomainForgeSvcImpl) Enable(domainId string, params *EnableDomainForgeRequest) (Domain, error) {
 	return s.EnableWithContext(context.Background(), domainId, params)
 }

@@ -223,6 +223,7 @@ func TestVerifyDomain(t *testing.T) {
 
 	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206/verify", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, int64(0), r.ContentLength)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Length", "0")
 		fmt.Fprint(w, nil)
