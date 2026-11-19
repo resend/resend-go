@@ -56,6 +56,30 @@ Replace the placeholder API key and email addresses before sending. Use a verifi
 
 You can view all the examples in the [examples folder](https://github.com/resend/resend-go/tree/main/examples)
 
+## Template plain text
+
+Templates generate plain text from HTML when `Text` is omitted. To disable this
+generation, call `SetText("")` before creating or updating the template:
+
+```go
+create := &resend.CreateTemplateRequest{Name: "welcome", Html: "<p>Welcome</p>"}
+create.SetText("")
+_, err := client.Templates.Create(create)
+if err != nil {
+    panic(err)
+}
+
+update := &resend.UpdateTemplateRequest{Subject: "Welcome back"}
+update.SetText("")
+_, err = client.Templates.Update("template-id", update)
+if err != nil {
+    panic(err)
+}
+```
+
+Nonempty text can still be assigned directly to `Text`. A directly assigned
+empty string remains omitted for compatibility.
+
 ## Error handling
 
 Use `errors.As` from the standard library's `errors` package to inspect typed
