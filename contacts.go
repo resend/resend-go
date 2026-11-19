@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 )
 
 type ContactsSvc interface {
@@ -260,10 +261,10 @@ func (s *ContactsSvcImpl) RemoveWithContext(ctx context.Context, options *Remove
 	var path string
 	if options.AudienceId != "" {
 		// Audience-specific contact (legacy)
-		path = "audiences/" + options.AudienceId + "/contacts/" + options.Id
+		path = "audiences/" + options.AudienceId + "/contacts/" + url.PathEscape(options.Id)
 	} else {
 		// Global contact
-		path = "contacts/" + options.Id
+		path = "contacts/" + url.PathEscape(options.Id)
 	}
 
 	// Prepare request
@@ -304,10 +305,10 @@ func (s *ContactsSvcImpl) GetWithContext(ctx context.Context, options *GetContac
 	var path string
 	if options.AudienceId != "" {
 		// Audience-specific contact (legacy)
-		path = "audiences/" + options.AudienceId + "/contacts/" + options.Id
+		path = "audiences/" + options.AudienceId + "/contacts/" + url.PathEscape(options.Id)
 	} else {
 		// Global contact
-		path = "contacts/" + options.Id
+		path = "contacts/" + url.PathEscape(options.Id)
 	}
 
 	// Prepare request
@@ -353,10 +354,10 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 	var path string
 	if params.AudienceId != "" {
 		// Audience-specific contact (legacy path)
-		path = "audiences/" + params.AudienceId + "/contacts/" + val
+		path = "audiences/" + params.AudienceId + "/contacts/" + url.PathEscape(val)
 	} else {
 		// Global contact
-		path = "contacts/" + val
+		path = "contacts/" + url.PathEscape(val)
 	}
 
 	// Prepare request
