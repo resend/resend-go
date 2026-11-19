@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -169,7 +170,7 @@ func (c *Client) NewRequestWithOptions(ctx context.Context, method, path string,
 // NewRequest builds and returns a new HTTP request object
 // based on the given arguments
 func (c *Client) NewRequest(ctx context.Context, method, path string, params any) (*http.Request, error) {
-	u, err := c.BaseURL.Parse(path)
+	u, err := c.parseRequestURL(path)
 	if err != nil {
 		return nil, err
 	}
@@ -204,6 +205,26 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params any
 	req.Header.Set("Authorization", "Bearer "+c.ApiKey)
 
 	return req, nil
+}
+
+func (c *Client) parseRequestURL(path string) (*url.URL, error) {
+	ref, err := url.Parse(path)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, segment := range strings.Split(ref.EscapedPath(), "/") {
+		// Servers and proxies may decode %2e before resolving dot segments.
+		decoded, err := url.PathUnescape(segment)
+		if err != nil {
+			return nil, err
+		}
+		if decoded == "." || decoded == ".." {
+			return nil, errors.New("[ERROR]: Request path cannot contain . or .. segments")
+		}
+	}
+
+	return c.BaseURL.ResolveReference(ref), nil
 }
 
 // Perform sends the request to the Resend API
