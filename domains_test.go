@@ -1,6 +1,7 @@
 package resend
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -222,6 +223,7 @@ func TestVerifyDomain(t *testing.T) {
 
 	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206/verify", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, http.MethodPost)
+		assert.Equal(t, int64(0), r.ContentLength)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Length", "0")
 		fmt.Fprint(w, nil)
@@ -230,6 +232,36 @@ func TestVerifyDomain(t *testing.T) {
 	verified, err := client.Domains.Verify("d91cd9bd-1176-453e-8fc1-35364d380206")
 	if err != nil {
 		t.Errorf("Domains.Verify returned error: %v", err)
+	}
+	assert.True(t, verified)
+}
+
+func TestVerifyDomainWithScope(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/domains/d91cd9bd-1176-453e-8fc1-35364d380206/verify", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodPost)
+
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("failed to decode request body: %v", err)
+		}
+		assert.Equal(t, []any{"forge"}, body["scope"])
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{
+			"object": "domain",
+			"id": "d91cd9bd-1176-453e-8fc1-35364d380206"
+		}`)
+	})
+
+	verified, err := client.Domains.VerifyWithOptions(context.Background(), "d91cd9bd-1176-453e-8fc1-35364d380206", &VerifyDomainOptions{
+		Scope: []VerifyDomainScope{VerifyDomainScopeForge},
+	})
+	if err != nil {
+		t.Errorf("Domains.VerifyWithOptions returned error: %v", err)
 	}
 	assert.True(t, verified)
 }
