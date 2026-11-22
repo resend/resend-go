@@ -524,3 +524,38 @@ func TestInboxWebhookEventConstants(t *testing.T) {
 		EventInboxDraftDeleted,
 	})
 }
+
+func TestWebhooksPathEscaping(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var requests []string
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		requests = append(requests, r.Method+" "+r.RequestURI)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"object":"webhook","id":"wh"}`)
+	})
+
+	_, err := client.Webhooks.Get("wh#1")
+	assert.NoError(t, err)
+	_, err = client.Webhooks.Update("wh#1", &UpdateWebhookRequest{})
+	assert.NoError(t, err)
+	_, err = client.Webhooks.Remove("wh#1")
+	assert.NoError(t, err)
+	_, err = client.Webhooks.ListEvents("wh#1")
+	assert.NoError(t, err)
+	_, err = client.Webhooks.GetEvent("wh#1", "ev?retry=1")
+	assert.NoError(t, err)
+	_, err = client.Webhooks.ReplayEvent("wh#1", "ev?retry=1")
+	assert.NoError(t, err)
+
+	assert.Equal(t, []string{
+		"GET /webhooks/wh%231",
+		"PATCH /webhooks/wh%231",
+		"DELETE /webhooks/wh%231",
+		"GET /webhooks/wh%231/events",
+		"GET /webhooks/wh%231/events/ev%3Fretry=1",
+		"POST /webhooks/wh%231/events/ev%3Fretry=1/replay",
+	}, requests)
+}
