@@ -99,8 +99,12 @@ func (r *UpdateContactRequest) SetUnsubscribed(val bool) {
 }
 
 type UpdateContactResponse struct {
-	Data  Contact  `json:"data"`
-	Error struct{} `json:"error"` // Fix this
+	Object string `json:"object"`
+	Id     string `json:"id"`
+	// Deprecated: The API does not return a data object. Use Id instead. Only Data.Id is set.
+	Data Contact `json:"data"`
+	// Deprecated: The API does not return an error object. Errors are returned by Update.
+	Error struct{} `json:"error"`
 }
 
 type CreateContactResponse struct {
@@ -373,6 +377,10 @@ func (s *ContactsSvcImpl) UpdateWithContext(ctx context.Context, params *UpdateC
 
 	if err != nil {
 		return UpdateContactResponse{}, err
+	}
+
+	if contactsResp.Data.Id == "" {
+		contactsResp.Data.Id = contactsResp.Id
 	}
 
 	return *contactsResp, nil

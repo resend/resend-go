@@ -109,8 +109,7 @@ func globalContactsExample() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Updated contact: %s\n", updated.Data.Email)
-	fmt.Printf("New properties: %+v\n", updated.Data.Properties)
+	fmt.Printf("Updated contact: %s\n", updated.Id)
 
 	// Example 5: Remove a global contact
 	// Omit AudienceId to remove a global contact
