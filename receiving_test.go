@@ -290,6 +290,52 @@ func TestListReceivedEmailsWithParameters(t *testing.T) {
 	assert.Equal(t, 1, len(resp.Data))
 }
 
+func TestListReceivedEmailsWithFilters(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/receiving", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "after=cursor123&end_date=2026-11-15T12%3A00%3A00Z&limit=25&start_date=2026-11-01&to=support%40acme.com%2Cbilling%40acme.com", r.URL.RawQuery)
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"object":"list","has_more":false,"data":[]}`)
+	})
+
+	limit := 25
+	after := "cursor123"
+	_, err := client.Emails.Receiving.ListWithFilters(context.Background(), &ListReceivedEmailsOptions{
+		To:        []string{"support@acme.com", "billing@acme.com"},
+		StartDate: "2026-11-01",
+		EndDate:   "2026-11-15T12:00:00Z",
+		Limit:     &limit,
+		After:     &after,
+	})
+	if err != nil {
+		t.Errorf("Emails.Receiving.ListWithFilters returned error: %v", err)
+	}
+}
+
+func TestListReceivedEmailsWithFiltersOmitsUnset(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/emails/receiving", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, http.MethodGet)
+		assert.Equal(t, "to=support%40acme.com", r.URL.RawQuery)
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"object":"list","has_more":false,"data":[]}`)
+	})
+
+	_, err := client.Emails.Receiving.ListWithFilters(context.Background(), &ListReceivedEmailsOptions{
+		To: []string{"support@acme.com"},
+	})
+	if err != nil {
+		t.Errorf("Emails.Receiving.ListWithFilters returned error: %v", err)
+	}
+}
+
 func TestListReceivedEmailsEmpty(t *testing.T) {
 	setup()
 	defer teardown()

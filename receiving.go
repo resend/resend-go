@@ -67,12 +67,30 @@ type GetReceivedEmailParams struct {
 	HtmlFormat *string
 }
 
+// ListReceivedEmailsOptions contains the filters and pagination for Receiving.ListWithFilters.
+// Different filters combine, so an email must match all of them.
+type ListReceivedEmailsOptions struct {
+	// To holds recipient addresses. Each value must equal an envelope recipient of the email
+	// exactly, with case. Returns emails received by any of them. Up to 20 values.
+	To []string
+	// StartDate matches emails received on or after this date. Accepts a date like `2026-09-01` or
+	// an ISO 8601 timestamp, in UTC unless the timestamp has an offset.
+	StartDate string
+	// EndDate matches emails received on or before this date. Same formats as StartDate. A date
+	// covers that whole day. A timestamp is used as given. StartDate must not be after EndDate.
+	EndDate string
+	Limit   *int
+	After   *string
+	Before  *string
+}
+
 // ReceivingSvc handles operations for received/inbound emails
 type ReceivingSvc interface {
 	GetWithOptions(ctx context.Context, emailId string, params *GetReceivedEmailParams) (*ReceivedEmail, error)
 	GetWithContext(ctx context.Context, emailId string) (*ReceivedEmail, error)
 	Get(emailId string) (*ReceivedEmail, error)
 	ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error)
+	ListWithFilters(ctx context.Context, options *ListReceivedEmailsOptions) (ListReceivedEmailsResponse, error)
 	ListWithContext(ctx context.Context) (ListReceivedEmailsResponse, error)
 	List() (ListReceivedEmailsResponse, error)
 	GetAttachmentWithContext(ctx context.Context, emailId string, attachmentId string) (*EmailAttachment, error)
@@ -128,9 +146,35 @@ func (s *ReceivingSvcImpl) Get(emailId string) (*ReceivedEmail, error) {
 // ListWithOptions retrieves a list of received emails with pagination options
 // https://resend.com/docs/api-reference/emails/list-received-emails
 func (s *ReceivingSvcImpl) ListWithOptions(ctx context.Context, options *ListOptions) (ListReceivedEmailsResponse, error) {
-	path := "emails/receiving" + buildPaginationQuery(options)
+	if options == nil {
+		return s.ListWithFilters(ctx, nil)
+	}
+	return s.ListWithFilters(ctx, &ListReceivedEmailsOptions{
+		Limit:  options.Limit,
+		After:  options.After,
+		Before: options.Before,
+	})
+}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
+// ListWithFilters retrieves a list of received emails filtered by recipient and date, with
+// pagination options
+// https://resend.com/docs/api-reference/emails/list-received-emails
+func (s *ReceivingSvcImpl) ListWithFilters(ctx context.Context, options *ListReceivedEmailsOptions) (ListReceivedEmailsResponse, error) {
+	if options == nil {
+		options = &ListReceivedEmailsOptions{}
+	}
+
+	query := make(url.Values)
+	setInboxListQuery(query, "to", options.To)
+	if options.StartDate != "" {
+		query.Set("start_date", options.StartDate)
+	}
+	if options.EndDate != "" {
+		query.Set("end_date", options.EndDate)
+	}
+	setInboxCursorQuery(query, options.Limit, options.After, options.Before)
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, withQuery("emails/receiving", query), nil)
 	if err != nil {
 		return ListReceivedEmailsResponse{}, ErrFailedToCreateReceivingListRequest
 	}
