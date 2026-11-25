@@ -43,6 +43,17 @@ func receivingExample() {
 	}
 	fmt.Printf("\nPaginated list returned %d emails\n", len(paginatedEmails.Data))
 
+	// List emails received by an address in November
+	filteredEmails, err := client.Emails.Receiving.ListWithFilters(ctx, &resend.ListReceivedEmailsOptions{
+		To:        []string{"support@acme.com"},
+		StartDate: "2026-11-01",
+		EndDate:   "2026-11-30",
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nFiltered list returned %d emails\n", len(filteredEmails.Data))
+
 	// Get email with attachments
 	emailWithAttachments, err := client.Emails.Receiving.GetWithContext(ctx, "006e2796-ff6a-4436-91ad-0429e600bf8a")
 	if err != nil {
