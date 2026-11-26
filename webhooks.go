@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -283,7 +284,7 @@ func (s *WebhooksSvcImpl) Create(params *CreateWebhookRequest) (*CreateWebhookRe
 // GetWithContext retrieves a webhook by ID with the given context
 // https://resend.com/docs/api-reference/webhooks/get-webhook
 func (s *WebhooksSvcImpl) GetWithContext(ctx context.Context, webhookId string) (*Webhook, error) {
-	path := "webhooks/" + webhookId
+	path := "webhooks/" + url.PathEscape(webhookId)
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -310,7 +311,7 @@ func (s *WebhooksSvcImpl) Get(webhookId string) (*Webhook, error) {
 // UpdateWithContext updates a webhook with the given context
 // https://resend.com/docs/api-reference/webhooks/update-webhook
 func (s *WebhooksSvcImpl) UpdateWithContext(ctx context.Context, webhookId string, params *UpdateWebhookRequest) (*UpdateWebhookResponse, error) {
-	path := "webhooks/" + webhookId
+	path := "webhooks/" + url.PathEscape(webhookId)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodPatch, path, params)
@@ -376,7 +377,7 @@ func (s *WebhooksSvcImpl) ListEventsWithOptions(ctx context.Context, webhookId s
 		paginationOptions.Limit = options.Limit
 		paginationOptions.After = options.After
 	}
-	path := "webhooks/" + webhookId + "/events" + buildPaginationQuery(paginationOptions)
+	path := "webhooks/" + url.PathEscape(webhookId) + "/events" + buildPaginationQuery(paginationOptions)
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -405,7 +406,7 @@ func (s *WebhooksSvcImpl) ListEvents(webhookId string) (*ListWebhookEventsRespon
 // GetEventWithContext retrieves a webhook event by ID with the given context.
 // https://resend.com/docs/api-reference/webhooks/get-event
 func (s *WebhooksSvcImpl) GetEventWithContext(ctx context.Context, webhookId string, eventId string) (*WebhookEvent, error) {
-	path := "webhooks/" + webhookId + "/events/" + eventId
+	path := "webhooks/" + url.PathEscape(webhookId) + "/events/" + url.PathEscape(eventId)
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -429,7 +430,7 @@ func (s *WebhooksSvcImpl) GetEvent(webhookId string, eventId string) (*WebhookEv
 // ReplayEventWithContext queues one more delivery of a webhook event with the given context.
 // https://resend.com/docs/api-reference/webhooks/replay-event
 func (s *WebhooksSvcImpl) ReplayEventWithContext(ctx context.Context, webhookId string, eventId string) (*ReplayWebhookEventResponse, error) {
-	path := "webhooks/" + webhookId + "/events/" + eventId + "/replay"
+	path := "webhooks/" + url.PathEscape(webhookId) + "/events/" + url.PathEscape(eventId) + "/replay"
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
@@ -458,7 +459,7 @@ func (s *WebhooksSvcImpl) ListEventAttemptsWithOptions(ctx context.Context, webh
 		paginationOptions.Limit = options.Limit
 		paginationOptions.After = options.After
 	}
-	path := "webhooks/" + webhookId + "/events/" + eventId + "/attempts" + buildPaginationQuery(paginationOptions)
+	path := "webhooks/" + url.PathEscape(webhookId) + "/events/" + url.PathEscape(eventId) + "/attempts" + buildPaginationQuery(paginationOptions)
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -487,7 +488,7 @@ func (s *WebhooksSvcImpl) ListEventAttempts(webhookId string, eventId string) (*
 // RotateSigningSecretWithContext rotates the signing secret of a webhook with the given context.
 // https://resend.com/docs/api-reference/webhooks/rotate-signing-secret
 func (s *WebhooksSvcImpl) RotateSigningSecretWithContext(ctx context.Context, webhookId string) (*RotateWebhookSigningSecretResponse, error) {
-	path := "webhooks/" + webhookId + "/signing-secret/rotate"
+	path := "webhooks/" + url.PathEscape(webhookId) + "/signing-secret/rotate"
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, path, nil)
 	if err != nil {
@@ -511,7 +512,7 @@ func (s *WebhooksSvcImpl) RotateSigningSecret(webhookId string) (*RotateWebhookS
 // RemoveWithContext deletes a webhook by ID with the given context
 // https://resend.com/docs/api-reference/webhooks/delete-webhook
 func (s *WebhooksSvcImpl) RemoveWithContext(ctx context.Context, webhookId string) (*DeleteWebhookResponse, error) {
-	path := "webhooks/" + webhookId
+	path := "webhooks/" + url.PathEscape(webhookId)
 
 	// Prepare request
 	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
@@ -593,9 +594,9 @@ func (s *WebhooksSvcImpl) Verify(options *VerifyWebhookOptions) error {
 	// The signature header contains space-separated signatures with version prefixes (e.g., "v1,sig1 v1,sig2")
 	signatures := strings.Split(options.Headers.Signature, " ")
 	for _, sig := range signatures {
-		// Strip version prefix (e.g., "v1,")
+		// Require the v1 scheme prefix per Svix signature format.
 		parts := strings.SplitN(sig, ",", 2)
-		if len(parts) != 2 {
+		if len(parts) != 2 || parts[0] != "v1" {
 			continue
 		}
 
