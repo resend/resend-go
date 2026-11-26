@@ -225,6 +225,11 @@ func (s *ContactImportsSvcImpl) ListWithContext(ctx context.Context, options *Li
 
 // NewMultipartRequest builds an HTTP multipart/form-data request for file uploads.
 func (c *Client) NewMultipartRequest(ctx context.Context, path string, fileBytes []byte, filename string, fields map[string]string) (*http.Request, error) {
+	u, err := c.parseRequestURL(path)
+	if err != nil {
+		return nil, err
+	}
+
 	var buf bytes.Buffer
 	w := multipart.NewWriter(&buf)
 
@@ -242,11 +247,6 @@ func (c *Client) NewMultipartRequest(ctx context.Context, path string, fileBytes
 		}
 	}
 	w.Close()
-
-	u, err := c.BaseURL.Parse(path)
-	if err != nil {
-		return nil, err
-	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), &buf)
 	if err != nil {
