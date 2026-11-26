@@ -2,6 +2,7 @@ package resend
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 )
 
@@ -34,6 +35,27 @@ type CreateTemplateRequest struct {
 	Html      string              `json:"html"`
 	Text      string              `json:"text,omitempty"`
 	Variables []*TemplateVariable `json:"variables,omitempty"`
+
+	textSet bool `json:"-"`
+}
+
+// SetText explicitly sets text, including an empty string to disable automatic
+// plain text generation. An empty Text assigned directly is omitted; nonempty
+// values can still be assigned directly.
+func (r *CreateTemplateRequest) SetText(val string) {
+	r.Text = val
+	r.textSet = true
+}
+
+func (r CreateTemplateRequest) MarshalJSON() ([]byte, error) {
+	type Alias CreateTemplateRequest
+	if !r.textSet {
+		return json.Marshal(Alias(r))
+	}
+	return json.Marshal(struct {
+		Alias
+		Text string `json:"text"`
+	}{Alias: Alias(r), Text: r.Text})
 }
 
 // CreateTemplateResponse is the response from creating a template
@@ -54,6 +76,27 @@ type UpdateTemplateRequest struct {
 	Html      string              `json:"html,omitempty"`
 	Text      string              `json:"text,omitempty"`
 	Variables []*TemplateVariable `json:"variables,omitempty"`
+
+	textSet bool `json:"-"`
+}
+
+// SetText explicitly sets text, including an empty string to disable automatic
+// plain text generation. An empty Text assigned directly is omitted; nonempty
+// values can still be assigned directly.
+func (r *UpdateTemplateRequest) SetText(val string) {
+	r.Text = val
+	r.textSet = true
+}
+
+func (r UpdateTemplateRequest) MarshalJSON() ([]byte, error) {
+	type Alias UpdateTemplateRequest
+	if !r.textSet {
+		return json.Marshal(Alias(r))
+	}
+	return json.Marshal(struct {
+		Alias
+		Text string `json:"text"`
+	}{Alias: Alias(r), Text: r.Text})
 }
 
 // UpdateTemplateResponse is the response from updating a template
