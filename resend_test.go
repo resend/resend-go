@@ -442,11 +442,7 @@ func TestServicesRejectDotSegmentsBeforeTransport(t *testing.T) {
 			return err
 		}},
 		{"contact remove", func(c *Client) error {
-			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "../api-keys/example"})
-			return err
-		}},
-		{"contact remove encoded", func(c *Client) error {
-			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: "%2e%2e/api-keys/example"})
+			_, err := c.Contacts.Remove(&RemoveContactOptions{Id: ".."})
 			return err
 		}},
 		{"inbox thread label remove", func(c *Client) error {
@@ -471,13 +467,19 @@ func TestServicesPreserveDottedIdentifiers(t *testing.T) {
 
 	_, err := client.Emails.Get("...")
 	assert.NoError(t, err)
-	_, err = client.Contacts.Remove(&RemoveContactOptions{Id: "john.doe%40example.com"})
+	_, err = client.Contacts.Remove(&RemoveContactOptions{Id: "john.doe@example.com"})
+	assert.NoError(t, err)
+	_, err = client.Contacts.Remove(&RemoveContactOptions{Id: "../api-keys/example"})
+	assert.NoError(t, err)
+	_, err = client.Contacts.Remove(&RemoveContactOptions{Id: "%2e%2e/api-keys/example"})
 	assert.NoError(t, err)
 	_, err = client.Inboxes.Threads.Labels.Remove("john.doe@example.com", "...", "label-id")
 	assert.NoError(t, err)
 	assert.Equal(t, []string{
 		"GET /v1/emails/...",
-		"DELETE /v1/contacts/john.doe%40example.com",
+		"DELETE /v1/contacts/john.doe@example.com",
+		"DELETE /v1/contacts/..%2Fapi-keys%2Fexample",
+		"DELETE /v1/contacts/%252e%252e%2Fapi-keys%2Fexample",
 		"DELETE /v1/inboxes/john.doe@example.com/threads/.../labels/label-id",
 	}, transport.paths)
 }
