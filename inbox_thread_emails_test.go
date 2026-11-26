@@ -99,7 +99,7 @@ func TestReplyInboxThreadEmail(t *testing.T) {
 			"reply_all": true,
 			"headers":   map[string]any{"X-Ticket-Id": "4821"},
 			"attachments": []any{map[string]any{
-				"content":  []any{float64(104), float64(101), float64(108), float64(108), float64(111)},
+				"content":  "aGVsbG8=",
 				"filename": "note.txt",
 			}},
 		}, decodeBody(t, r))

@@ -372,7 +372,7 @@ type Attachment struct {
 // attachment content is provided in the way Resend expects.
 func (a *Attachment) MarshalJSON() ([]byte, error) {
 	na := struct {
-		Content         []int  `json:"content,omitempty"`
+		Content         []byte `json:"content,omitempty"`
 		Filename        string `json:"filename,omitempty"`
 		Path            string `json:"path,omitempty"`
 		ContentType     string `json:"content_type,omitempty"`
@@ -381,7 +381,7 @@ func (a *Attachment) MarshalJSON() ([]byte, error) {
 	}{
 		Filename:        a.Filename,
 		Path:            a.Path,
-		Content:         BytesToIntArray(a.Content),
+		Content:         a.Content,
 		ContentType:     a.ContentType,
 		ContentId:       a.ContentId,
 		InlineContentId: a.InlineContentId,
