@@ -24,6 +24,27 @@ func templatesExample() {
 	}
 	fmt.Printf("Created template: %s\n", template.Id)
 
+	// SetText("") sends an empty text, so the API does not generate plain text from the HTML
+	htmlOnlyParams := &resend.CreateTemplateRequest{
+		Name: "html-only-email",
+		Html: "<strong>This template has no plain text version.</strong>",
+	}
+	htmlOnlyParams.SetText("")
+	htmlOnlyTemplate, err := client.Templates.Create(htmlOnlyParams)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Created HTML-only template: %s\n", htmlOnlyTemplate.Id)
+
+	htmlOnlyUpdate := &resend.UpdateTemplateRequest{
+		Html: "<strong>New HTML, still no plain text version.</strong>",
+	}
+	htmlOnlyUpdate.SetText("")
+	_, err = client.Templates.Update(htmlOnlyTemplate.Id, htmlOnlyUpdate)
+	if err != nil {
+		panic(err)
+	}
+
 	// Create a template with variables
 	// IMPORTANT: All variables used in the HTML (e.g., {{{NAME}}}, {{{AGE}}})
 	// MUST be declared in the Variables array, or the API will return an error:
