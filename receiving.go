@@ -2,8 +2,11 @@ package resend
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // ReceivedEmail provides the structure for the response from the Receiving.Get call.
@@ -24,6 +27,39 @@ type ReceivedEmail struct {
 	MessageId   string               `json:"message_id"`
 	Attachments []ReceivedAttachment `json:"attachments"`
 	Raw         RawEmail             `json:"raw"`
+}
+
+// UnmarshalJSON accepts header values sent as a list of strings, such as References, in
+// addition to plain strings. List values are joined with a space into a single Headers entry.
+func (e *ReceivedEmail) UnmarshalJSON(data []byte) error {
+	type alias ReceivedEmail
+	aux := struct {
+		*alias
+		Headers map[string]json.RawMessage `json:"headers"`
+	}{alias: (*alias)(e)}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if aux.Headers == nil {
+		return nil
+	}
+
+	headers := make(map[string]string, len(aux.Headers))
+	for name, raw := range aux.Headers {
+		var value string
+		if err := json.Unmarshal(raw, &value); err != nil {
+			var values []string
+			if json.Unmarshal(raw, &values) != nil {
+				return fmt.Errorf("header %q: %w", name, err)
+			}
+			value = strings.Join(values, " ")
+		}
+		headers[name] = value
+	}
+	e.Headers = headers
+
+	return nil
 }
 
 // ListReceivedEmail provides the structure for items in the Receiving.List call.

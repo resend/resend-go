@@ -635,3 +635,30 @@ func TestListReceivedEmailAttachmentsWithContext(t *testing.T) {
 	assert.Equal(t, "ctx-att-1", resp.Data[0].Id)
 	assert.Equal(t, "context-test.txt", resp.Data[0].Filename)
 }
+
+func TestReceivedEmailListHeaderValues(t *testing.T) {
+	body := `{"id":"1","headers":{"references":["<a@example.com>","<b@example.com>"],"x-custom":"value"}}`
+
+	var email ReceivedEmail
+	err := json.Unmarshal([]byte(body), &email)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "1", email.Id)
+	assert.Equal(t, map[string]string{
+		"references": "<a@example.com> <b@example.com>",
+		"x-custom":   "value",
+	}, email.Headers)
+}
+
+func TestReceivedEmailHeadersNullOrMissing(t *testing.T) {
+	for _, body := range []string{`{"id":"1"}`, `{"id":"1","headers":null}`} {
+		var email ReceivedEmail
+		assert.NoError(t, json.Unmarshal([]byte(body), &email))
+		assert.Nil(t, email.Headers)
+	}
+}
+
+func TestReceivedEmailInvalidHeaderValue(t *testing.T) {
+	var email ReceivedEmail
+	assert.Error(t, json.Unmarshal([]byte(`{"headers":{"x-custom":1}}`), &email))
+}
