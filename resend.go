@@ -270,13 +270,15 @@ func handleError(resp *http.Response) error {
 		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			err := json.NewDecoder(resp.Body).Decode(r)
 			if err != nil {
-				r.Message = resp.Status
+				// A failed decode can leave fields partially populated, so discard them.
+				*r = DefaultError{Message: resp.Status}
 			}
 		} else {
 			r.Message = resp.Status
 		}
 
 		return &RateLimitError{
+			Name:       r.Name,
 			Message:    r.Message,
 			Limit:      resp.Header.Get("ratelimit-limit"),
 			Remaining:  resp.Header.Get("ratelimit-remaining"),
@@ -314,6 +316,7 @@ type InvalidRequestError struct {
 }
 
 type DefaultError struct {
+	Name    string `json:"name"`
 	Message string `json:"message"`
 }
 
