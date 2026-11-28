@@ -257,6 +257,40 @@ func TestRateLimitErrorHandling(t *testing.T) {
 	assert.Equal(t, "60", rateLimitErr.RetryAfter)
 }
 
+func TestRateLimitErrorExposesQuotaName(t *testing.T) {
+	tests := []struct {
+		name    string
+		message string
+	}{
+		{name: "rate_limit_exceeded", message: "Too many requests"},
+		{name: "daily_quota_exceeded", message: "You have reached your daily email sending quota."},
+		{name: "monthly_quota_exceeded", message: "You have reached your monthly email sending quota."},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			setup()
+			defer teardown()
+
+			mux.HandleFunc("/emails", func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusTooManyRequests)
+				fmt.Fprintf(w, `{"statusCode":429,"name":%q,"message":%q}`, tc.name, tc.message)
+			})
+
+			_, err := client.Emails.Send(&SendEmailRequest{To: []string{"d@e.com"}})
+
+			// Quota errors are still rate limit errors for existing callers.
+			assert.True(t, errors.Is(err, ErrRateLimit))
+
+			var rateLimitErr *RateLimitError
+			assert.True(t, errors.As(err, &rateLimitErr))
+			assert.Equal(t, tc.name, rateLimitErr.Name)
+			assert.Equal(t, tc.message, rateLimitErr.Message)
+		})
+	}
+}
+
 func TestNewRequestSetsReplayableBody(t *testing.T) {
 	client := NewClient("123")
 	req, err := client.NewRequest(context.Background(), http.MethodPost, "/emails", map[string]string{"a": "b"})

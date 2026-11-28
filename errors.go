@@ -35,6 +35,12 @@ var ErrRateLimit = errors.New("rate limit exceeded")
 
 // RateLimitError represents a rate limit error with metadata from response headers
 type RateLimitError struct {
+	// Name is the API error name, when available. It tells a per-second rate limit
+	// ("rate_limit_exceeded") apart from an exhausted sending quota
+	// ("daily_quota_exceeded", "monthly_quota_exceeded"), which retrying will not fix
+	// until the quota resets.
+	Name string
+
 	// Message is the error message from the API
 	Message string
 
